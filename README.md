@@ -1,3 +1,12 @@
+# hackathon-24-7
+Now upgraded to 24.7. Also updated osmapi-overpass from 2.0 to 3.0, added separate checks for user data and place data presence., added Grid tooltips with configured positions, added a horrible hack to change Tags View to support multi-selection, and added drag selection to Tags Grid.
+
+Had some problems getting the project state to refresh properly after the initial version update, and the messed-up state kept interfering with the database creation, which was a bit of a blocker. But after multiple cleans, refreshes, vaadin-dances, and mvn installs it finally got the hint and after that my main problems were trying to remember how Flow works in general, and an old issue with line-awesome that I still didn't have time to dig into.
+
+And in all fairness I didn't have time to do all that refreshing within the *previous* hackathon, so there may have been some leftovers from 24.2 still floating around some cache too...
+
+The line-awesome issue is that after login it throws me to [some minified css page](http://localhost:8080/line-awesome/dist/line-awesome/css/line-awesome.min.css?continue) rather than [Map View](http://localhost:8080/). I'm probably doing something wrong with it, but I didn't even remember what it was before I started writing this and I don't have time to look into it any further.
+
 # hackathon-24-6
 Now upgraded to 24.6. This required updating Spring Boot version, which in turn caused a conflict with the `selenium.version` property (fixed by upgrading the version), and the H2 database was no longer compatible. Spent ages trying to get the database upgraded (with no success, even H2 Console won't run on my computer), until I had to give up and just re-generate it from scratch. Not ideal, but at least I could move forward.
 

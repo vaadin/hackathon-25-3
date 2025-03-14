@@ -1,6 +1,11 @@
 package com.vaadin.example.sightseeing.views.tags;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +14,7 @@ import com.vaadin.example.sightseeing.data.entity.Tag;
 import com.vaadin.example.sightseeing.data.service.TagService;
 import com.vaadin.example.sightseeing.ui.AdminNav;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -16,11 +22,15 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.shared.Tooltip.TooltipPosition;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -50,14 +60,37 @@ public class TagsView extends Div implements BeforeEnterObserver {
     private TextField val;
     private Checkbox enabled;
 
+    private Div editorDiv;
+    private FormLayout editorSingleSelectionContent;
+    private Div editorMultiSelectionContent;
+
+    RadioButtonGroup<MultiSelectionOption> multiSelectionOptions = new RadioButtonGroup<MultiSelectionOption>(
+            null, MultiSelectionOption.ENABLE_ALL,
+            MultiSelectionOption.DISABLE_ALL);
+
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
 
     private BeanValidationBinder<Tag> binder;
 
     private Tag tag;
+    private final List<Tag> tags = new ArrayList<Tag>();
 
     private final TagService tagService;
+
+    private enum MultiSelectionOption {
+        ENABLE_ALL("Endable all"), DISABLE_ALL("Disable all");
+
+        private String caption;
+
+        MultiSelectionOption(String caption) {
+            this.caption = caption;
+        }
+
+        public String getCaption() {
+            return caption;
+        }
+    }
 
     @Autowired
     public TagsView(TagService tagService) {
@@ -97,16 +130,37 @@ public class TagsView extends Div implements BeforeEnterObserver {
                         .stream());
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
-        // when a row is selected or deselected, populate form
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            if (event.getValue() != null) {
-                UI.getCurrent().navigate(String.format(TAG_EDIT_ROUTE_TEMPLATE,
-                        event.getValue().getId()));
+        // when selection changes, populate form depending on the amount of
+        // selected rows
+        grid.setSelectionMode(SelectionMode.MULTI);
+        grid.asMultiSelect().addValueChangeListener(event -> {
+            if (event.getValue() != null && event.getValue().size() > 0) {
+                if (event.getValue().size() == 1) {
+                    UI.getCurrent().navigate(String.format(TAG_EDIT_ROUTE_TEMPLATE,
+                            event.getValue().iterator().next().getId()));
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    event.getValue().stream().forEach(tag -> {
+                        sb.append(";");
+                        sb.append(tag.getId());
+                    });
+                    UI.getCurrent().navigate(String.format(
+                            TAG_EDIT_ROUTE_TEMPLATE,
+                            "multi:" + sb.substring(1)));
+                }
             } else {
                 clearForm();
                 UI.getCurrent().navigate(TagsView.class);
             }
         });
+        ((GridMultiSelectionModel<Tag>) grid.getSelectionModel())
+                .setDragSelect(true);
+
+        grid.setTooltipGenerator(item -> {
+            return "X: " + item.getPlace().getX() + ", Y: "
+                    + item.getPlace().getY();
+        });
+        grid.setTooltipPosition(TooltipPosition.BOTTOM);
 
         // Configure Form
         binder = new BeanValidationBinder<>(Tag.class);
@@ -120,11 +174,28 @@ public class TagsView extends Div implements BeforeEnterObserver {
 
         save.addClickListener(e -> {
             try {
-                if (tag == null) {
-                    tag = new Tag();
+                if (tags.isEmpty()) {
+                    if (tag == null) {
+                        tag = new Tag();
+                    }
+                    binder.writeBean(tag);
+                    tagService.update(tag);
+                } else {
+                    switch (multiSelectionOptions.getValue()) {
+                    case ENABLE_ALL:
+                        tags.stream().forEach(tag -> {
+                            tag.setEnabled(true);
+                        });
+                        break;
+                    case DISABLE_ALL:
+                        tags.stream().forEach(tag -> {
+                            tag.setEnabled(false);
+                        });
+                        break;
+                    }
+                    tagService.update(tags);
+                    multiSelectionOptions.clear();
                 }
-                binder.writeBean(tag);
-                tagService.update(tag);
                 clearForm();
                 refreshGrid();
                 Notification.show("Tag details stored.");
@@ -139,22 +210,51 @@ public class TagsView extends Div implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Optional<Long> tagId = event.getRouteParameters().get(TAG_ID)
-                .map(Long::parseLong);
-        if (tagId.isPresent()) {
-            Optional<Tag> tagFromBackend = tagService.get(tagId.get());
-            if (tagFromBackend.isPresent()) {
-                populateForm(tagFromBackend.get());
+        Optional<String> tagIdParameter = event.getRouteParameters().get(TAG_ID);
+        if (tagIdParameter.isPresent()) {
+            String tagIdString = tagIdParameter.get();
+            if (tagIdString.startsWith("multi:")) {
+                tagIdString = tagIdString.substring(6);
+                List<Long> tagIds = Arrays.asList(tagIdString.split(";"))
+                        .stream()
+                        .map(id -> Long.valueOf(id))
+                        .collect(Collectors.toList());
+                List<Tag> found = new ArrayList<Tag>();
+                List<Tag> missing = new ArrayList<Tag>();
+                for (Long tagId : tagIds) {
+                    Optional<Tag> tagFromBackend = tagService.get(tagId);
+                    if (tagFromBackend.isPresent()) {
+                        found.add(tagFromBackend.get());
+                    } else {
+                        missing.add(tagFromBackend.get());
+                    }
+                }
+                if (missing.isEmpty()) {
+                    populateMultiForm(found);
+                } else {
+                    Notification.show(String.format(
+                            "One or more requested tag was not found, IDs = %s",
+                            tagIdString.replace(";", ", ")), 3000,
+                            Notification.Position.BOTTOM_START);
+                    refreshGrid(found, missing);
+                    event.forwardTo(TagsView.class);
+                }
             } else {
-                Notification.show(
-                        String.format(
-                                "The requested tag was not found, ID = %s",
-                                tagId.get()),
-                        3000, Notification.Position.BOTTOM_START);
-                // when a row is selected but the data is no longer available,
-                // refresh grid
-                refreshGrid();
-                event.forwardTo(TagsView.class);
+                Long tagId = Long.valueOf(tagIdString);
+                Optional<Tag> tagFromBackend = tagService.get(tagId);
+                if (tagFromBackend.isPresent()) {
+                    populateForm(tagFromBackend.get());
+                } else {
+                    Notification.show(
+                            String.format(
+                                    "The requested tag was not found, ID = %s",
+                                    tagId),
+                            3000, Notification.Position.BOTTOM_START);
+                    // when a row is selected but the data is no longer
+                    // available, refresh grid
+                    refreshGrid();
+                    event.forwardTo(TagsView.class);
+                }
             }
         }
     }
@@ -163,23 +263,38 @@ public class TagsView extends Div implements BeforeEnterObserver {
         Div editorLayoutDiv = new Div();
         editorLayoutDiv.setClassName("editor-layout");
 
-        Div editorDiv = new Div();
+        editorDiv = new Div();
         editorDiv.setClassName("editor");
         editorLayoutDiv.add(editorDiv);
 
-        FormLayout formLayout = new FormLayout();
+        editorSingleSelectionContent = new FormLayout();
         placeName = new TextField("Place");
         name = new TextField("Name");
         val = new TextField("Val");
         enabled = new Checkbox("Enabled");
         Component[] fields = new Component[] { placeName, name, val, enabled };
+        editorSingleSelectionContent.add(fields);
 
-        formLayout.add(fields);
-        editorDiv.add(formLayout);
+        editorMultiSelectionContent = new Div();
+        Text multiSelectionText = new Text("Multiple tags selected.");
+        editorMultiSelectionContent.add(multiSelectionText,
+                multiSelectionOptions);
+
+        updateEditorContents();
         createButtonLayout(editorLayoutDiv);
         editorLayoutDiv.add(new AdminNav("tags"));
 
         splitLayout.addToSecondary(editorLayoutDiv);
+    }
+
+    private void updateEditorContents() {
+        if (tags.isEmpty()) {
+            editorDiv.add(editorSingleSelectionContent);
+            editorDiv.remove(editorMultiSelectionContent);
+        } else {
+            editorDiv.remove(editorSingleSelectionContent);
+            editorDiv.add(editorMultiSelectionContent);
+        }
     }
 
     private void createButtonLayout(Div editorLayoutDiv) {
@@ -199,7 +314,13 @@ public class TagsView extends Div implements BeforeEnterObserver {
     }
 
     private void refreshGrid() {
-        grid.select(null);
+        grid.asMultiSelect().clear();
+        grid.getLazyDataView().refreshAll();
+    }
+
+    private void refreshGrid(Collection<Tag> found, Collection<Tag> missing) {
+        grid.asMultiSelect().deselect(missing);
+        grid.asMultiSelect().select(found);
         grid.getLazyDataView().refreshAll();
     }
 
@@ -208,7 +329,17 @@ public class TagsView extends Div implements BeforeEnterObserver {
     }
 
     private void populateForm(Tag value) {
+        tags.clear();
         tag = value;
         binder.readBean(tag);
+        updateEditorContents();
+    }
+
+    private void populateMultiForm(Collection<Tag> values) {
+        tags.clear();
+        tags.addAll(values);
+        tag = null;
+        binder.removeBean();
+        updateEditorContents();
     }
 }

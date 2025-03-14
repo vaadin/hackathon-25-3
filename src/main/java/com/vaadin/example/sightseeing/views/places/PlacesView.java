@@ -1,5 +1,7 @@
 package com.vaadin.example.sightseeing.views.places;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.shared.Tooltip.TooltipPosition;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -107,6 +110,23 @@ public class PlacesView extends Div implements BeforeEnterObserver {
                 UI.getCurrent().navigate(PlacesView.class);
             }
         });
+
+        List<String> included = Arrays.asList("tourism", "historic", "amenity",
+                "turism");
+        grid.setTooltipGenerator(item -> {
+            StringBuilder sb = new StringBuilder();
+            item.getTags().stream()
+                    .filter(tag -> included.contains(tag.getName()))
+                    .forEach(tag -> {
+                        sb.append(" - ");
+                        sb.append(tag.getName() + ": " + tag.getVal());
+            });
+            if (sb.length() > 3) {
+                return sb.toString().substring(3).replace("_", " ");
+            }
+            return "something went wrong, try again later";
+        });
+        grid.setTooltipPosition(TooltipPosition.END);
 
         // Configure Form
         binder = new BeanValidationBinder<>(Place.class);

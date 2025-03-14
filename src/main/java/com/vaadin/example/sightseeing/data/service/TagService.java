@@ -1,5 +1,7 @@
 package com.vaadin.example.sightseeing.data.service;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,10 @@ public class TagService {
 
     public Optional<Tag> get(Long id) {
         return repository.findById(id);
+    }
+
+    public List<Tag> update(Collection<Tag> entities) {
+        return repository.saveAll(entities);
     }
 
     public Tag update(Tag entity) {
