@@ -15,6 +15,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -41,6 +42,7 @@ import jakarta.annotation.security.RolesAllowed;
 @PageTitle("Places")
 @Route(value = "places/:placeID?/:action?(edit)")
 @RolesAllowed("ADMIN")
+@StyleSheet("places-view.css")
 @Uses(Icon.class)
 public class PlacesView extends Div implements BeforeEnterObserver {
 

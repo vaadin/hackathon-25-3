@@ -1,17 +1,17 @@
 package com.vaadin.example.sightseeing.views.it;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import com.vaadin.flow.component.button.testbench.ButtonElement;
 import com.vaadin.flow.component.textfield.testbench.PasswordFieldElement;
 import com.vaadin.flow.component.textfield.testbench.TextFieldElement;
-import com.vaadin.testbench.TestBenchTestCase;
+import com.vaadin.testbench.BrowserTestBase;
 
-public class AbstractIT extends TestBenchTestCase {
+public class AbstractIT extends BrowserTestBase {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         // Create a new browser instance
         setDriver(new ChromeDriver());
@@ -20,18 +20,18 @@ public class AbstractIT extends TestBenchTestCase {
     }
 
     public void loginAsAdmin() {
-        $(TextFieldElement.class).first().sendKeys("admin");
-        $(PasswordFieldElement.class).first().sendKeys("admin");
-        $(ButtonElement.class).first().click();
+        $(TextFieldElement.class).single().sendKeys("admin");
+        $(PasswordFieldElement.class).single().sendKeys("admin");
+        $(ButtonElement.class).get(0).click();
     }
 
     public void loginAsUser() {
-        $(TextFieldElement.class).first().sendKeys("user");
-        $(PasswordFieldElement.class).first().sendKeys("user");
-        $(ButtonElement.class).first().click();
+        $(TextFieldElement.class).single().sendKeys("user");
+        $(PasswordFieldElement.class).single().sendKeys("user");
+        $(ButtonElement.class).get(0).click();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         // close the browser instance when all tests are done
         getDriver().quit();

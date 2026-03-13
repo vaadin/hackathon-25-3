@@ -18,7 +18,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderColumn;
 import jakarta.persistence.SequenceGenerator;
 
 @Entity
@@ -37,7 +36,7 @@ public class Place {
             "description:en", "historic", "religion" };
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    @OrderColumn
+    // @OrderColumn // doesn't work anymore here
     @JoinColumn
     private Set<Tag> tags;
 

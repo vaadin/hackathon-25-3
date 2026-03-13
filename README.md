@@ -1,3 +1,10 @@
+# hackathon-25-1
+Now upgraded to 25.1 via manually merging with a new starter project. Removed WebDriverManager and LineAwesome dependencies as unnecessary annoyances. Commented out `@OrderColumn` annotation from `Places.tags` because it caused issues (would have wanted a List instead of a Set, but triggered errors with the old database regardless), although that's not strictly speaking a Vaadin issue. Switched from using a theme to using `@StyleSheet` annotations, although I'm not convinced I did it correctly. Wasn't quite certain which of the new files should have been added to version control so may have excluded more of them than is ideal.
+
+Updated tests to JUnit 6 and ran into the problem that a static import for `Assertions.assertEquals` refuses to work, even if it does work for other assertions and a non-static import works just fine. Also discovered that `vaadin-map-testbench` dependency isn't included by default, so had to add that separately to be able to keep using `MapElement` in the tests. Once the tests finally compiled they passed okay, but each test opened an additional browser window that never closed for some reason that I didn't have time to figure out.
+
+Added some lines on the map with the new `LineStringFeature` (rectangles around the old office and the new office locations) but also ran out of time of adding any tests related to that.
+
 # hackathon-24-7
 Now upgraded to 24.7. Also updated osmapi-overpass from 2.0 to 3.0, added separate checks for user data and place data presence., added Grid tooltips with configured positions, added a horrible hack to change Tags View to support multi-selection, and added drag selection to Tags Grid.
 

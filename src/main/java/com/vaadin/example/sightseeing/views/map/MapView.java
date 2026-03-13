@@ -15,12 +15,14 @@ import com.vaadin.example.sightseeing.ui.AdminNav;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
 import com.vaadin.flow.component.map.configuration.View;
+import com.vaadin.flow.component.map.configuration.feature.LineStringFeature;
 import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
+import com.vaadin.flow.component.map.configuration.style.Stroke;
 import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.map.events.MapClickEvent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -33,6 +35,7 @@ import jakarta.annotation.security.PermitAll;
 @PageTitle("Map")
 @Route(value = "map")
 @RouteAlias(value = "")
+@StyleSheet("map-view.css")
 @PermitAll
 public class MapView extends VerticalLayout {
 
@@ -55,11 +58,33 @@ public class MapView extends VerticalLayout {
         add(dialog);
 
         map.getElement().setAttribute("theme", "borderless");
-        map.addClickEventListener(getMapClickListener(dialog));
+        map.addClickListener(getMapClickListener(dialog));
         View view = map.getView();
         view.setCenter(DataGenerator.CENTER);
         view.setZoom(12);
+
+        LineStringFeature oldOffice = outline(DataGenerator.CENTER, 0.002, 0.001);
+        map.getFeatureLayer().addFeature(oldOffice);
+
+        LineStringFeature newOffice = outline(
+                new Coordinate(22.29158560493023, 60.44957041468254),
+                0.001,
+                0.0005);
+        newOffice.getStyle().setStroke(new Stroke("purple", 4));
+        map.getFeatureLayer().addFeature(newOffice);
+
         addAndExpand(map);
+    }
+
+    private LineStringFeature outline(Coordinate center, double deltaX,
+            double deltaY) {
+        LineStringFeature route = new LineStringFeature(
+                new Coordinate(center.getX() + deltaX, center.getY() + deltaY),
+                new Coordinate(center.getX() + deltaX, center.getY() - deltaY),
+                new Coordinate(center.getX() - deltaX, center.getY() - deltaY),
+                new Coordinate(center.getX() - deltaX, center.getY() + deltaY),
+                new Coordinate(center.getX() + deltaX, center.getY() + deltaY));
+        return route;
     }
 
     private ComponentEventListener<MapClickEvent> getMapClickListener(

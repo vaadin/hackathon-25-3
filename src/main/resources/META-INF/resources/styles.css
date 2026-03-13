@@ -1,0 +1,6 @@
+.admin-nav vaadin-button {
+	background-color: darkseagreen;
+}
+.admin-nav {
+	gap: 0.5rem;
+}
