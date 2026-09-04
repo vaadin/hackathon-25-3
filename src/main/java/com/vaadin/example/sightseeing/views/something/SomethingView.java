@@ -1,5 +1,37 @@
 package com.vaadin.example.sightseeing.views.something;
 
+import com.vaadin.flow.component.avatar.Avatar;
+
+import com.vaadin.flow.component.messages.MessageInput;
+
+import com.vaadin.flow.component.messages.MessageList;
+
+import com.vaadin.flow.component.messages.MessageListItem;
+
+import com.vaadin.flow.component.icon.Icon;
+
+import com.vaadin.flow.component.icon.VaadinIcon;
+
+import com.vaadin.flow.component.progressbar.ProgressBar;
+
+import com.vaadin.flow.component.richtexteditor.RichTextEditor;
+
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+
+import com.vaadin.flow.component.select.Select;
+
+import com.vaadin.flow.component.html.Hr;
+
+import com.vaadin.flow.component.combobox.ComboBox;
+
+import com.vaadin.flow.component.timepicker.TimePicker;
+
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+
+import com.vaadin.flow.component.textfield.EmailField;
+
+import com.vaadin.flow.component.textfield.NumberField;
+
 import com.vaadin.flow.component.checkbox.Checkbox;
 
 import com.vaadin.flow.component.html.Paragraph;
@@ -110,10 +142,7 @@ formlayout.getStyle().set("minWidth", "500px");
 formlayout.addComponentAsFirst(multiSelect);
 formlayout.add(chart);
 formlayout.add(textArea);
-verticallayout.add(loremIpsumDolorSitAm2);
-verticallayout.add(formlayout);
 Paragraph loremIpsumDolorSitAm = new Paragraph("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
-verticallayout.add(loremIpsumDolorSitAm);
 Checkbox checkbox = new Checkbox("Checkbox");
 FormLayout formlayout2 = new FormLayout();
 formlayout2.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("320px", 2), new FormLayout.ResponsiveStep("500px", 3));
@@ -123,15 +152,82 @@ Checkbox checkbox3 = new Checkbox("Checkbox");
 Checkbox checkbox2 = new Checkbox("Checkbox");
 formlayout2.add(checkbox3);
 formlayout2.add(checkbox2);
-verticallayout.add(formlayout2);
+TextArea textArea2 = new TextArea("Text area");
+formlayout2.add(textArea2);
+NumberField number = new NumberField("Number");
+formlayout2.add(number);
+EmailField email = new EmailField("Email");
+formlayout2.add(email);
+CheckboxGroup<LabelAndValue> checkboxGroup = new CheckboxGroup<>("Checkbox group");
+checkboxGroup.setItems(new LabelAndValue("Order ID", "0"), new LabelAndValue("Product name", "1"), new LabelAndValue("Customer", "2"), new LabelAndValue("Status", "3"));
+checkboxGroup.setItemLabelGenerator(LabelAndValue::label);
+checkboxGroup.setThemeName("vertical");
+formlayout2.add(checkboxGroup);
+TimePicker time = new TimePicker("Time");
+formlayout2.add(time);
+ComboBox<LabelAndValue> comboBox = new ComboBox<>("Combo Box");
+comboBox.setItems(new LabelAndValue("First", "first"), new LabelAndValue("Second", "second"), new LabelAndValue("Third", "third"), new LabelAndValue("Fourth", "fourth"));
+comboBox.setItemLabelGenerator(LabelAndValue::label);
+formlayout2.add(comboBox);
+Hr hr = new Hr();
+hr.getStyle().setWidth("calc(100% - 1rem)");
+formlayout2.add(hr);
+Hr hr2 = new Hr();
+Hr hr3 = new Hr();
+VerticalLayout verticallayout2 = new VerticalLayout();
+Select<LabelAndValue> select = new Select<>("Select");
+ProgressBar progressbar = new ProgressBar();
+progressbar.setValue(0.75);
+Icon icon = new Icon(VaadinIcon.USER);
+verticallayout2.add(icon, select);
+verticallayout2.add(progressbar);
+MessageList messagelist = new MessageList();
+MessageListItem natureDoesNotHurryYe = new MessageListItem();
+natureDoesNotHurryYe.setUserColorIndex(1);
+natureDoesNotHurryYe.setUserName("Matt Mambo");
+natureDoesNotHurryYe.setText("Nature does not hurry, yet everything gets accomplished.");
+natureDoesNotHurryYe.setTime(java.time.Instant.ofEpochSecond(1788440616));
+MessageListItem usingYourTalentHobby = new MessageListItem();
+usingYourTalentHobby.setUserColorIndex(2);
+usingYourTalentHobby.setUserName("Linsey Listy");
+usingYourTalentHobby.setText("Using your talent, hobby or profession in a way that makes you contribute with something good to this world is truly the way to go.");
+usingYourTalentHobby.setTime(java.time.Instant.ofEpochSecond(1788527016));
+messagelist.setItems(natureDoesNotHurryYe, usingYourTalentHobby);
+verticallayout2.add(messagelist);
+MessageInput messageinput = new MessageInput();
+verticallayout2.add(messageinput);
+select.setItems(new LabelAndValue("First", "first"), new LabelAndValue("Second", "second"), new LabelAndValue("Third", "third", false), new LabelAndValue("Fourth", "fourth"));
+select.setItemLabelGenerator(LabelAndValue::label);
+select.setItemEnabledProvider(LabelAndValue::enabled);
+formlayout2.add(hr2);
+formlayout2.add(hr3);
+formlayout2.add(verticallayout2);
+HorizontalLayout horizontallayout3 = new HorizontalLayout();
+RadioButtonGroup<LabelAndValue> radioGroup = new RadioButtonGroup<>("Radio group");
+horizontallayout3.add(radioGroup);
+RadioButtonGroup<LabelAndValue> radioGroup2 = new RadioButtonGroup<>("Radio group");
+radioGroup2.setItems(new LabelAndValue("Order ID", "0"), new LabelAndValue("Product name", "1"), new LabelAndValue("Customer", "2"), new LabelAndValue("Status", "3"));
+radioGroup2.setItemLabelGenerator(LabelAndValue::label);
+radioGroup2.setThemeName("vertical");
+horizontallayout3.add(radioGroup2);
+Avatar avatar = new Avatar();
+horizontallayout3.add(avatar);
+radioGroup.setItems(new LabelAndValue("Order ID", "0"), new LabelAndValue("Product name", "1"), new LabelAndValue("Customer", "2"), new LabelAndValue("Status", "3"));
+radioGroup.setItemLabelGenerator(LabelAndValue::label);
+radioGroup.setThemeName("vertical");
+formlayout2.add(horizontallayout3);
+RichTextEditor richtexteditor = new RichTextEditor();
+formlayout2.add(richtexteditor);
+verticallayout.add(formlayout2, loremIpsumDolorSitAm2);
+verticallayout.add(formlayout);
+verticallayout.add(loremIpsumDolorSitAm);
 Paragraph loremIpsumDolorSitAm3 = new Paragraph("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 loremIpsumDolorSitAm3.addClassNames(LumoUtility.FontSize.SMALL);
-verticallayout.add(loremIpsumDolorSitAm3);
 Button button8 = new Button("Button");
 button8.setThemeName("primary");
 Button button7 = new Button("Button");
 horizontallayout2.add(button8);
-horizontallayout2.add(button7);
+horizontallayout2.add(button7, loremIpsumDolorSitAm3);
 button7.setThemeName("tertiary");
 H3 heading33 = new H3("Heading 3-3");
 H3 heading32 = new H3("Heading 3-2");

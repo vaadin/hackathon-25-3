@@ -1,7 +1,11 @@
 # hackathon-25-3
-Now upgraded to 25.3. Experimenting with Vaadin Copilot in Eclipse again, works significantly better with the existing layouts than during the previous round. However, 3 Column Form is having significant issues (may or may not be related to the Pie Chart I added inside it), and now Outline is acting up and making the whole thing pretty much unusable. Making an intermediate commit of the current state so that I can create a bug report about it.
+Now upgraded to 25.3. Experimenting with Vaadin Copilot in Eclipse again, works significantly better with the existing layouts than during the previous round. However, 3 Column Form is having significant issues (apparently related to the Pie Chart inside it overflowing), and now Outline is acting up and making a lot of the thing pretty much unusable.
 
-More details and a screenshot in [Slack](https://vaadin.slack.com/archives/C0BUS9X6SQJ/p1788520729328779)
+More details and a screenshot in [Slack](https://vaadin.slack.com/archives/C0BUS9X6SQJ/p1788520729328779) and [GitHub](https://github.com/vaadin/copilot-internal/issues/9379)
+
+Further experimenting with FormLayout also revealed an issue about updating never finishing if you accidentally try to drag a component next to itself. More details in [Slack](https://vaadin.slack.com/archives/C0BUS9X6SQJ/p1788526474243689) and [GitHub](https://github.com/vaadin/copilot-internal/issues/9380).
+
+Did not come across any other issues.
 
 # hackathon-25-2
 Now upgraded to 25.2. Immediate issue with Jackson compatibility that was solved by upgrading `spring-boot-starter-parent` to 4.0.4. Tried at first with 4.1.0-RC1, but that gave me some `Cannot access Key[type=org.apache.maven.project.MavenProject, annotation=[none]] outside of a scoping block` error to my `pom.xml`.
