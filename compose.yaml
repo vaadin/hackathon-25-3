@@ -1,0 +1,32 @@
+# Optional. The default build runs on H2 with no Docker at all.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: bakery
+      POSTGRES_USER: bakery
+      POSTGRES_PASSWORD: bakery
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bakery"]
+      interval: 5s
+      retries: 10
+
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./ops/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:11.5.1
+    ports:
+      - "3000:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_SECURITY_ADMIN_PASSWORD: bakery
+    volumes:
+      - ./ops/grafana:/etc/grafana/provisioning:ro
