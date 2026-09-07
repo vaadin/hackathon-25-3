@@ -55,7 +55,22 @@ Each issue that needs one has a mini project beside it: `pom.xml`, an `Applicati
 
 `04` is real, and its reproducer does not yet demonstrate it: the dialog in it did not open under automation, so the project needs another pass. What is certain is the fix, because removing it brings the exception back in this application.
 
-The remaining views are written and have not been run.
+`03` and `08` reproduced in bare projects. `03` prints its own measurements, and at a 1400 pixel viewport the content goes from 1386 to 1302, the drawer's width, with `drawer-opened` and `overlay` identical in both samples. `08` puts "We cannot find that product" in the browser tab of a route that declared `@PageTitle("About")`.
+
+### Where the nine ended up
+
+| | State |
+| --- | --- |
+| `01` runtime theme and shadow DOM | Reproduced, in two projects that differ by one line. The cause was corrected: it is not `Grid` |
+| `03` AppLayout paints before it reserves | Reproduced, by a project that measures itself |
+| `06` Query with a null sort list | Reproduced, same stack trace |
+| `08` PageTitleGenerator bean | Reproduced |
+| `02` login CSRF field | Not reduced to a project: it needs Spring Security wired up. The reproduction is three lines of JavaScript against any secured application, and it is written out in the draft |
+| `04` a signal bound text cannot be rebound | Real in this application, and the bare project does not demonstrate it after three attempts. **Not ready to open.** What is certain is the fix: reverting it brings the exception back here, with its stack |
+| `09` Charts styled mode | No project: Charts needs a licence to run and the code is four lines |
+| `05`, `07` | Withdrawn. See above |
+
+Four of the nine are ready. Two were wrong. One is real and not yet reduced. Two are one liners that need no project.
 
 `02-login-csrf` has no project: it needs Spring Security wired up, and the reproduction is three lines of JavaScript against any secured Vaadin application. `09-charts-styled-mode` has none either, because Charts needs a licence to run and the code is four lines.
 
