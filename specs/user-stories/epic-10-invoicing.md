@@ -9,9 +9,9 @@
 ### US-10.1: Issuing
 
 **Tasks:**
-- [ ] Issue on pickup, in the same transaction, with full billing and line snapshots
+- [x] Issue on pickup, in the same transaction, with full billing and line snapshots
 - [ ] Apply the `Billing` validation group and name missing fields
-- [ ] VAT summarised per rate, arithmetic asserted over the whole dataset
+- [x] VAT summarised per rate, arithmetic asserted over the whole dataset
 
 **Verified by:** `InvoicingBrowserlessTest`, `DatasetIntegrityTest`
 
@@ -20,9 +20,9 @@
 ### US-10.2: Invoice list
 
 **Tasks:**
-- [ ] `/admin/invoices` with filters by status, date range and customer
+- [x] `/admin/invoices` with filters by status, date range and customer
 - [ ] Mark as paid with an undo window, recording who and when
-- [ ] CSV export of exactly the filtered rows, machine formatted numbers
+- [x] CSV export of exactly the filtered rows, machine formatted numbers
 
 **Verified by:** `InvoiceExportBrowserlessTest`
 
@@ -31,8 +31,8 @@
 ### US-10.3: Print view
 
 **Tasks:**
-- [ ] `/invoices/{number}/print` built with the `Table` family, rebuilt from the data rather than with `bindChildren`, which does not exist
-- [ ] Print stylesheet: shell hidden, black on white, page margins, repeating table header
+- [x] `/invoices/{number}/print` built with the `Table` family, rebuilt from the data rather than with `bindChildren`, which does not exist
+- [x] Print stylesheet: shell hidden, black on white, page margins, repeating table header
 - [ ] Void watermark for voided invoices
 
 **25.3 APIs:** Table family.
@@ -43,9 +43,9 @@
 ### US-10.4: Voiding
 
 **Tasks:**
-- [ ] Admin only, reason required, recorded in the order history
+- [x] Admin only, reason required, recorded in the order history
 - [ ] Reopening a picked up order voids its invoice automatically
-- [ ] Numbers are never reused
+- [x] Numbers are never reused
 
 **Verified by:** `InvoicingBrowserlessTest`, `InvoiceNumberingTest`
 

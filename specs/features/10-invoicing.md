@@ -48,18 +48,18 @@ Admin only, requires a reason, records it in the order history, and never reuses
 ## Acceptance criteria
 
 ### AC1: Issuing is correct
-- [ ] Picking up an order issues exactly one invoice with correct snapshots and totals
-- [ ] Gross equals net plus VAT for every invoice in the dataset
-- [ ] Numbers are sequential per year with no gaps
+- [x] Picking up an order issues exactly one invoice with correct snapshots and totals
+- [x] Gross equals net plus VAT for every invoice in the dataset
+- [x] Numbers are sequential per year with no gaps
 
 ### AC2: The list is useful
 - [ ] Filters by status, date range and customer work together
 - [ ] Mark as paid records who and when, and can be undone within the window
-- [ ] The CSV contains exactly the filtered rows
+- [x] The CSV contains exactly the filtered rows
 
 ### AC3: The print view is printable
 - [ ] The shell is hidden and the document is black on white
-- [ ] The line table is real table markup with a repeating header
+- [x] The line table is real table markup with a repeating header
 - [ ] A VAT summary per rate is present and adds up
 
 ### AC4: Voiding is controlled
@@ -68,8 +68,10 @@ Admin only, requires a reason, records it in the order history, and never reuses
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- The three filters are exercised one at a time through the export test. Nothing asserts them working together, which is where a filter bug would actually live.
+- Mark as paid, and undoing it inside the window, has no test.
+- The print view is covered for its table markup and its token. The rest of AC3 waits on `InvoicePrintIT`, which is the only way to ask whether the shell is hidden and the document prints black on white, and the VAT summary per rate is untested in either tier.
+- Voiding has no test of its own. That a voided number is never reused is covered by `InvoiceNumberingTest`; that only an admin may void, that a reason is required, and that the watermark prints are not.
 
 ## Test cases
 

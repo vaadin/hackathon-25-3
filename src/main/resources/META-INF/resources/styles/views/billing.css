@@ -1,0 +1,84 @@
+.invoice-list {
+}
+
+.invoice-list > div:first-child {
+  display: flex;
+  gap: var(--vaadin-gap-m, 1rem);
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.invoice-print {
+  max-width: 46rem;
+  margin-inline: auto;
+  padding: var(--vaadin-gap-xl, 2rem);
+  position: relative;
+}
+
+.invoice-print table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-block: var(--vaadin-gap-m, 1rem);
+}
+
+.invoice-print th,
+.invoice-print td {
+  text-align: start;
+  padding: .3rem .6rem;
+  border-bottom: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+}
+
+.invoice-print__totals {
+  display: grid;
+  justify-items: end;
+}
+
+.invoice-print__totals p:last-child {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.invoice-print__watermark {
+  position: absolute;
+  inset: 30% 0 auto 0;
+  text-align: center;
+  font-size: 5rem;
+  font-weight: 800;
+  opacity: .12;
+  transform: rotate(-20deg);
+  pointer-events: none;
+}
+
+/* What comes out of the printer: the document, and nothing else. */
+@media print {
+  vaadin-app-layout::part(navbar),
+  vaadin-app-layout::part(drawer),
+  vaadin-side-nav,
+  vaadin-button,
+  vaadin-notification-container {
+    display: none !important;
+  }
+
+  .invoice-print {
+    max-width: none;
+    padding: 0;
+    color: #000;
+    background: #fff;
+  }
+
+  .invoice-print table {
+    page-break-inside: auto;
+  }
+
+  .invoice-print thead {
+    display: table-header-group;
+  }
+
+  .invoice-print tr {
+    page-break-inside: avoid;
+  }
+
+  @page {
+    margin: 18mm;
+  }
+}
