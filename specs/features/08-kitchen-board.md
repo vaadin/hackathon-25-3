@@ -76,7 +76,7 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 
 ### Still open
 
-- **A reload duplicates the board.** `KitchenBoard.reload` clears the shared list and refills it, and the removals are not visible to `peek()` before the inserts run, so the second reload holds every ticket twice and the third three times. It shows as a picked up order keeping its card on the wall, and it reproduces exactly by running `KitchenBoardLayoutBrowserlessTest` and `KitchenBoardMultiUserBrowserlessTest` together in that order. A full `mvn verify` does not hit it, which is luck rather than safety. Two attempts at a fix made it worse and were reverted: the row in `FEEDBACK-25.3.md` says what each did.
+- The board looked as though a reload duplicated it, and it does not. The duplication, and a ticket that moved back after being moved, were both the browserless signal environment: a class that writes to a shared signal and inherits a context whose environment has been replaced has every write dropped in silence. Three attempts to fix the board were reverted, because the board was never wrong. Every class that writes to it now takes a context of its own before it runs, and the finding is in `FEEDBACK-25.3.md`.
 
 - The customer's tracking page following a kitchen change waits on `TrackingLiveBrowserlessTest`. Between bakers it is proven; the last hop to the customer is not.
 - The flag on a ticket somebody else moved is a class on a freshly built card and a CSS animation that ends it, so nothing is scheduled to take it off again: the next redraw builds the card without one. A screen does not flash its own work, because a baker who pressed the button knows what they pressed.

@@ -21,7 +21,13 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+// A class that writes to a shared signal needs a context of its own, and it
+// needs it BEFORE rather than AFTER. The signal is an application singleton and
+// the browserless signal environment is per class: inheriting a context whose
+// environment has been replaced leaves the signal writable in name only, its
+// writes dropped and their operations never completing. See
+// specs/FEEDBACK-25.3.md.
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class KitchenBoardMultiUserBrowserlessTest {
 
     @Autowired
