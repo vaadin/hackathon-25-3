@@ -39,28 +39,29 @@ The dashboard is the heaviest page in the application and it is the one the obse
 | --- | --- |
 | A range with no orders | Panels show an explicit empty state, never a blank chart |
 | A range longer than a year | The query aggregates by week instead of by day |
-| A narrow screen | Widgets reflow to fewer columns and the charts shrink rather than scroll |
+| A narrow screen | Panels stack in a single column and the charts shrink rather than scroll |
 
 ## Acceptance criteria
 
 ### AC1: The numbers are right
-- [ ] Every counter matches a direct query over the same range
-- [ ] Changing the range updates every panel from one effect
+- [x] Every counter matches a direct query over the same range
+- [x] Changing the range updates every panel from one effect
 
 ### AC2: The panels are drawn with the right component
-- [ ] Revenue, orders by state and top products are Charts, which this build is licensed for
-- [ ] Every panel renders, and a range with no data says so rather than drawing nothing
+- [x] Revenue, orders by state and top products are Charts, which this build is licensed for
+- [x] Every panel renders, and a range with no data says so rather than drawing nothing
 
 ### AC3: It is cheap
 - [ ] A dashboard load issues fewer than ten database queries, asserted by the diagnostics counter
 
 ### AC4: It is responsive
-- [ ] At phone width the panels stack and remain readable
+- [x] At phone width the panels stack and remain readable
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- The query budget is unasserted, and it is the last criterion here that is not met. `OrderQueryCounter` and the diagnostics view can both see the number, so this one is cheap to close and simply is not done. It is also the one that most likely fails today: `topProducts` reads each order's items with a second query per order, which is a query per order in the range and not a constant.
+- The Attention and Slot utilisation panels described above do not exist yet. The four that do are the ones the acceptance criteria name.
+- Panels stacking at phone width was checked in a browser, at 390 pixels, and holds. There is still no test for it in either tier: the browserless tier cannot measure a layout and the browser tier is unwritten.
 
 ## Test cases
 

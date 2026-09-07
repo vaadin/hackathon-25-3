@@ -1,0 +1,50 @@
+.dashboard {
+}
+
+/* The view is a VerticalLayout, which aligns its children to the start, so
+   without this the grid sizes to its content and collapses to one column
+   whatever the screen is. */
+.dashboard__panels {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  gap: var(--vaadin-gap-m, 1rem);
+  margin-block-start: var(--vaadin-gap-m, 1rem);
+  align-items: start;
+}
+
+.dashboard__counter {
+  display: inline-grid;
+  margin-inline-end: var(--vaadin-gap-l, 1.5rem);
+}
+
+.dashboard__counter span:first-child {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard__counter span:last-child {
+  opacity: .7;
+  font-size: .85em;
+}
+
+/* A chart has no intrinsic size, so it needs one here. The height is fixed and
+   the width follows the panel, which is what makes the grid reflow rather than
+   scroll on a narrow screen. */
+.dashboard__chart {
+  width: 100%;
+  height: 18rem;
+}
+
+@media (max-width: 30rem) {
+  .dashboard__chart {
+    height: 14rem;
+  }
+}
+
+.dashboard__empty {
+  opacity: .6;
+  font-style: italic;
+}

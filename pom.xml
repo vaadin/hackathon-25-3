@@ -90,6 +90,10 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-crud-flow</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-charts-flow</artifactId>
+        </dependency>
         <!-- The orchestrator, the provider interface and the policy hooks are
              free. Only the form, grid and chart controllers are not, and they
              check their licence when they are constructed, which is why the

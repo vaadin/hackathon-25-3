@@ -10,8 +10,8 @@
 
 **Tasks:**
 - [ ] CSS grid layout, structural changes from `Page.windowSizeSignal()`
-- [ ] Range selector as a `ValueSignal`, one `Signal.effect` rebuilding every series
-- [ ] Counters as computed signals over one query result
+- [x] Range selector as a `ValueSignal`, one `Signal.effect` rebuilding every series
+- [x] Counters as computed signals over one query result
 
 **Verified by:** `DashboardBrowserlessTest`
 
@@ -22,7 +22,7 @@
 **Tasks:**
 - [ ] Today, Attention, Revenue, Orders by state, Top products, Slot utilisation
 - [ ] Every number links to the filtered board or list behind it
-- [ ] Empty states for ranges with no data, weekly aggregation beyond a year
+- [x] Empty states for ranges with no data, weekly aggregation beyond a year
 
 **Verified by:** `DashboardBrowserlessTest`
 
@@ -32,7 +32,7 @@
 
 **Tasks:**
 - [ ] Charts under the `commercial` profile
-- [ ] Table with CSS bars and `ProgressBar` theme neutral variants, which is what the panels draw today
+- [x] Table with CSS bars and `ProgressBar` theme neutral variants, which is what the panels draw today
 - [ ] Both paths tested against the same numbers, and named on the about page
 
 **Verified by:** `DashboardFallbackBrowserlessTest`, `ChartsRenderIT`
