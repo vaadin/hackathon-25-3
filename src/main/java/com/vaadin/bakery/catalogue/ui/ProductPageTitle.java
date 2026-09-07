@@ -55,8 +55,9 @@ public class ProductPageTitle implements PageTitleGenerator {
         return Optional.ofNullable(UI.getCurrent())
                 .map(ui -> ui.getInternals().getActiveViewLocation())
                 .map(location -> location.getSegments())
-                .filter(segments -> segments.size() >= 2 && "products".equals(segments.get(0)))
-                .map(segments -> segments.get(1));
+                .filter(segments -> segments.size() == 3 && "shop".equals(segments.get(0))
+                        && ProductDetailView.SEGMENT.equals(segments.get(1)))
+                .map(segments -> segments.get(2));
     }
 
     /** The tab of a slug nobody sells says the same as the page under it. */

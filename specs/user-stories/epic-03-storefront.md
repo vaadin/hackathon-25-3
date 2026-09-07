@@ -50,7 +50,7 @@
 ### US-3.4: Product page
 
 **Tasks:**
-- [x] Route `/products/{slug}` with `@DynamicPageTitle`
+- [x] Route `/shop/product/{slug}` with `@DynamicPageTitle`
 - [x] Markdown description bound to a `Signal<String>`, shared with the admin preview
 - [x] Allergens with translated names, availability by weekday, lead time
 - [x] Related products, add to cart with a quantity stepper

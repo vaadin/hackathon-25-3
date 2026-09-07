@@ -11,10 +11,10 @@ The order below is the order to work in. The first story is worth doing on its o
 ### US-15.1: The four defects
 
 **Tasks:**
-- [ ] Apply the theme to every route, not to the layout most routes happen to use, so the login page is themed on a cold load
-- [ ] Export as CSV hands the bytes to the browser
-- [ ] The invoice print route says `autoLayout = false`
-- [ ] Find out why a product page's header resolves to the not found text, and fix that rather than the symptom
+- [x] Apply the theme to every route, not to the layout most routes happen to use, so the login page is themed on a cold load
+- [x] Export as CSV hands the bytes to the browser
+- [x] The invoice print route says `autoLayout = false`
+- [x] Find out why a product page's header resolves to the not found text, and fix that rather than the symptom
 
 **Verified by:** `ColdLoginThemeIT`, `InvoiceCsvExportIT`, `InvoicePrintBrowserlessTest`, `ProductHeaderBrowserlessTest`
 
@@ -25,29 +25,17 @@ The order below is the order to work in. The first story is worth doing on its o
 One commit, many views, no new dependency. Everything here is CSS or a formatter.
 
 **Tasks:**
-- [ ] Alternating rows and a distinguishable header for every plain table, in one stylesheet rule rather than per view
-- [ ] No two row actions touching each other anywhere
-- [ ] Short dates in tables: "Thu, 8 Sept"
-- [ ] The navbar header on one line
-- [ ] `Avatar` beside the signed in user's name, initials when there is no picture
+- [x] Alternating rows and a distinguishable header for every plain table, in one stylesheet rule rather than per view
+- [x] No two row actions touching each other anywhere
+- [x] Short dates in tables: "Thu, 8 Sept"
+- [x] The navbar header on one line
+- [x] `Avatar` beside the signed in user's name, initials when there is no picture
 
 **Verified by:** `UserAvatarBrowserlessTest`
 
 ---
 
-### US-15.3: `Crud` for the three admin views
-
-**Tasks:**
-- [ ] `vaadin-crud-flow` as an ordinary dependency, no profile and no fallback
-- [ ] Catalogue, people and closures on `Crud`, with its new item button, its editor and its delete confirmation
-- [ ] Sortable columns where a person would sort
-- [ ] The filters as a header row inside the grid
-
-**Verified by:** `CatalogueCrudBrowserlessTest`
-
----
-
-### US-15.4: The dashboard reads at a glance
+### US-15.3: The dashboard reads at a glance
 
 **Tasks:**
 - [x] `vaadin-dashboard-flow` as an ordinary dependency
@@ -59,7 +47,7 @@ One commit, many views, no new dependency. Everything here is CSS or a formatter
 
 ---
 
-### US-15.5: The order board's toolbar and grid
+### US-15.4: The order board's toolbar and grid
 
 **Tasks:**
 - [x] A selection column no wider than its checkbox
@@ -71,19 +59,19 @@ One commit, many views, no new dependency. Everything here is CSS or a formatter
 
 ---
 
-### US-15.6: The catalogue as a master detail
+### US-15.5: The catalogue as a master detail
 
 **Tasks:**
-- [ ] A product opens over the list in an overlay rather than replacing the page
-- [ ] Back returns to the list at the same scroll position
+- [x] A product opens over the list in an overlay rather than replacing the page
+- [x] Back returns to the list at the same scroll position
 
 **Verified by:** `CatalogueOverlayBrowserlessTest`
 
 ---
 
-### US-15.7: Diagnostics side by side
+### US-15.6: Diagnostics side by side
 
 **Tasks:**
-- [ ] Panels share a row when there is room, and a height when they share a row
+- [x] Panels share a row when there is room, and a height when they share a row
 
 **Verified by:** `DiagnosticsLayoutIT`

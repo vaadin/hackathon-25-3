@@ -27,14 +27,18 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.signals.local.ValueSignal;
 
 /**
- * One product. The description is markdown bound to a signal, which is the same
- * code path the administrator's live preview uses, so what an admin sees while
- * typing is exactly what a visitor gets.
+ * One product, in the panel over the catalogue. The description is markdown
+ * bound to a signal, which is the same code path the administrator's live
+ * preview uses, so what an admin sees while typing is exactly what a visitor
+ * gets.
  */
-@Route("products/:slug")
+@Route(value = "shop/" + ProductDetailView.SEGMENT + "/:slug", layout = StorefrontView.class)
 @DynamicPageTitle(ProductPageTitle.class)
 @AnonymousAllowed
 public class ProductDetailView extends VerticalLayout implements BeforeEnterObserver {
+
+    /** Under the catalogue, because it opens over the catalogue. */
+    public static final String SEGMENT = "product";
 
     private final CatalogueService catalogue;
     private final ProductImageRepository images;
@@ -53,11 +57,25 @@ public class ProductDetailView extends VerticalLayout implements BeforeEnterObse
         removeAll();
         var product = event.getRouteParameters().get("slug").flatMap(catalogue::bySlug).orElse(null);
         if (product == null) {
-            add(Translations.bindText(new H1(), "catalogue.product.unknown"),
-                    Translations.bindText(new Anchor("shop", ""), "catalogue.backToShop"));
+            add(close(), Translations.bindText(new H1(), "catalogue.product.unknown"));
             return;
         }
         render(product);
+    }
+
+    /**
+     * The list is still there behind the panel, so this closes rather than
+     * navigating away: the anchor it replaces reloaded the catalogue and threw
+     * away the filters somebody had just set.
+     */
+    private Button close() {
+        var button = Translations.bindText(new Button("", event ->
+                getUI().ifPresent(ui -> ui.navigate(StorefrontView.class))), "catalogue.backToShop");
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        button.setIcon(new com.vaadin.flow.component.icon.Icon(
+                com.vaadin.flow.component.icon.VaadinIcon.ARROW_LEFT));
+        button.addClassName("product-view__close");
+        return button;
     }
 
     private void render(Product product) {
@@ -112,6 +130,6 @@ public class ProductDetailView extends VerticalLayout implements BeforeEnterObse
 
         var layout = new Div(media, details);
         layout.addClassName("product-view__layout");
-        add(Translations.bindText(new Anchor("shop", ""), "catalogue.backToShop"), layout);
+        add(close(), layout);
     }
 }

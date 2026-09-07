@@ -29,7 +29,7 @@ class ProductPageBrowserlessTest extends SpringBrowserlessTest {
 
     @Test
     void theProductPageShowsItsNameAndMarkdownDescription() {
-        navigate("products/carrot-cake", ProductDetailView.class);
+        navigate("shop/product/carrot-cake", ProductDetailView.class);
 
         assertEquals("Carrot cake", find(H1.class).single().getText());
         var markdown = find(Markdown.class).single();
@@ -48,7 +48,7 @@ class ProductPageBrowserlessTest extends SpringBrowserlessTest {
 
     @Test
     void anUnknownSlugExplainsItselfInsteadOfFailing() {
-        navigate("products/there-is-no-such-thing", ProductDetailView.class);
+        navigate("shop/product/there-is-no-such-thing", ProductDetailView.class);
 
         assertTrue(find(H1.class).single().getText().contains("could not find"));
     }

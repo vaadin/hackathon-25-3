@@ -1,6 +1,21 @@
 .storefront-view {
-  gap: var(--vaadin-gap-l, 1.5rem);
   width: 100%;
+  height: 100%;
+}
+
+/*
+ * The list scrolls, the panel over it scrolls separately, and the sticky filter
+ * bar sticks to the top of the list rather than to the top of the window, which
+ * is what it was already trying to do.
+ */
+.storefront-view__master {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vaadin-gap-l, 1.5rem);
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--vaadin-padding-m, 1rem);
+  box-sizing: border-box;
 }
 
 .storefront-view__filters,
@@ -112,6 +127,18 @@
   font-size: 1.1rem;
 }
 
+/* The panel is the width of a product page and scrolls on its own. */
+.product-view {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--vaadin-padding-m, 1rem);
+  box-sizing: border-box;
+}
+
+.product-view__close {
+  align-self: start;
+}
+
 .product-view__layout {
   display: grid;
   grid-template-columns: minmax(16rem, 2fr) 3fr;
@@ -144,7 +171,19 @@
 }
 
 @media (max-width: 800px) {
-  .product-view__layout {
+  /* The panel is the width of a product page and scrolls on its own. */
+.product-view {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--vaadin-padding-m, 1rem);
+  box-sizing: border-box;
+}
+
+.product-view__close {
+  align-self: start;
+}
+
+.product-view__layout {
     grid-template-columns: 1fr;
   }
 }

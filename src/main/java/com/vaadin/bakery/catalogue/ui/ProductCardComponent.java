@@ -36,7 +36,7 @@ public class ProductCardComponent extends Div {
             media.add(badge);
         }
 
-        var title = new Anchor("products/" + card.slug(), card.name());
+        var title = new Anchor("shop/" + ProductDetailView.SEGMENT + "/" + card.slug(), card.name());
         title.addClassName("product-card__title");
 
         var price = Translations.bindText(new Span(), locale -> card.price().format(locale));

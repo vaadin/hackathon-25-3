@@ -32,14 +32,14 @@ class ProductHeaderBrowserlessTest extends SpringBrowserlessTest {
 
     @Test
     void theHeaderOfAProductPageIsTheProductName() {
-        navigate("products/almond-croissant", ProductDetailView.class);
+        navigate("shop/product/almond-croissant", ProductDetailView.class);
 
         assertEquals("Almond croissant", headerOf(find(ProductDetailView.class).single()));
     }
 
     @Test
     void adifferentProductGetsItsOwnName() {
-        navigate("products/carrot-cake", ProductDetailView.class);
+        navigate("shop/product/carrot-cake", ProductDetailView.class);
 
         assertEquals("Carrot cake", headerOf(find(ProductDetailView.class).single()));
     }
@@ -47,7 +47,7 @@ class ProductHeaderBrowserlessTest extends SpringBrowserlessTest {
     /** A slug nobody sells still says so, which is the fallback doing its job. */
     @Test
     void aSlugThatIsNotSoldStillSaysSo() {
-        navigate("products/there-is-no-such-thing", ProductDetailView.class);
+        navigate("shop/product/there-is-no-such-thing", ProductDetailView.class);
 
         assertEquals("We cannot find that product", headerOf(find(ProductDetailView.class).single()));
     }

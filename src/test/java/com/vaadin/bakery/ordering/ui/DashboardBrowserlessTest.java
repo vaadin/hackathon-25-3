@@ -12,7 +12,7 @@ import com.vaadin.bakery.ordering.OrderState;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.ChartType;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.dashboard.DashboardWidget;
 import com.vaadin.flow.component.html.Span;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -46,7 +46,9 @@ class DashboardBrowserlessTest extends SpringBrowserlessTest {
     void everyPanelIsRendered() {
         navigate(DashboardView.class);
 
-        var titles = find(H3.class).all().stream().map(H3::getText).toList();
+        // The panels are Dashboard widgets now, and a widget's title is a
+        // property of the widget rather than a heading inside it.
+        var titles = find(DashboardWidget.class).all().stream().map(DashboardWidget::getTitle).toList();
         assertTrue(titles.contains("Today"), titles.toString());
         assertTrue(titles.contains("Revenue by day"), titles.toString());
         assertTrue(titles.contains("Orders by state"), titles.toString());

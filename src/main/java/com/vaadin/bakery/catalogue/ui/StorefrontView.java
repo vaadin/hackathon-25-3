@@ -14,8 +14,8 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.masterdetaillayout.MasterDetailLayout;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -23,6 +23,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Menu;
+import com.vaadin.flow.router.ParentLayout;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -39,12 +40,20 @@ import java.util.stream.Collectors;
  * The public catalogue. Filters are signals, the card list is computed from
  * them, and the whole thing is mirrored into the URL so a filtered catalogue is
  * shareable.
+ *
+ * It is also the layout of the product page, which opens over it rather than
+ * replacing it: a person browsing a catalogue looks at one thing, goes back and
+ * looks at the next, and a full page navigation loses the filters, the scroll
+ * position and the place they had reached. The overlay is forced rather than
+ * left to the width, because the list wants the whole page underneath it and
+ * not half of one.
  */
-@Route("shop")
+@ParentLayout(com.vaadin.bakery.base.ui.MainLayout.class)
+@Route(value = "shop", layout = com.vaadin.bakery.base.ui.MainLayout.class)
 @PageTitle("Shop")
 @Menu(order = 1, title = "Shop", icon = "vaadin:shop")
 @AnonymousAllowed
-public class StorefrontView extends VerticalLayout implements HasUrlParameter<String>, BeforeEnterObserver {
+public class StorefrontView extends MasterDetailLayout implements HasUrlParameter<String>, BeforeEnterObserver {
 
     private final CatalogueService catalogue;
     private final CartSignals cart;
@@ -56,6 +65,12 @@ public class StorefrontView extends VerticalLayout implements HasUrlParameter<St
     /** How many times the filters have been applied. Read by the tests that
      * prove one user action causes one refilter. */
     int refreshCount;
+
+    /** Test seam: what the list is filtered by, which surviving a product
+     * panel is the point of opening one over the list. */
+    CatalogueFilters filtersForTest() {
+        return filters;
+    }
 
     public StorefrontView(CatalogueService catalogue, CartSignals cart, ProductImageRepository images) {
         this.catalogue = catalogue;
@@ -76,7 +91,17 @@ public class StorefrontView extends VerticalLayout implements HasUrlParameter<St
         grid.addClassName("storefront-view__grid");
         emptyState.addClassName("storefront-view__empty");
 
-        add(Translations.bindText(new H2(), "catalogue.title"), filterBar(), grid, emptyState);
+        var list = new Div(Translations.bindText(new H2(), "catalogue.title"), filterBar(), grid, emptyState);
+        list.addClassName("storefront-view__master");
+        setSizeFull();
+        setMaster(list);
+        setForceOverlay(true);
+        setOverlaySize("46rem");
+        setOverlayContainment(MasterDetailLayout.OverlayContainment.LAYOUT);
+
+        // Escape and a click outside are the two ways everybody already knows.
+        addBackdropClickListener(event -> closeProduct());
+        addDetailEscapePressListener(event -> closeProduct());
 
         Children.bind(this, grid, visible, cardSignal -> {
             var card = cardSignal.peek();
@@ -84,6 +109,11 @@ public class StorefrontView extends VerticalLayout implements HasUrlParameter<St
         });
 
         Signal.effect(this, this::refresh);
+    }
+
+    /** Back to the list, with the list exactly as it was left. */
+    private void closeProduct() {
+        getUI().ifPresent(ui -> ui.navigate(StorefrontView.class));
     }
 
     private Div filterBar() {

@@ -33,7 +33,7 @@ class CatalogueBrowserlessTest extends SpringBrowserlessTest {
 
     private List<String> visibleProductNames() {
         return find(Anchor.class).all().stream()
-                .filter(anchor -> anchor.getHref().startsWith("products/"))
+                .filter(anchor -> anchor.getHref().startsWith("shop/product/"))
                 .map(Anchor::getText)
                 .toList();
     }

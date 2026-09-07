@@ -15,24 +15,13 @@ These four are defects, not taste.
 | The login page has no theme on the first visit after a restart, and looks right afterwards | `LoginView` is `@Route(value = "login", autoLayout = false)`, and the theme stylesheet is added by `MainLayout` when it attaches. The login page is never inside `MainLayout`, so on a cold page load nothing has added the stylesheet. Once somebody logs in the sheet is on the `Page`, and a client side navigation back to the login view keeps it, which is why the second look is fine | Cleared cookies, loaded `/login`: serif type, black submit button, only `styles.css` linked. The same page after a session that has been inside `MainLayout` is themed |
 | Exporting invoices as CSV downloads nothing | `InvoiceListView.exportCsv` builds the whole file and then shows a notification with its byte count. The bytes are never handed to the browser | `exportCsv()` ends at `Notification.show(...)`. No download handler exists |
 | The invoice print page opens inside the application shell | `@Route("invoices/:number/print")` does not say `autoLayout = false`, so it gets `MainLayout` with the drawer and the header. The anchor already opens a new tab | Loading a print URL: `vaadin-app-layout` present, drawer present, page text starts with the navigation |
-| A product page's header says "We cannot find that product" over the product | The browser tab is correct, so the dynamic page title works. The header span in the navbar resolves through a different path that does not carry the route parameters, and falls back to the not found text | `/products/almond-croissant`: tab title "Almond croissant", page renders price, allergens and description, and the navbar span reads the `catalogue.product.notFound` message |
+| A product page's header says "We cannot find that product" over the product | The browser tab is correct, so the dynamic page title works. The header span in the navbar resolves through a different path that does not carry the route parameters, and falls back to the not found text | `/shop/product/almond-croissant`: tab title "Almond croissant", page renders price, allergens and description, and the navbar span reads the `catalogue.product.notFound` message |
 
 ## What is unfinished
 
 ### Login
 
 Move the theme to where every route gets it, rather than to the layout most routes happen to use. The login page is the first thing anybody sees and it is the one page that has never been inside the shell.
-
-### Catalogue, people and closures: use `Crud`
-
-Three admin views repeat the same hand built arrangement: a grid, a form beside it, and Edit and Delete buttons in a component column. `Crud` is the component for exactly this and it is commercial, which this build is licensed for. Adopting it settles the row actions, the editor and the new item button in one move.
-
-- The row actions read `EditDelete` with nothing between them. This is not a spacing bug in one view: the same component column pattern is in every one of the three.
-- There is no way to add a product. The list offers Edit and Delete per row and nothing else.
-- The grid does not sort. No column is a sort column, so no header offers a sorter.
-- The filters sit above the grid in a separate bar. They belong in a filter header row inside the grid, where the column they filter is.
-
-`Crud` supplies the new item button, the editor and the delete confirmation. Sorting and the filter row remain the grid's own configuration.
 
 ### Dashboard
 
@@ -97,38 +86,34 @@ The header shows a name. It should show the person's picture beside it, and some
 - [x] The invoice print page renders with no application shell around it
 - [x] A product page's header is the product's name
 
-### AC2: The admin views use `Crud`
-- [ ] Catalogue, people and closures are `Crud`, with its new item button and its editor
-- [x] No two row actions touch each other in any view
-- [ ] Every catalogue column a person would sort by is sortable
-- [ ] The catalogue filters are a header row inside the grid
-
-### AC3: The dashboard reads at a glance
+### AC2: The dashboard reads at a glance
 - [x] The panels are `Dashboard` widgets, and a chart widget spans more than one column when there is room
 - [x] At phone width every widget is one column and nothing scrolls sideways
 - [x] Today and the work in progress come before the trends
 
-### AC4: The order board's toolbar and grid
+### AC3: The order board's toolbar and grid
 - [x] The selection column is no wider than its checkbox
 - [x] The header carries a working select all, or no text at all
 - [x] The column chooser belongs to the grid rather than to the toolbar
 - [x] Confirm and cancel are icons with tooltips, and the toolbar groups selection actions apart from the rest
 
-### AC5: The rest of the polish
-- [ ] Diagnostics panels sit side by side when there is room, at a shared height
+### AC4: The rest of the polish
+- [x] No two row actions touch each other in any view
+- [x] Diagnostics panels sit side by side when there is room, at a shared height
 - [x] Opening hours shows short dates and a one line header
 - [x] Every plain table in the application has alternating rows and a distinguishable header
-- [ ] A product opens over the catalogue rather than replacing it
+- [x] A product opens over the catalogue rather than replacing it
 - [x] The signed in user has an avatar, with initials when there is no picture
 
 ### Still open
 
-- This document is written and nothing in it is built.
-- `vaadin-crud-flow` and `vaadin-dashboard-flow` are not dependencies yet. Both are commercial and this build is licensed for them, so they are ordinary dependencies with no profile and no fallback, exactly like Charts and GridPro. See Licensing in `00-overview.md`.
-- The avatar could not be asserted browserless. It sits inside a `MenuBar` item and `find` cannot see components there, exactly as it cannot see them inside a Grid component column, so a browserless test failed while the header rendered correctly. It moved to the browser tier, and the blind spot is in `FEEDBACK-25.3.md`.
-- AC1 is fixed and all four have tests. Each was checked by reverting the fix and watching its test fail, so none of them passes for the wrong reason.
-- The storefront had no `@PageTitle` at all, so its header read `StorefrontView`. That was not in the original report and was found while fixing the product header.
-- Whether a lazy grid can offer a real select all is a question for the platform rather than for this application. If it cannot, the criterion becomes "no text at all".
+- Every criterion in this document is now built and has a test in the tier its row names.
+- The admin views' move to `Crud` is not in this document: `07-admin.md` specifies it, and Epic 07 builds it. What is here is only what looking at the running application found.
+- The avatar could not be asserted browserless. It sits inside a `MenuBar` item and `find` cannot see components there, exactly as it cannot see them inside a Grid component column, so a browserless test failed while the header rendered correctly. It moved to the browser tier, and the blind spot is in `FEEDBACK-25.3.md`. The column chooser hit the same wall when it moved into the grid's header, and it is reached through the column instead.
+- A lazy grid cannot offer a real select all, so the criterion became "no text at all". The grid says so itself, in a span it marks screen reader only and then paints, which is a bug and is filed as one.
+- The product page moved from `/products/{slug}` to `/shop/product/{slug}`. A child route lives under its parent's path, and the parent is the catalogue the panel opens over. `03-storefront.md` and `04-security.md` were updated with it.
+- The storefront keeps its category path parameter, so `/shop/drinks` still preselects a category: the product route is three segments and does not collide with it.
+- The first four fixes were checked by reverting each one and watching its test fail. The four layout stories were checked the other way round: the broken layout was measured in a browser first, so the numbers each test asserts on are the numbers the defect produced. The diagnostics panels were four cells of 270 pixels stacked down the left of a 1400 pixel page, and the selection column was 199 pixels of a sentence.
 
 ## Test cases
 
@@ -138,7 +123,6 @@ The header shows a name. It should show the person's picture beside it, and some
 | FIX-02 | The invoice list | Exporting as CSV | A file is downloaded and its rows match the grid | testbench | `InvoiceCsvExportIT` |
 | FIX-03 | An invoice | Opening its print page | No application shell is rendered | browserless | `InvoicePrintBrowserlessTest` |
 | FIX-04 | A product that exists | Opening its page | The header is the product's name | browserless | `ProductHeaderBrowserlessTest` |
-| FIX-05 | The catalogue admin | Opening it | A new product can be started, and every listed column sorts | browserless | `CatalogueCrudBrowserlessTest` |
 | FIX-06 | The dashboard at desktop width | Opening it | A chart widget spans more than one column | testbench | `DashboardLayoutIT` |
 | FIX-07 | The dashboard at phone width | Opening it | Every widget is one column and the page does not scroll sideways | testbench | `DashboardLayoutIT` |
 | FIX-08 | The order board | Opening it | The selection header carries no unexplained sentence | browserless | `BoardToolbarBrowserlessTest` |

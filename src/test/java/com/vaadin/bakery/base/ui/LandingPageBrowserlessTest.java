@@ -41,7 +41,7 @@ class LandingPageBrowserlessTest extends SpringBrowserlessTest {
     void theFeaturedRowLinksIntoTheCatalogue() {
         navigate(HomeView.class);
         var productLinks = find(Anchor.class).all().stream()
-                .filter(anchor -> anchor.getHref().startsWith("products/"))
+                .filter(anchor -> anchor.getHref().startsWith("shop/product/"))
                 .toList();
 
         assertFalse(productLinks.isEmpty(), "the landing page should feature something");

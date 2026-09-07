@@ -1,12 +1,20 @@
 .diagnostics {
 }
 
+/*
+ * Four panels across the page. The width is not decoration: a grid inside a
+ * VerticalLayout is only as wide as its own contents, because the layout aligns
+ * its children to the start, so auto-fit had one column to fit into and every
+ * panel sat under the one before it. Stretch, so panels sharing a row share a
+ * height and the page reads as rows rather than as a ragged stack.
+ */
 .diagnostics__panels {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
   gap: var(--vaadin-gap-m, 1rem);
   margin-block-start: var(--vaadin-gap-m, 1rem);
-  align-items: start;
+  width: 100%;
+  align-items: stretch;
 }
 
 .diagnostics__row {

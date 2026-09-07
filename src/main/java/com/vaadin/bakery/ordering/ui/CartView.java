@@ -67,7 +67,8 @@ public class CartView extends VerticalLayout {
         var image = new Image(com.vaadin.bakery.catalogue.ProductImages.url(product, false), product.getName());
         image.addClassName("cart-view__image");
 
-        var name = new Anchor("products/" + product.getSlug(), product.getName());
+        var name = new Anchor("shop/" + com.vaadin.bakery.catalogue.ui.ProductDetailView.SEGMENT + "/"
+                + product.getSlug(), product.getName());
         name.addClassName("cart-view__name");
 
         var quantity = new IntegerField();

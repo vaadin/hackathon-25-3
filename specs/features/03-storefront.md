@@ -22,12 +22,13 @@ Hero with the bakery name and today's opening hours, a row of featured products,
 - Sorting: relevance, price ascending, price descending, name.
 - Empty state: an illustration, the active filters as removable chips, and a clear all action.
 
-### Product page, route `/products/{slug}`
+### Product page, route `/shop/product/{slug}`
 
 - Photo, name, price, VAT note, allergen chips with full names, availability by weekday, lead time.
 - The description is Markdown, rendered by the Markdown component bound to a `Signal<String>` so the admin preview and the public page share one code path.
 - Related products from the same category.
 - Add to cart with a quantity stepper.
+- The page is a child of the catalogue and opens over it in an overlay, so the list, its filters and its scroll position are still there behind it. The route moved under `/shop` for that reason: a child route lives under its parent's path. See `15-ui-repair.md`.
 - `@DynamicPageTitle` puts the product name in the tab title.
 - Any external link in a description goes through the 25.3 URL scheme validation. A `javascript:` link never renders as a link.
 

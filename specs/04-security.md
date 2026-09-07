@@ -16,7 +16,7 @@ Staff authenticate with email and password. Customers never authenticate: they h
 
 | Route | Access |
 | --- | --- |
-| `/`, `/shop/**`, `/products/**` | `@AnonymousAllowed` |
+| `/`, `/shop/**` | `@AnonymousAllowed` |
 | `/cart`, `/checkout/**` | `@AnonymousAllowed` |
 | `/track/{reference}` | `@AnonymousAllowed`, guarded by the reference itself |
 | `/login` | `@AnonymousAllowed` |
