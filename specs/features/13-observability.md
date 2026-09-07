@@ -1,0 +1,61 @@
+# Feature 13: Observability and platform events
+
+## Overview
+
+Specified in full in `07-observability.md`. This document holds the behaviour that has to be tested and demonstrated.
+
+Covers A14, A15.
+
+## Behaviour
+
+Observability Kit 5 under the `observability` profile, exporting through actuator to Prometheus, with a committed Grafana dashboard. A diagnostics view at `/admin/diagnostics` built on the `VaadinService` event bus, with four panels: session lock contention, RPC traffic, data provider queries, and the stale UI detector.
+
+The diagnostics view is not decoration. It is the instrument that proves two claims made elsewhere in these specifications:
+
+1. Hiding a Grid column in 25.3 issues no query and runs no value provider, claimed in feature 06.
+2. The dashboard loads with fewer than ten queries, claimed in feature 11.
+
+Both are written as assertions, not as screenshots.
+
+## Edge cases
+
+| Scenario | Behaviour |
+| --- | --- |
+| No commercial licence | The kit degrades to no telemetry, the application boots, and the about page says so |
+| The `observability` profile is off | `/admin/diagnostics` still works, because the event bus is part of the free platform. Only the Prometheus panels are absent |
+| No Prometheus running | The view shows the local counters and a note that no backend is configured |
+| A background job finishes after its UI is gone | The undelivered invocation warning is logged and the counter increments |
+
+## Acceptance criteria
+
+### AC1: Metrics are exported
+- [ ] With the profile on, `/actuator/prometheus` returns Vaadin metrics including navigation timing and UI state size
+- [ ] `/actuator/vaadin/observability` returns insights
+
+### AC2: The diagnostics view needs no backend
+- [ ] Session lock, RPC and data provider panels populate under normal use with the default profile
+
+### AC3: It proves the Grid claim
+- [ ] Toggling the expensive column on the order board does not increase the query counter
+
+### AC4: Stale UI detection works
+- [ ] A deferred callback delivered through `UI.triggerAfter` reaches the UI with no push connection
+- [ ] A callback whose UI has gone increments the undelivered counter
+
+### AC5: Access is controlled
+- [ ] Only an admin can open the diagnostics view or the actuator endpoints, apart from health
+
+### Still open
+
+Nothing in this document is built yet.
+
+
+## Test cases
+
+| Id | Given | When | Then | Tier | Verified by |
+| --- | --- | --- | --- | --- | --- |
+| OBS-01 | The observability profile | Requesting the Prometheus endpoint | Vaadin metrics are present | unit | `ObservabilityEndpointTest` |
+| OBS-02 | The default profile | Opening the diagnostics view as admin | Session lock and RPC panels populate | browserless | `DiagnosticsBrowserlessTest` |
+| OBS-03 | The order board with the counter running | Hiding the expensive column | The query count does not grow | browserless | `HiddenColumnCostBrowserlessTest` |
+| OBS-04 | A background job | Completing after the UI detached | The undelivered counter increments and a warning is logged | browserless | `DiagnosticsBrowserlessTest` |
+| OBS-05 | A barista | Opening the diagnostics view | Refused | browserless | `SecurityRulesTest` |
