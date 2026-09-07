@@ -1,0 +1,156 @@
+.storefront-view {
+  gap: var(--vaadin-gap-l, 1.5rem);
+  width: 100%;
+}
+
+.storefront-view__filters,
+.storefront-view__grid,
+.storefront-view__empty {
+  width: 100%;
+}
+
+.storefront-view__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vaadin-gap-m, 1rem);
+  align-items: end;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding-block: var(--vaadin-gap-s, .5rem);
+  background: var(--bakery-page, var(--vaadin-background-color, #fff));
+}
+
+.storefront-view__empty {
+  padding: var(--vaadin-gap-xl, 2rem);
+  text-align: center;
+  opacity: .8;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vaadin-gap-xs, .25rem);
+  padding: var(--vaadin-gap-s, .5rem);
+  border-radius: var(--vaadin-radius-l, 14px);
+  background: var(--bakery-raised, var(--vaadin-background-color, #fff));
+  /* A hairline as well as a shadow: in dark mode a shadow alone does not
+     separate a card from the page behind it. */
+  border: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+  box-shadow: 0 1px 2px light-dark(rgba(0, 0, 0, .10), rgba(0, 0, 0, .5));
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.product-card > :not(.product-card__media) {
+  padding-inline: var(--vaadin-gap-s, .5rem);
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px light-dark(rgba(0, 0, 0, .16), rgba(0, 0, 0, .6));
+}
+
+ /*
+  * The photo sits in a tinted frame rather than bleeding to the card edge.
+  * Five of the forty eight photographs were shot on a white background, and on
+  * a white card those had no edge at all: they read as though the image had
+  * failed to load. A frame gives every photo a boundary, whatever it was shot
+  * against.
+  */
+.product-card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  padding: var(--vaadin-gap-xs, .25rem);
+  border-radius: var(--vaadin-radius-m, 8px);
+  background: var(--vaadin-background-container, rgba(0, 0, 0, .04));
+}
+
+.product-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--vaadin-radius-s, 6px);
+}
+
+.product-card__badge {
+  position: absolute;
+  inset-block-start: var(--vaadin-gap-s, .5rem);
+  inset-inline-start: var(--vaadin-gap-s, .5rem);
+}
+
+.product-card__title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-block-start: var(--vaadin-gap-s, .5rem);
+  text-decoration: none;
+  color: inherit;
+}
+
+.product-card__title:hover {
+  text-decoration: underline;
+}
+
+.product-card__allergens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  min-height: 1.5rem;
+}
+
+.product-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-start: auto;
+  padding-block-start: var(--vaadin-gap-s, .5rem);
+}
+
+.product-card__price {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.product-view__layout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 2fr) 3fr;
+  gap: var(--vaadin-gap-xl, 2rem);
+  align-items: start;
+}
+
+.product-view__media img {
+  width: 100%;
+  border-radius: var(--vaadin-radius-l, 12px);
+}
+
+.product-view__price {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.product-view__allergens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  margin-block: var(--vaadin-gap-s, .5rem);
+}
+
+.product-view__actions {
+  display: flex;
+  gap: var(--vaadin-gap-m, 1rem);
+  align-items: end;
+  margin-block-start: var(--vaadin-gap-l, 1.5rem);
+}
+
+@media (max-width: 800px) {
+  .product-view__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card {
+    transition: none;
+  }
+}

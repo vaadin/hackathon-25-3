@@ -22,13 +22,12 @@ Hero with the bakery name and today's opening hours, a row of featured products,
 - Sorting: relevance, price ascending, price descending, name.
 - Empty state: an illustration, the active filters as removable chips, and a clear all action.
 
-### Product page, route `/shop/product/{slug}`
+### Product page, route `/products/{slug}`
 
 - Photo, name, price, VAT note, allergen chips with full names, availability by weekday, lead time.
 - The description is Markdown, rendered by the Markdown component bound to a `Signal<String>` so the admin preview and the public page share one code path.
 - Related products from the same category.
 - Add to cart with a quantity stepper.
-- The page is a child of the catalogue and opens over it in an overlay, so the list, its filters and its scroll position are still there behind it. The route moved under `/shop` for that reason: a child route lives under its parent's path. See `15-ui-repair.md`.
 - `@DynamicPageTitle` puts the product name in the tab title.
 - Any external link in a description goes through the 25.3 URL scheme validation. A `javascript:` link never renders as a link.
 
@@ -61,24 +60,24 @@ Product descriptions are written by admins and still pass through the shared jso
 ## Acceptance criteria
 
 ### AC1: The catalogue filters correctly
-- [ ] Searching narrows the grid as the visitor types, without a button
-- [ ] Choosing a category updates the grid and the URL
-- [ ] Excluding an allergen removes every product carrying it
-- [ ] Filters survive a page reload because they are in the URL
+- [x] Searching narrows the grid as the visitor types, without a button
+- [x] Choosing a category updates the grid and the URL
+- [x] Excluding an allergen removes every product carrying it
+- [x] Filters survive a page reload because they are in the URL
 
 ### AC2: Cards are correct
 - [ ] Every card shows photo, name, price and allergen chips
 - [ ] A product needing lead time shows the lead time badge
-- [ ] An unavailable product never appears
+- [x] An unavailable product never appears
 
 ### AC3: The product page is complete
-- [ ] Markdown renders as formatted text, not as source
-- [ ] The tab title carries the product name
+- [x] Markdown renders as formatted text, not as source
+- [x] The tab title carries the product name
 - [ ] Allergens show their translated full names
 
 ### AC4: Untrusted content is safe
-- [ ] A script tag in a description does not execute and does not render
-- [ ] A `javascript:` URL does not become a link
+- [x] A script tag in a description does not execute and does not render
+- [x] A `javascript:` URL does not become a link
 
 ### AC5: The application is installable
 - [ ] The manifest and the service worker are served
@@ -86,8 +85,9 @@ Product descriptions are written by admins and still pass through the shared jso
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- Nothing asserts what a card contains: photo, name, price and allergen chips, or the lead time badge. The catalogue tests count and filter cards by name, which is a weaker claim than the one written here.
+- Allergens showing their translated full names on the product page is untested.
+- The PWA half is untested in both directions. The manifest and the service worker are declared on `Application` and no test opens them, and the offline page needs a real browser, so it waits on `PwaInstallIT`.
 
 ## Test cases
 

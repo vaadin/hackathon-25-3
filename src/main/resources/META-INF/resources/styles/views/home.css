@@ -1,0 +1,38 @@
+.home-view {
+  gap: var(--vaadin-gap-xl, 2rem);
+}
+
+.home-view__hero {
+  padding: var(--vaadin-gap-xl, 2rem);
+  border-radius: var(--vaadin-radius-l, 14px);
+  background: var(--vaadin-background-container, rgba(0, 0, 0, .04));
+  display: grid;
+  gap: var(--vaadin-gap-s, .5rem);
+  box-sizing: border-box;
+}
+
+.home-view__hero h1 {
+  margin: 0;
+}
+
+.home-view__hours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vaadin-gap-m, 1rem);
+  opacity: .8;
+  font-size: .9em;
+}
+
+.home-view__featured,
+.storefront-view__grid {
+  display: grid;
+  /* As many columns as fit, and never fewer than the container allows. The
+     width matters: a VerticalLayout aligns its children to the start, so
+     without it the grid shrinks to its content and auto-fill has nothing to
+     fill. That is what made this look like a two column list on a wide
+     screen. */
+  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
+  gap: var(--vaadin-gap-l, 1.5rem);
+  align-content: start;
+}

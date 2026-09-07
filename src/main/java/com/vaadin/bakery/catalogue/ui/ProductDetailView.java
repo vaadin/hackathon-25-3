@@ -1,0 +1,117 @@
+package com.vaadin.bakery.catalogue.ui;
+
+import com.vaadin.bakery.base.SafeHtml;
+import com.vaadin.bakery.catalogue.CatalogueService;
+import com.vaadin.bakery.catalogue.Product;
+import com.vaadin.bakery.catalogue.ProductImageRepository;
+import com.vaadin.bakery.catalogue.ProductImages;
+import com.vaadin.bakery.ordering.CartSignals;
+import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.markdown.Markdown;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.DynamicPageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.signals.local.ValueSignal;
+
+/**
+ * One product. The description is markdown bound to a signal, which is the same
+ * code path the administrator's live preview uses, so what an admin sees while
+ * typing is exactly what a visitor gets.
+ */
+@Route("products/:slug")
+@DynamicPageTitle(ProductPageTitle.class)
+@AnonymousAllowed
+public class ProductDetailView extends VerticalLayout implements BeforeEnterObserver {
+
+    private final CatalogueService catalogue;
+    private final ProductImageRepository images;
+    private final CartSignals cart;
+    private final ValueSignal<String> description = new ValueSignal<>("");
+
+    public ProductDetailView(CatalogueService catalogue, ProductImageRepository images, CartSignals cart) {
+        this.catalogue = catalogue;
+        this.images = images;
+        this.cart = cart;
+        addClassName("product-view");
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        removeAll();
+        var product = event.getRouteParameters().get("slug").flatMap(catalogue::bySlug).orElse(null);
+        if (product == null) {
+            add(Translations.bindText(new H1(), "catalogue.product.unknown"),
+                    Translations.bindText(new Anchor("shop", ""), "catalogue.backToShop"));
+            return;
+        }
+        render(product);
+    }
+
+    private void render(Product product) {
+        boolean uploaded = images.findByProduct(product).isPresent();
+        var media = new Div(new Image(ProductImages.url(product, uploaded), product.getName()));
+        media.addClassName("product-view__media");
+
+        var price = Translations.bindText(new Span(), locale -> product.price().format(locale));
+        price.addClassName("product-view__price");
+
+        var allergens = new Div();
+        allergens.addClassName("product-view__allergens");
+        product.getAllergens().forEach(allergen -> {
+            var chip = Translations.bindText(new Span(), allergen.translationKey());
+            chip.getElement().getThemeList().add("badge small");
+            allergens.add(chip);
+        });
+
+        // The description is authored by staff and still cleaned before it is
+        // rendered. There is exactly one safelist in this application.
+        description.set(SafeHtml.clean(product.getDescriptionMarkdown()));
+        var markdown = new Markdown(description);
+        markdown.addClassName("product-view__description");
+
+        var quantity = new IntegerField();
+        Translations.bind(quantity, quantity::setLabel, "catalogue.quantity");
+        quantity.setValue(1);
+        quantity.setMin(1);
+        quantity.setMax(99);
+        quantity.setStepButtonsVisible(true);
+
+        var add = Translations.bindText(new Button("", event -> {
+            cart.add(product.getId(), quantity.getValue() == null ? 1 : quantity.getValue(), null);
+            Notification.show(getTranslation("catalogue.addedToCart", product.getName()));
+        }), "catalogue.addToCart");
+        add.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        var details = new Div();
+        details.addClassName("product-view__details");
+        details.add(new H1(product.getName()), price, allergens, markdown);
+        if (product.getLeadTimeDays() > 0) {
+            details.add(Translations.bindText(new Paragraph(), "catalogue.leadTime.notice",
+                    product.getLeadTimeDays()));
+        }
+        if (!product.isAvailable()) {
+            details.add(Translations.bindText(new Paragraph(), "catalogue.notAvailable"));
+        } else {
+            var actions = new Div(quantity, add);
+            actions.addClassName("product-view__actions");
+            details.add(actions);
+        }
+
+        var layout = new Div(media, details);
+        layout.addClassName("product-view__layout");
+        add(Translations.bindText(new Anchor("shop", ""), "catalogue.backToShop"), layout);
+    }
+}

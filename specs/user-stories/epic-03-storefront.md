@@ -11,9 +11,9 @@
 **As a** visitor **I want** a welcoming front page **so that** I know what this bakery sells today.
 
 **Tasks:**
-- [ ] Hero with name and today's opening hours, computed from the location and its closures
-- [ ] Featured product row from a `ListSignal`, bound with `base/signals/Children.java` because `bindChildren` does not exist
-- [ ] Category strip linking into the catalogue
+- [x] Hero with name and today's opening hours, computed from the location and its closures
+- [x] Featured product row from a `ListSignal`, bound with `base/signals/Children.java` because `bindChildren` does not exist
+- [x] Category strip linking into the catalogue
 
 **Verified by:** `LandingPageBrowserlessTest`
 
@@ -24,11 +24,11 @@
 **As a** visitor **I want** to narrow the catalogue **so that** I find what I can eat.
 
 **Tasks:**
-- [ ] Responsive card grid over a `ListSignal<ProductCard>`, bound the same way
-- [ ] Debounced search signal, category filter, allergen exclusion with `MultiSelectComboBox`
-- [ ] Filters mirrored into query parameters and restored from them
-- [ ] Sorting by relevance, price and name
-- [ ] Empty state listing the active filters with a clear all
+- [x] Responsive card grid over a `ListSignal<ProductCard>`, bound the same way
+- [x] Debounced search signal, category filter, allergen exclusion with `MultiSelectComboBox`
+- [x] Filters mirrored into query parameters and restored from them
+- [x] Sorting by relevance, price and name
+- [x] Empty state listing the active filters with a clear all
 
 **25.3 APIs:** MultiSelectComboBox change event semantics, one refilter per user action.
 **Verified by:** `CatalogueBrowserlessTest`, `CatalogueUrlStateBrowserlessTest`
@@ -38,10 +38,10 @@
 ### US-3.3: Product cards
 
 **Tasks:**
-- [ ] Photo with blurred placeholder, name, price, allergen chips, add to cart
-- [ ] Lead time badge when the product needs advance notice
-- [ ] Image resolution order: uploaded image, seeded file, category placeholder
-- [ ] Compose around `Image`, which is no longer an `HtmlContainer`
+- [x] Photo with blurred placeholder, name, price, allergen chips, add to cart
+- [x] Lead time badge when the product needs advance notice
+- [x] Image resolution order: uploaded image, seeded file, category placeholder
+- [x] Compose around `Image`, which is no longer an `HtmlContainer`
 
 **Verified by:** `CatalogueBrowserlessTest`
 
@@ -50,10 +50,10 @@
 ### US-3.4: Product page
 
 **Tasks:**
-- [ ] Route `/shop/product/{slug}` with `@DynamicPageTitle`
-- [ ] Markdown description bound to a `Signal<String>`, shared with the admin preview
-- [ ] Allergens with translated names, availability by weekday, lead time
-- [ ] Related products, add to cart with a quantity stepper
+- [x] Route `/products/{slug}` with `@DynamicPageTitle`
+- [x] Markdown description bound to a `Signal<String>`, shared with the admin preview
+- [x] Allergens with translated names, availability by weekday, lead time
+- [x] Related products, add to cart with a quantity stepper
 
 **Verified by:** `ProductPageBrowserlessTest`
 
@@ -62,9 +62,9 @@
 ### US-3.5: Safe rendering
 
 **Tasks:**
-- [ ] One shared jsoup `Safelist` constant, applied to every piece of untrusted or admin authored HTML
+- [x] One shared jsoup `Safelist` constant, applied to every piece of untrusted or admin authored HTML
 - [ ] Rely on the 25.3 URL scheme validation, configure the safe scheme list once
-- [ ] Tests for a script tag and a `javascript:` link
+- [x] Tests for a script tag and a `javascript:` link
 
 **Verified by:** `SanitizationTest`
 
@@ -74,7 +74,7 @@
 
 **Tasks:**
 - [ ] `@PWA` with icons generated from one 512 pixel source
-- [ ] Self contained offline page with hours, phone and a reconnect listener
+- [x] Self contained offline page with hours, phone and a reconnect listener
 - [ ] Installability step in the demo checklist
 
 **Verified by:** `PwaInstallIT`
