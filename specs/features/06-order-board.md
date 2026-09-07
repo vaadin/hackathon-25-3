@@ -81,8 +81,8 @@ The bakery takes orders three ways, and the application has to be able to record
 
 ### AC1: The list reads well
 - [ ] Orders are grouped by relative date and the group heading stays visible while its group scrolls
-- [ ] The default filter shows today and later, and the toggle reveals the past
-- [ ] Search matches reference, name, phone and email
+- [x] The default filter shows today and later, and the toggle reveals the past
+- [x] Search matches reference, name, phone and email
 
 ### AC2: Columns the reader controls, and hidden ones cost nothing
 - [x] The column menu lists every column, each showing whether it is on
@@ -92,13 +92,13 @@ The bakery takes orders three ways, and the application has to be able to record
 
 ### AC3: Details and selection are independent
 - [x] Expanding a row does not change the selection
-- [ ] Selecting a row does not open its details
+- [x] Selecting a row does not open its details
 
 ### AC4: The details band reads well
 - [x] The band's content is centred across the row rather than flush left
 - [x] Each item appears as a tile whose quantity is its most prominent element
 - [x] Narrowing the table reflows the tiles, with the browser window unchanged
-- [ ] Allergens and the last two history entries are both present
+- [x] Allergens and the last two history entries are both present
 
 ### AC5: Opening an order keeps the list
 - [x] Opening an order leaves the list on screen and in place
@@ -115,7 +115,7 @@ The bakery takes orders three ways, and the application has to be able to record
 ### AC7: All three channels can be recorded
 - [x] An order taken at the board is recorded as a counter order
 - [x] An order taken on the assistant screen is recorded as a phone order
-- [ ] An order placed by a customer is recorded as an online order
+- [x] An order placed by a customer is recorded as an online order
 - [x] The counter and the telephone present the same line editor
 
 ### AC8: Accessibility

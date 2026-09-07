@@ -18,6 +18,7 @@ import com.vaadin.testbench.BrowserTest;
  * screen; what this one owns is that the screens are still reachable from one
  * another in the order somebody uses them.
  */
+@SuppressWarnings("unchecked")
 class SmokeIT extends BrowserIT {
 
     @BrowserTest
@@ -42,6 +43,8 @@ class SmokeIT extends BrowserIT {
         // The counter.
         signIn("barista@bakery.test", "barista");
         open("/orders");
+        assertTrue(navigationOffers("orders"), "the board is in the counter's menu");
+        assertTrue(!navigationOffers("admin/users"), "and the staff list is not: " + navigation());
         assertTrue(count("vaadin-grid") == 1, "the board is a grid at " + whereAmI());
         assertTrue(rows() > 0, "with orders in it, found " + rows());
 
@@ -52,14 +55,37 @@ class SmokeIT extends BrowserIT {
                 "the counter cannot open the kitchen at " + whereAmI());
         signIn("baker@bakery.test", "baker");
         open("/kitchen");
+        assertTrue(navigationOffers("kitchen"), "the kitchen is in a baker's menu");
+        assertTrue(!navigationOffers("admin/invoices"), "and the invoices are not: " + navigation());
         assertTrue(count(".kitchen-board__column") >= 3,
                 "three columns on the wall at " + whereAmI());
 
         // And the numbers.
         signIn("admin@bakery.test", "admin");
         open("/admin/dashboard");
+        assertTrue(navigationOffers("admin/users"), "an administrator is offered everything: " + navigation());
+        assertTrue(navigationOffers("admin/invoices"), "including the invoices");
         assertTrue(count("vaadin-dashboard-widget") >= 4, "four widgets at " + whereAmI());
         assertTrue(count("vaadin-chart") >= 3, "and the charts drew");
+    }
+
+    /**
+     * FND-03 belongs here rather than in the browserless tier. The drawer is
+     * built from `MenuConfiguration.getMenuEntries`, which filters by the
+     * current user, and it is built on the thread that holds the session lock:
+     * a browserless test that sets the security context from the test thread
+     * sees only the public entries however it signs in. In a browser there is
+     * one authentication and the menu is the one a person sees.
+     */
+    private java.util.List<String> navigation() {
+        return (java.util.List<String>) script(
+                "return [...document.querySelectorAll('vaadin-side-nav-item')]"
+                        + ".map(function (i) { return i.getAttribute('path'); })"
+                        + ".filter(Boolean);");
+    }
+
+    private boolean navigationOffers(String path) {
+        return navigation().contains(path);
     }
 
     private String bodyText() {

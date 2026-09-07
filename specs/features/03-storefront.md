@@ -67,14 +67,14 @@ Product descriptions are written by admins and still pass through the shared jso
 - [x] Filters survive a page reload because they are in the URL
 
 ### AC2: Cards are correct
-- [ ] Every card shows photo, name, price and allergen chips
-- [ ] A product needing lead time shows the lead time badge
+- [x] Every card shows photo, name, price and allergen chips
+- [x] A product needing lead time shows the lead time badge
 - [x] An unavailable product never appears
 
 ### AC3: The product page is complete
 - [x] Markdown renders as formatted text, not as source
 - [x] The tab title carries the product name
-- [ ] Allergens show their translated full names
+- [x] Allergens show their translated full names
 
 ### AC4: Untrusted content is safe
 - [x] A script tag in a description does not execute and does not render

@@ -69,7 +69,7 @@ Any component that subscribes to something outside itself registers in `Componen
 - [x] The startup log prints the version, the active profiles and the state of every required feature flag
 
 ### AC2: The shell works
-- [ ] The side navigation shows only what the current user may reach
+- [x] The side navigation shows only what the current user may reach
 - [x] The page title comes from the router state, and changing view changes it
 - [x] The theme toggle switches light and dark without a reload, and the choice survives a logout and a login
 
@@ -96,7 +96,8 @@ Any component that subscribes to something outside itself registers in `Componen
 
 - The startup check names the Vaadin version, the active profiles and every required preview flag, and logs an error naming the flag and the file that sets it when one is off. It does not refuse to boot: the rest of the bakery works with a component missing, and a build that will not start tells nobody which flag it was. The list lives in `RequiredFeatures` and the about page paints the same one, so the log and the page cannot drift apart.
 - The theme choice lives in a session scoped bean, so it does not survive a logout. Storing it per user was specified and is not built.
-- Two claims still have no test: that the navigation hides what a role cannot reach, and that returning from the login view lands on the originally requested route. Both were observed by hand and neither is defended by the suite.
+- One claim still has no test: that returning from the login view lands on the originally requested route. It was observed by hand and is not defended by the suite.
+- The navigation filter is asserted in the browser tier, inside `SmokeIT`, and not browserless. The drawer is built from `MenuConfiguration.getMenuEntries`, which filters by the current user, on the thread holding the session lock: a browserless test that sets the security context from the test thread sees only the public entries however it signs in. The blind spot is in `FEEDBACK-25.3.md`.
 - The four locale test classes named below for derived text, transient text and titles are not written. Until they are, the language criteria they cover stay unticked even though the behaviour appears to work.
 
 ## Test cases
