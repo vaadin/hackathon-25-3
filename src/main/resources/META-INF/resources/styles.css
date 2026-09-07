@@ -1,0 +1,15 @@
+/* Single entry point. Everything it imports lives under /styles, which the
+   security configuration permits as static content. */
+@import url('./styles/base/layout.css');
+@import url('./styles/base/typography.css');
+@import url('./styles/views/home.css');
+@import url('./styles/views/storefront.css');
+@import url('./styles/views/cart.css');
+@import url('./styles/views/checkout.css');
+@import url('./styles/views/board.css');
+@import url('./styles/views/admin.css');
+@import url('./styles/views/kitchen.css');
+@import url('./styles/views/diagnostics.css');
+@import url('./styles/views/dashboard.css');
+@import url('./styles/views/billing.css');
+@import url('./styles/views/about.css');

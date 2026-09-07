@@ -1,0 +1,96 @@
+/*
+ * The bakery's own colours, on top of whichever theme is loaded.
+ *
+ * This file is added only by the two "bakery" variants in the theme selector.
+ * Plain Lumo and plain Aura load nothing from here, so they look exactly like
+ * themselves, which is the only way to compare them honestly.
+ *
+ * Only colour is set. Radius, density and typography stay with the theme.
+ */
+/*
+ * html:root, not html. Which stylesheet the browser sees last depends on the
+ * order the shell happens to add them in, and that order is not stable when
+ * only one of the two sheets changes. Specificity does not care: :root scores
+ * higher than the plain element selector both themes use, so the palette wins
+ * whichever way round they load.
+ */
+html:root {
+  /* Warm off white paper, burnt caramel accent, deep brown ink. */
+  --bakery-accent: light-dark(#b4541f, #f0a06a);
+  --bakery-paper: light-dark(#fbf7f2, #16130f);
+  --bakery-surface: light-dark(#ffffff, #1e1913);
+  --bakery-surface-sunken: light-dark(#f4ede4, #1c1611);
+  --bakery-ink: light-dark(#2a2119, #f3ece4);
+
+  /*
+   * The shared token layer both themes read from.
+   *
+   * The container tokens have to be set here, not inherited. Both themes give
+   * them a translucent wash meant to sit on whatever is behind: Lumo's is a
+   * cold blue grey, so on warm bakery paper it read as a dirty white and lost
+   * the sunken look entirely. Aura derives its own from the background colour,
+   * which is why the same page looked right there and wrong in Lumo.
+   */
+  /*
+   * The page is paper, and a card sits on it. There is one shared token for
+   * the background and no shared name for a raised surface, so both of ours
+   * are named here: a stylesheet asks for --bakery-page or --bakery-raised and
+   * falls back to the background token, which is what a plain theme should use
+   * anyway.
+   *
+   * --bakery-page exists because Aura recomputes --vaadin-background-color from
+   * its own accent and background properties rather than passing our value
+   * through, so under Aura the token lands three points off the actual page.
+   * Invisible on its own, and not invisible on a sticky bar sitting directly on
+   * the page it is supposed to match.
+   */
+  --vaadin-background-color: var(--bakery-paper);
+  --bakery-page: var(--bakery-paper);
+  --bakery-raised: var(--bakery-surface);
+  --vaadin-text-color: var(--bakery-ink);
+  --vaadin-background-container: var(--bakery-surface-sunken);
+  --vaadin-background-container-strong: light-dark(#e9dccb, #2a2119);
+
+  /* Lumo's own customisation properties */
+  --lumo-primary-color: var(--bakery-accent);
+  --lumo-primary-text-color: var(--bakery-accent);
+  --lumo-primary-color-50pct: light-dark(rgba(180, 84, 31, .5), rgba(240, 160, 106, .5));
+  --lumo-primary-color-10pct: light-dark(rgba(180, 84, 31, .1), rgba(240, 160, 106, .12));
+  --lumo-base-color: var(--bakery-surface);
+  --lumo-body-text-color: var(--bakery-ink);
+
+  /* Aura's, which are named for the scheme rather than resolved by it */
+  --aura-accent-color-light: #b4541f;
+  --aura-accent-color-dark: #f0a06a;
+  --aura-background-color-light: #fbf7f2;
+  --aura-background-color-dark: #16130f;
+}
+
+body {
+  background: var(--bakery-paper);
+}
+
+.brand,
+.product-card__price {
+  color: var(--bakery-accent);
+}
+
+/* The shell reads as paper, the content sits on it. */
+/*
+ * The navbar is part of the page, not a card floating above it. Aura leaves it
+ * transparent so it already reads that way; Lumo paints it opaque white, which
+ * is why the two looked different. Naming the page colour makes both match, and
+ * keeps it opaque so content scrolls underneath rather than through.
+ */
+vaadin-app-layout::part(navbar) {
+  background: var(--bakery-page);
+}
+
+vaadin-app-layout::part(drawer) {
+  background: var(--bakery-surface-sunken);
+}
+
+.home-view__hero,
+.kitchen-board__column {
+  background: var(--bakery-surface-sunken);
+}

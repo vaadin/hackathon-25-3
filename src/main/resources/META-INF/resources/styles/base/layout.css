@@ -1,0 +1,82 @@
+/*
+ * Structure and the shared building blocks.
+ *
+ * Both Lumo and Aura feed the same --vaadin-* properties, so everything here is
+ * written against those and follows whichever theme is loaded. Colour belongs
+ * to the theme: the bakery palette is a separate stylesheet that only the two
+ * bakery variants load.
+ */
+
+/*
+ * A VerticalLayout aligns its children to the start, so a plain block shrinks
+ * to its content and leaves the page looking half empty. Page level blocks say
+ * so once, here, rather than every view discovering it again.
+ */
+.page-block {
+  width: 100%;
+}
+
+/*
+ * One card. Panels, tiles and framed groups used to be defined per view, five
+ * times over with five slightly different shadows.
+ */
+.panel {
+  width: 100%;
+  padding: var(--vaadin-gap-m, 1rem);
+  border-radius: var(--vaadin-radius-l, 14px);
+  background: var(--bakery-raised, var(--vaadin-background-color, #fff));
+  border: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+  box-shadow: 0 1px 2px light-dark(rgba(0, 0, 0, .06), rgba(0, 0, 0, .4));
+  box-sizing: border-box;
+}
+
+.panel > h2:first-child,
+.panel > h3:first-child {
+  margin-block-start: 0;
+}
+
+/* As many columns as fit, never narrower than the content needs. */
+.page-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  gap: var(--vaadin-gap-m, 1rem);
+  align-items: start;
+}
+
+/* A table that fills its panel and reads as data rather than as a wall. */
+.panel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel th,
+.panel td {
+  text-align: start;
+  padding: .35rem .5rem;
+  border-bottom: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .08));
+}
+
+.panel tr:last-child th,
+.panel tr:last-child td {
+  border-bottom: none;
+}
+
+.panel caption {
+  text-align: start;
+  font-weight: 600;
+  padding-block-end: var(--vaadin-gap-s, .5rem);
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  padding: var(--vaadin-gap-m, 1rem);
+  letter-spacing: -0.02em;
+}
+
+.app-header {
+  padding-inline-end: var(--vaadin-gap-m, 1rem);
+  gap: var(--vaadin-gap-xs, .25rem);
+}

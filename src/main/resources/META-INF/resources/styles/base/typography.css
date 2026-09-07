@@ -1,0 +1,20 @@
+h1, h2, h3 {
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: 2.1rem;
+  line-height: 1.15;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+/* Numbers line up in tables and totals, which is most of this application. */
+table,
+.dashboard__counter,
+.cart-view__price,
+.product-card__price {
+  font-variant-numeric: tabular-nums;
+}

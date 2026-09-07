@@ -64,8 +64,8 @@ Any component that subscribes to something outside itself registers in `Componen
 ## Acceptance criteria
 
 ### AC1: The application boots clean
-- [ ] `./mvnw` starts the application on 8080 with no error and no warning about missing licences
-- [ ] `./mvnw verify` passes with no commercial licence, no browser and no network
+- [x] `./mvnw` starts the application on 8080 with no error and no warning about missing licences
+- [x] `./mvnw verify` passes with no commercial licence, no browser and no network
 - [ ] The startup log prints the version, the active profiles and the state of every required feature flag
 
 ### AC2: The shell works
@@ -74,28 +74,30 @@ Any component that subscribes to something outside itself registers in `Componen
 - [ ] The theme toggle switches light and dark without a reload, and the choice survives a logout and a login
 
 ### AC3: Security is enforced by annotation
-- [ ] Every route carries an access annotation. A route without one fails `SecurityRulesTest`
+- [x] Every route carries an access annotation. A route without one fails `SecurityRulesTest`
 - [ ] An anonymous request to a staff route lands on the login view and returns to the target after login
-- [ ] A locked user cannot log in
-- [ ] Log out clears the authentication rather than navigating to a path Spring Security answers with 403
+- [x] A locked user cannot log in
+- [x] Log out clears the authentication rather than navigating to a path Spring Security answers with 403
 
 ### AC4: Internationalisation is real
-- [ ] Switching language retranslates the screen that is already open, with no reload and no navigation of any kind in between
+- [x] Switching language retranslates the screen that is already open, with no reload and no navigation of any kind in between
 - [ ] Labels, placeholders, accessible names, column headings, dropdown options, empty states and navigation entries follow the language, not only headings and buttons
 - [ ] Dates, times, weekday and month names and money follow the selected language, including inside list cells whose text is derived rather than stored
 - [ ] Nothing already started is lost by switching: form values, basket and filters all survive
 - [ ] Text composed at the moment it was shown, such as a notification already on screen, keeps the language it appeared in
 - [ ] The view title in the shell and the browser tab title follow the language
-- [ ] No user visible string is written into the source rather than the bundles, annotation values included, asserted by a test that greps the sources
+- [x] No user visible string is written into the source rather than the bundles, annotation values included, asserted by a test that greps the sources
 
 ### AC5: The about page tells the truth
-- [ ] It lists version, profiles, flags, the assistant and the observability state. It names the provider that is answering rather than reporting whether a key is set, which is the more useful of the two
+- [x] It lists version, profiles, flags, the assistant and the observability state. It names the provider that is answering rather than reporting whether a key is set, which is the more useful of the two
 - [ ] Turning off a flag changes what it reports
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- The startup log prints what Vaadin prints. There is no check of our own that names each required flag and its state, and nothing fails fast when a required one is off.
+- The theme choice lives in a session scoped bean, so it does not survive a logout. Storing it per user was specified and is not built.
+- Three claims have no test yet: that the navigation hides what a role cannot reach, that returning from the login view lands on the originally requested route, and that turning a flag off changes what the about page reports. All three were observed by hand and none is defended by the suite.
+- The four locale test classes named below for derived text, transient text and titles are not written. Until they are, the language criteria they cover stay unticked even though the behaviour appears to work.
 
 ## Test cases
 
