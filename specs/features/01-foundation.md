@@ -66,12 +66,12 @@ Any component that subscribes to something outside itself registers in `Componen
 ### AC1: The application boots clean
 - [x] `./mvnw` starts the application on 8080 with no error and no warning about missing licences
 - [x] `./mvnw verify` passes with no commercial licence, no browser and no network
-- [ ] The startup log prints the version, the active profiles and the state of every required feature flag
+- [x] The startup log prints the version, the active profiles and the state of every required feature flag
 
 ### AC2: The shell works
 - [ ] The side navigation shows only what the current user may reach
 - [ ] The page title comes from the router state, and changing view changes it
-- [ ] The theme toggle switches light and dark without a reload, and the choice survives a logout and a login
+- [x] The theme toggle switches light and dark without a reload, and the choice survives a logout and a login
 
 ### AC3: Security is enforced by annotation
 - [x] Every route carries an access annotation. A route without one fails `SecurityRulesTest`
@@ -90,13 +90,13 @@ Any component that subscribes to something outside itself registers in `Componen
 
 ### AC5: The about page tells the truth
 - [x] It lists version, profiles, flags, the assistant and the observability state. It names the provider that is answering rather than reporting whether a key is set, which is the more useful of the two
-- [ ] Turning off a flag changes what it reports
+- [x] Turning off a flag changes what it reports
 
 ### Still open
 
-- The startup log prints what Vaadin prints. There is no check of our own that names each required flag and its state, and nothing fails fast when a required one is off.
+- The startup check names the Vaadin version, the active profiles and every required preview flag, and logs an error naming the flag and the file that sets it when one is off. It does not refuse to boot: the rest of the bakery works with a component missing, and a build that will not start tells nobody which flag it was. The list lives in `RequiredFeatures` and the about page paints the same one, so the log and the page cannot drift apart.
 - The theme choice lives in a session scoped bean, so it does not survive a logout. Storing it per user was specified and is not built.
-- Three claims have no test yet: that the navigation hides what a role cannot reach, that returning from the login view lands on the originally requested route, and that turning a flag off changes what the about page reports. All three were observed by hand and none is defended by the suite.
+- Two claims still have no test: that the navigation hides what a role cannot reach, and that returning from the login view lands on the originally requested route. Both were observed by hand and neither is defended by the suite.
 - The four locale test classes named below for derived text, transient text and titles are not written. Until they are, the language criteria they cover stay unticked even though the behaviour appears to work.
 
 ## Test cases
@@ -117,5 +117,8 @@ Any component that subscribes to something outside itself registers in `Componen
 | FND-06 | The source tree | Scanning for user visible literals | None found outside the bundles | unit | `NoHardcodedStringsTest` |
 | FND-07 | Light mode | Toggling the theme | The `dark` theme attribute is present on the UI element | browserless | `ThemeToggleBrowserlessTest` |
 | FND-08 | Any component that subscribes to a shared source | Detaching the view | The registration is released, asserted by a counter | browserless | `AttachLifecycleTest` |
+| FND-16 | The required preview flags | Starting the application | Each is named with its state, and one that is off is an error naming the file that sets it | browserless | `StartupReportTest` |
+| FND-17 | A required flag turned off | Opening the about page | That row reads off | browserless | `StartupReportTest` |
+| FND-18 | A person who chose a theme | Signing in again | The choice comes back, and never chosen is not the same as chose the default | browserless | `AppearancePreferenceBrowserlessTest` |
 
 FND-05 and FND-09 look alike and are not. FND-05 opens a screen after the switch, so it is satisfied by a screen built fresh in the new language. FND-09 asserts on a screen that was already there and never navigates in between, which is the only way to tell a screen that follows the language from one that merely happened to be built after it changed. A test that navigates between the switch and the assertion does not prove FND-09 and must not be named as its evidence.

@@ -61,6 +61,10 @@ public class MainLayout extends AppLayout {
         addToNavbar(true, new DrawerToggle(), viewTitle, header());
         addToDrawer(brand(), navigation());
 
+        // Whatever this person chose last time they were here. The session bean
+        // was built before they signed in, so it cannot have asked itself.
+        appearance.loadForCurrentUser();
+
         // Attach scoped setup, the 25.3 way: no onAttach override, and whatever
         // the function returns is released when the layout detaches.
         // The theme and the colour scheme, applied the same way on every route
@@ -103,7 +107,7 @@ public class MainLayout extends AppLayout {
         var entries = new java.util.EnumMap<Theme, com.vaadin.flow.component.contextmenu.MenuItem>(Theme.class);
         for (Theme theme : Theme.values()) {
             var entry = submenu.addItem("", event -> {
-                appearance.theme().set(theme);
+                appearance.chooseTheme(theme);
                 // One theme at a time: checking one clears the rest. A checkable
                 // menu item does not do this for you, so a plain loop is the
                 // difference between a radio group and a set of checkboxes.

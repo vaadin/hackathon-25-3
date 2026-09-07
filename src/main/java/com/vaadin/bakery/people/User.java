@@ -47,6 +47,17 @@ public class User extends AbstractEntity {
     @Column(length = 8)
     private String locale;
 
+    /**
+     * How this person likes the application to look. Both are nullable, and
+     * null means they have never chosen: a preference stored per session was
+     * lost at every logout, which is a preference nobody bothers to set twice.
+     */
+    @Column(length = 20)
+    private String theme;
+
+    @Column(name = "dark_mode")
+    private Boolean darkMode;
+
     @Size(max = 255)
     private String avatarPath;
 
@@ -103,6 +114,22 @@ public class User extends AbstractEntity {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
+
+    public Boolean getDarkMode() {
+        return darkMode;
+    }
+
+    public void setDarkMode(Boolean darkMode) {
+        this.darkMode = darkMode;
     }
 
     public String getLocale() {

@@ -7,6 +7,7 @@ import com.vaadin.bakery.billing.InvoiceService;
 import com.vaadin.bakery.catalogue.CatalogueService;
 import com.vaadin.bakery.ordering.CartLine;
 import com.vaadin.bakery.ordering.Order;
+import com.vaadin.bakery.ordering.Conversations;
 import com.vaadin.bakery.ordering.OrderService;
 import com.vaadin.bakery.ordering.OrderState;
 import com.vaadin.bakery.people.Role;
@@ -55,11 +56,13 @@ public class OrderDetailView extends VerticalLayout implements BeforeEnterObserv
     private final InvoiceService invoices;
     private final CurrentUser currentUser;
     private final CatalogueService catalogue;
+    private final Conversations conversations;
     private final UnsavedChanges unsaved = new UnsavedChanges();
 
     public OrderDetailView(OrderService orders, InvoiceService invoices, CurrentUser currentUser,
-            CatalogueService catalogue) {
+            CatalogueService catalogue, Conversations conversations) {
         this.orders = orders;
+        this.conversations = conversations;
         this.invoices = invoices;
         this.currentUser = currentUser;
         this.catalogue = catalogue;
@@ -160,7 +163,7 @@ public class OrderDetailView extends VerticalLayout implements BeforeEnterObserv
         add(Translations.bindText(new H2(), "tracking.history"), timeline(order), actions(order, actor));
 
         // The staff side of the same conversation. Opening it marks it read.
-        add(new ConversationPanel(orders, order.getReference(), true, actor,
+        add(new ConversationPanel(orders, conversations, order.getReference(), true, actor,
                 actor == null ? getTranslation("conversation.bakery") : actor.getFullName(),
                 !order.getState().isOpen()));
     }

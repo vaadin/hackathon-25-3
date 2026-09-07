@@ -10,6 +10,8 @@ import com.vaadin.flow.component.clipboard.Clipboard;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.bakery.ordering.Conversations;
+import com.vaadin.flow.signals.Signal;
 import com.vaadin.flow.component.messages.MessageInput;
 import com.vaadin.flow.component.messages.MessageList;
 import com.vaadin.flow.component.messages.MessageListItem;
@@ -34,6 +36,7 @@ import java.util.List;
 public class ConversationPanel extends Composite<Div> {
 
     private final OrderService orders;
+    private final Conversations conversations;
     private final String reference;
     private final boolean staffSide;
     private final User staffUser;
@@ -41,9 +44,10 @@ public class ConversationPanel extends Composite<Div> {
     private final MessageList list = new MessageList();
     private final List<OrderMessageAttachment> pending = new ArrayList<>();
 
-    public ConversationPanel(OrderService orders, String reference, boolean staffSide, User staffUser,
-            String authorName, boolean closed) {
+    public ConversationPanel(OrderService orders, Conversations conversations, String reference,
+            boolean staffSide, User staffUser, String authorName, boolean closed) {
         this.orders = orders;
+        this.conversations = conversations;
         this.reference = reference;
         this.staffSide = staffSide;
         this.staffUser = staffUser;
@@ -62,7 +66,15 @@ public class ConversationPanel extends Composite<Div> {
         if (staffSide) {
             orders.markMessagesRead(reference);
         }
-        refresh();
+        // The list follows the conversation's shared signal, so a reply typed
+        // at the counter appears on the customer's tracking page without either
+        // of them reloading anything. The effect reads the signal, so it tracks
+        // it; the messages themselves still come from the database, because
+        // that is where the attachments and the read marks are.
+        Signal.effect(this, () -> {
+            conversations.forOrder(reference).get();
+            refresh();
+        });
         // The author column says "the bakery" for staff messages, so the whole
         // list has to be rebuilt when the language changes.
         Translations.onLocale(this, locale -> refresh());
@@ -74,7 +86,8 @@ public class ConversationPanel extends Composite<Div> {
             try {
                 orders.post(reference, authorName, staffSide, staffUser, event.getValue(), List.copyOf(pending));
                 pending.clear();
-                refresh();
+                // No refresh here: posting moves the shared signal, and the
+                // effect above redraws this panel along with every other one.
             } catch (com.vaadin.bakery.base.error.DomainException failure) {
                 Notification.show(getTranslation(failure.translationKey(), failure.arguments()));
             }

@@ -1,6 +1,7 @@
 package com.vaadin.bakery.base.ui
 
 import com.vaadin.bakery.assistant.AssistantConfiguration.AssistantStatus
+import com.vaadin.bakery.base.RequiredFeatures
 import com.vaadin.experimental.FeatureFlags
 import com.vaadin.flow.component.html.Div
 import com.vaadin.flow.component.html.H2
@@ -44,11 +45,6 @@ class AboutView(
     private val assistant: AssistantStatus,
 ) : VerticalLayout() {
 
-    private val flagsWeDependOn = listOf(
-        "breadcrumbsComponent" to "Checkout trail and order detail",
-        "switchComponent" to "Availability and lock toggles",
-        "aiComponents" to "The assistant",
-    )
 
     init {
         addClassName("about")
@@ -89,9 +85,12 @@ class AboutView(
     private fun flagTable() = Table().apply {
         addHeaderRow(getTranslation("about.flag"), getTranslation("about.state"), getTranslation("about.usedFor"))
         val flags = VaadinService.getCurrent()?.let { FeatureFlags.get(it.context) }
-        flagsWeDependOn.forEach { (id, usedFor) ->
-            val enabled = flags?.features?.any { it.id == id && it.isEnabled } ?: false
-            addRowWithHeader(id, if (enabled) getTranslation("about.on") else getTranslation("about.off"), usedFor)
+        // The same list the startup check reads, so the log and this page can
+        // never disagree about which flags this application depends on.
+        RequiredFeatures.ALL.forEach { feature ->
+            val enabled = flags?.isEnabled(feature.id) ?: false
+            addRowWithHeader(feature.id,
+                if (enabled) getTranslation("about.on") else getTranslation("about.off"), feature.usedFor)
         }
     }
 

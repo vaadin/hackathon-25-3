@@ -51,7 +51,7 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 ### AC1: The board is live
 - [x] A state change made by one baker appears on another baker's board with no reload
 - [ ] The same change appears on the customer's tracking page
-- [ ] The changed ticket is visually flagged for a moment on the observing screens
+- [x] The changed ticket is visually flagged for a moment on the observing screens
 
 ### AC2: Claiming is safe
 - [x] A ticket claimed by one baker shows their name everywhere
@@ -66,8 +66,8 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 - [ ] No update is delivered to a detached UI
 
 ### AC5: Staleness is visible
-- [ ] After the configured silence, the board shows the stale marker
-- [ ] Refreshing clears it
+- [x] After the configured silence, the board shows the stale marker
+- [x] Refreshing clears it
 
 ### AC6: The summary does not cost the board
 - [ ] Opening the production summary leaves the columns at exactly the width they had, with no card reflowed or clipped
@@ -77,10 +77,11 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 ### Still open
 
 - The customer's tracking page following a kitchen change waits on `TrackingLiveBrowserlessTest`. Between bakers it is proven; the last hop to the customer is not.
-- The moment's flag on a ticket somebody else moved is not built.
+- The flag on a ticket somebody else moved is a class on a freshly built card and a CSS animation that ends it, so nothing is scheduled to take it off again: the next redraw builds the card without one. A screen does not flash its own work, because a baker who pressed the button knows what they pressed.
 - Nothing asserts that the summaries update when the signal changes. The columns are covered, the summary tables are not.
 - AC4 has no test at all. `AttachLifecycleTest` proves the codebase uses `whenAttached` rather than overriding `onAttach`, which is a rule about how subscriptions are written, not evidence that this board releases its own or that nothing is delivered to a detached UI.
-- Staleness, AC5, is not built. `StaleTicketBrowserlessTest` is named and unwritten.
+- Staleness is measured against the wall clock and not against the application's `Clock` bean, which is frozen in tests and shifted for the demo dataset. The threshold is `bakery.kitchen.stale-after`, two minutes by default, and the check re-arms itself through `UI.triggerAfter`. What the browserless test covers is the arithmetic and the marker; the scheduling needs a live UI and belongs to the browser tier.
+- The highlight for a ticket that has been in preparation longer than expected, KIT-06, is still not built, and it is not an acceptance criterion here. It needs a notion of expected preparation time that the domain does not have: no product carries one, and inventing a constant would be a rule nobody agreed.
 - The two width criteria in AC6 are layout questions and wait on `KitchenSummaryOverlayIT`. The summary rides over the board as an overlay so that the columns keep their width, which is the intent behind them, and no test measures it.
 
 ## Test cases
@@ -93,5 +94,7 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 | KIT-04 | The board | Reading the slot summary markup | It is a table with header cells | browserless | `KitchenBoardMultiUserBrowserlessTest` |
 | KIT-05 | A board view | Navigating away | The shared signal subscription count returns to its previous value | browserless | `KitchenBoardMultiUserBrowserlessTest` |
 | KIT-06 | A ticket in preparation past its expected time | Waiting for the check | It is highlighted | browserless | `StaleTicketBrowserlessTest` |
+| KIT-09 | A board that has heard nothing for longer than the threshold | Checking | The stale marker shows, and reloading clears it | browserless | `StaleTicketBrowserlessTest` |
+| KIT-10 | A board open on one screen | Somebody else moving a ticket | That ticket's card is flagged here, and a ticket moved here is not | browserless | `StaleTicketBrowserlessTest` |
 | KIT-07 | Two real browsers | Moving a ticket in one | The other updates | testbench | `KitchenBoardPushIT` |
 | KIT-08 | A board with its three columns measured | Opening the production summary | The columns measure the same as before, and the panel is no wider than its own table | testbench | `KitchenSummaryOverlayIT` |

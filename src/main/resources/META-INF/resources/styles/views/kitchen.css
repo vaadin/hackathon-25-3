@@ -194,3 +194,30 @@
     min-height: 14rem;
   }
 }
+
+/*
+ * A ticket somebody else moved. The animation is the whole timer: the class is
+ * put on a freshly built card and the next redraw builds it without one, so
+ * nothing has to be scheduled to take the highlight away again.
+ */
+@keyframes kitchen-moved {
+  from { background: var(--vaadin-background-container-strong, rgba(0, 0, 0, .1)); }
+  to { background: inherit; }
+}
+
+.kitchen-board__ticket--moved {
+  animation: kitchen-moved 2s ease-out;
+}
+
+/* Discreet on purpose. It says the screen may be behind, not that anything
+   is broken, and a wall display full of alarms is a wall display nobody reads. */
+.kitchen-board__stale {
+  margin-inline-start: var(--vaadin-gap-s, .5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kitchen-board__ticket--moved {
+    animation: none;
+    outline: 2px solid var(--vaadin-border-color, rgba(0, 0, 0, .2));
+  }
+}

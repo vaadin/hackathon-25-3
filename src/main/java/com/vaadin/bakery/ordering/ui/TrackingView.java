@@ -4,6 +4,7 @@ import com.vaadin.bakery.base.SafeHtml;
 import com.vaadin.bakery.base.error.DomainException;
 import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.bakery.ordering.Order;
+import com.vaadin.bakery.ordering.Conversations;
 import com.vaadin.bakery.ordering.OrderService;
 import com.vaadin.bakery.ordering.OrderState;
 import com.vaadin.bakery.base.i18n.Translations;
@@ -41,10 +42,12 @@ public class TrackingView extends VerticalLayout implements BeforeEnterObserver 
 
     private final OrderService orders;
     private final CartSignals cart;
+    private final Conversations conversations;
 
-    public TrackingView(OrderService orders, CartSignals cart) {
+    public TrackingView(OrderService orders, CartSignals cart, Conversations conversations) {
         this.orders = orders;
         this.cart = cart;
+        this.conversations = conversations;
         addClassName("tracking-view");
     }
 
@@ -116,7 +119,7 @@ public class TrackingView extends VerticalLayout implements BeforeEnterObserver 
         add(actions);
 
         // The customer's side of the conversation, with the bakery.
-        add(new ConversationPanel(orders, order.getReference(), false, null,
+        add(new ConversationPanel(orders, conversations, order.getReference(), false, null,
                 order.getCustomer().getFirstName(), !order.getState().isOpen()));
     }
 

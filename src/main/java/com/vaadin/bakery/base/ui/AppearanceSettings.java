@@ -1,5 +1,7 @@
 package com.vaadin.bakery.base.ui;
 
+import com.vaadin.bakery.base.security.CurrentUser;
+import com.vaadin.bakery.people.AppearancePreferences;
 import com.vaadin.flow.signals.local.ValueSignal;
 import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import com.vaadin.flow.theme.aura.Aura;
@@ -59,6 +61,43 @@ public class AppearanceSettings {
     private final ValueSignal<Theme> theme = new ValueSignal<>(Theme.BAKERY_LUMO);
     private final ValueSignal<Boolean> dark = new ValueSignal<>(false);
 
+    private final AppearancePreferences preferences;
+    private final CurrentUser currentUser;
+
+    public AppearanceSettings(AppearancePreferences preferences, CurrentUser currentUser) {
+        this.preferences = preferences;
+        this.currentUser = currentUser;
+    }
+
+    /**
+     * Picks up whatever this person chose last time.
+     *
+     * Called by the shell rather than by the constructor: a session bean is
+     * built before anybody has signed in, so at construction there is no person
+     * to have a preference.
+     */
+    public void loadForCurrentUser() {
+        currentUser.username()
+                .flatMap(preferences::of)
+                .ifPresent(choice -> {
+                    if (choice.theme() != null) {
+                        theme.set(Theme.valueOf(choice.theme()));
+                    }
+                    dark.set(Boolean.TRUE.equals(choice.dark()));
+                });
+    }
+
+    /** Choosing, as opposed to being set, which is what gets remembered. */
+    public void chooseTheme(Theme chosen) {
+        theme.set(chosen);
+        remember();
+    }
+
+    private void remember() {
+        currentUser.username()
+                .ifPresent(email -> preferences.remember(email, theme.peek().name(), isDark()));
+    }
+
     public ValueSignal<Theme> theme() {
         return theme;
     }
@@ -77,5 +116,6 @@ public class AppearanceSettings {
 
     public void toggleDark() {
         dark.update(value -> !Boolean.TRUE.equals(value));
+        remember();
     }
 }

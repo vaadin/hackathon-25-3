@@ -27,14 +27,16 @@ public class OrderService {
     private final SlotService slots;
     private final Clock clock;
     private final CustomerService customers;
+    private final Conversations conversations;
 
     public OrderService(OrderRepository orders, ProductRepository products, SlotService slots, Clock clock,
-            CustomerService customers) {
+            CustomerService customers, Conversations conversations) {
         this.orders = orders;
         this.products = products;
         this.slots = slots;
         this.clock = clock;
         this.customers = customers;
+        this.conversations = conversations;
     }
 
     @Transactional(readOnly = true)
@@ -100,6 +102,9 @@ public class OrderService {
         attachments.forEach(attachment -> message.getAttachments().add(attachment));
         order.getMessages().add(message);
         orders.save(order);
+        // Everybody with this conversation open hears about it, which is the
+        // difference between a message thread and a page you have to reload.
+        conversations.posted(reference);
         return new OrderMessageLine(message.getId(), message.getAuthorName(), message.isFromStaff(),
                 message.getText(), message.getSentAt(), message.isReadByStaff(),
                 message.getAttachments().stream()

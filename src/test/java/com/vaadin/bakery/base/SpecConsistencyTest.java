@@ -43,14 +43,12 @@ class SpecConsistencyTest {
      */
     private static final Set<String> NOT_WRITTEN_YET = Set.of(
             "ConcurrentEditBrowserlessTest",
-            "ConversationMultiUserBrowserlessTest",
             "InvoiceLocaleBrowserlessTest",
             "LocaleSwitchDerivedTextBrowserlessTest",
             "LocaleSwitchTransientTextBrowserlessTest",
             "OrderDetailsBandIT",
             "PageTitleLocaleBrowserlessTest",
             "ResponsiveBoardBrowserlessTest",
-            "StaleTicketBrowserlessTest",
             "TrackingLiveBrowserlessTest",
             "UserAvatarBrowserlessTest"
     );

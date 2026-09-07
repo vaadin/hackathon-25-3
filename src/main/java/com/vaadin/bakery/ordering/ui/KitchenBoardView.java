@@ -1,11 +1,11 @@
 package com.vaadin.bakery.ordering.ui;
 
+import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.bakery.base.security.CurrentUser;
 import com.vaadin.bakery.ordering.KitchenBoard;
 import com.vaadin.bakery.ordering.KitchenTicket;
 import com.vaadin.bakery.ordering.OrderState;
 import com.vaadin.bakery.people.Role;
-import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,13 +17,20 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.Table;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.masterdetaillayout.MasterDetailLayout;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.masterdetaillayout.MasterDetailLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.signals.Signal;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import org.springframework.beans.factory.annotation.Value;
+
 import jakarta.annotation.security.RolesAllowed;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
@@ -55,14 +62,35 @@ public class KitchenBoardView extends VerticalLayout {
 
     private final KitchenBoard board;
     private final CurrentUser currentUser;
+    private final Duration staleAfter;
+    /** Checked more often than the threshold, so the marker is never a whole
+     * period late in appearing. */
+    private final Duration staleCheckEvery;
     private final Div columns = new Div();
     private final Div summary = new Div();
     private final MasterDetailLayout layout = new MasterDetailLayout();
+    private final Span staleMarker = new Span();
     private boolean summaryOpen;
 
-    public KitchenBoardView(KitchenBoard board, CurrentUser currentUser) {
+    /**
+     * What each ticket looked like the last time this screen drew it, so the
+     * next draw can tell which ones somebody else moved.
+     */
+    private final Map<Long, KitchenTicket> asLastDrawn = new HashMap<>();
+
+    /**
+     * Tickets this screen moved itself. They are not flashed here: the baker
+     * who pressed the button knows what they pressed, and a screen that flashes
+     * its own work teaches everybody to ignore the flash.
+     */
+    private final Set<Long> movedHere = new HashSet<>();
+
+    public KitchenBoardView(KitchenBoard board, CurrentUser currentUser,
+            @Value("${bakery.kitchen.stale-after:PT2M}") Duration staleAfter) {
         this.board = board;
         this.currentUser = currentUser;
+        this.staleAfter = staleAfter;
+        this.staleCheckEvery = staleAfter.dividedBy(4);
         addClassName("kitchen-board");
         setSizeFull();
         setPadding(false);
@@ -92,16 +120,67 @@ public class KitchenBoardView extends VerticalLayout {
             renderColumns(tickets, locale);
             renderSummary(tickets, locale);
         });
+
+        // A board on a wall is read from three metres away and nobody touches
+        // it for an hour. The one thing it cannot do is look current while the
+        // connection behind it has gone.
+        whenAttached(attach -> attach.getUI().get().triggerAfter(staleCheckEvery, this::checkStaleness));
+    }
+
+    /**
+     * Whether the screen has heard from the server recently enough to be
+     * believed, from {@code UI.getLastUpdateSentTimestamp}.
+     *
+     * It re-arms itself: {@code triggerAfter} fires once, so each check books
+     * the next one. The registration goes with the UI, and a detached UI never
+     * gets the callback, which is why nothing here has to be unsubscribed.
+     */
+    private void checkStaleness() {
+        getUI().ifPresent(ui -> {
+            // Wall clock, not the application's Clock bean. That one is frozen
+            // in tests and shifted for the demo dataset, and this is measuring
+            // how long a browser has been quiet, which is real time.
+            showStale(isStale(ui.getLastUpdateSentTimestamp(), Instant.now()));
+            ui.triggerAfter(staleCheckEvery, this::checkStaleness);
+        });
+    }
+
+    /** The arithmetic on its own, so a test does not have to wait two minutes. */
+    boolean isStale(Instant lastUpdate, Instant now) {
+        return Duration.between(lastUpdate, now).compareTo(staleAfter) >= 0;
+    }
+
+    void showStale(boolean stale) {
+        staleMarker.setVisible(stale);
+    }
+
+    boolean isShowingStale() {
+        return staleMarker.isVisible();
+    }
+
+    /** Reloads from the service, which is what the marker is asking for. */
+    void refresh() {
+        board.reload();
+        showStale(false);
     }
 
     private Div header() {
         var title = Translations.bindText(new H2(), "kitchen.title");
 
+        Translations.bindText(staleMarker, "kitchen.stale");
+        staleMarker.addClassName("kitchen-board__stale");
+        staleMarker.getElement().getThemeList().add("badge contrast small");
+        staleMarker.setVisible(false);
+
+        var reload = Translations.bindText(new Button(new Icon(VaadinIcon.REFRESH),
+                event -> refresh()), "kitchen.refresh");
+        reload.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
         var toggle = Translations.bindText(new Button(new Icon(VaadinIcon.CLIPBOARD_TEXT),
                 event -> toggleSummary()), "kitchen.summary");
         toggle.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        var header = new Div(title, toggle);
+        var header = new Div(title, staleMarker, reload, toggle);
         header.addClassName("kitchen-board__header");
         return header;
     }
@@ -109,6 +188,23 @@ public class KitchenBoardView extends VerticalLayout {
     private void toggleSummary() {
         summaryOpen = !summaryOpen;
         layout.setDetail(summaryOpen ? summary : null);
+    }
+
+    /**
+     * Whether this ticket changed since this screen last drew it, and somebody
+     * else did it. Both halves matter: without the first every redraw flashes
+     * the whole board, and without the second a baker's own button flashes back
+     * at them.
+     */
+    /** Moving a ticket from this screen, which is the half that does not flash. */
+    private void moveHere(KitchenTicket ticket, OrderState target) {
+        movedHere.add(ticket.orderId());
+        board.advance(ticket, target, currentUser.get().orElse(null));
+    }
+
+    private boolean movedElsewhere(KitchenTicket ticket) {
+        var before = asLastDrawn.get(ticket.orderId());
+        return before != null && !before.equals(ticket) && !movedHere.contains(ticket.orderId());
     }
 
     private void renderColumns(List<KitchenTicket> tickets, Locale locale) {
@@ -135,11 +231,22 @@ public class KitchenBoardView extends VerticalLayout {
             column.addClassName("kitchen-board__column");
             columns.add(column);
         }
+
+        // What this draw saw becomes what the next one compares against.
+        asLastDrawn.clear();
+        tickets.forEach(ticket -> asLastDrawn.put(ticket.orderId(), ticket));
+        movedHere.clear();
     }
 
     private Component card(KitchenTicket ticket, Locale locale) {
         var card = new Div();
         card.addClassName("kitchen-board__ticket");
+        if (movedElsewhere(ticket)) {
+            // The class rides on a freshly built card and a CSS animation ends
+            // it, so nothing has to be scheduled to take it off again: the next
+            // redraw builds the card without it.
+            card.addClassName("kitchen-board__ticket--moved");
+        }
 
         var time = new Span(ticket.pickupTime().format(TIME));
         time.addClassName("kitchen-board__ticket-time");
@@ -179,7 +286,7 @@ public class KitchenBoardView extends VerticalLayout {
                 .filter(OrderState::isActiveInKitchen)
                 .forEach(target -> {
                     var advance = new Button(getTranslation(locale, "board.action." + target.name()),
-                            event -> board.advance(ticket, target, currentUser.get().orElse(null)));
+                            event -> moveHere(ticket, target));
                     advance.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                     actions.add(advance);
                 });
@@ -188,7 +295,7 @@ public class KitchenBoardView extends VerticalLayout {
         if (ticket.state() == OrderState.READY && actor != null
                 && OrderState.PICKED_UP.settableBy(actor.getRole())) {
             actions.add(new Button(getTranslation(locale, "board.action.PICKED_UP"),
-                    event -> board.advance(ticket, OrderState.PICKED_UP, currentUser.get().orElse(null))));
+                    event -> moveHere(ticket, OrderState.PICKED_UP)));
         }
 
         card.add(actions);
@@ -200,6 +307,7 @@ public class KitchenBoardView extends VerticalLayout {
         if (baker == null) {
             return;
         }
+        movedHere.add(ticket.orderId());
         board.claim(ticket, baker).ifPresent(name -> {
             var dialog = new ConfirmDialog();
             dialog.setHeader(getTranslation("kitchen.steal.title"));
