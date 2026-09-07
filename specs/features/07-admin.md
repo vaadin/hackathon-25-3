@@ -4,7 +4,7 @@
 
 Catalogue, people and configuration. Replaces `AbstractBakeryCrudView` and the shared Lit search bar, and carries the Switch, GridPro, modular Upload, Clipboard and ComboBox partial match stories.
 
-**On `Crud`.** This document originally rejected the component outright, and that was too broad. Where a view is a list and an editor and nothing else, `Crud` is what it should be: people and closures use it, and they no longer hand write a new item button, an editor dialog, a delete confirmation and the keyboard handling that goes with them. The catalogue does not, and deliberately: its grid is a `GridPro` with inline editing on price and stock, which is one of the stories this application exists to show, and a `Crud` around it would put a second editor over a grid that already edits. The decision is per view, and the reason is inline editing rather than taste.
+**On `Crud`.** The decision is per view, and the reason is inline editing rather than taste. Where a view is a list and an editor and nothing else, `Crud` is what it should be: people and closures use it, and none of them hand writes a new item button, an editor dialog, a delete confirmation and the keyboard handling that goes with them. The catalogue does not, and deliberately: its grid is a `GridPro` with inline editing on price and stock, which is one of the stories this application exists to show, and a `Crud` around it would put a second editor over a grid that already edits.
 
 Covers A1 to A8, B4, B5, K6.
 
@@ -58,33 +58,41 @@ A `ComboBox` in partial match mode over customers, matching on any part of name,
 
 ### AC1: Products can be managed
 - [ ] Price and stock are editable inline and persist
-- [ ] The availability switch takes effect on the storefront immediately
+- [x] The availability switch takes effect on the storefront immediately
 - [ ] The markdown preview matches what the public page renders
 
 ### AC2: Images work three ways
 - [ ] Drag and drop uploads a photo and it appears on the card
-- [ ] The button upload does the same
+- [x] The button upload does the same
 - [ ] Pasting an image from the clipboard onto the drop zone does the same
-- [ ] An oversized or wrong type file is rejected with a readable reason
+- [x] An oversized or wrong type file is rejected with a readable reason
 
 ### AC3: Partial match helps
-- [ ] Typing a fragment from the middle of a category name finds it
-- [ ] The customer picker matches on name, email and phone fragments
+- [x] Typing a fragment from the middle of a category name finds it
+- [x] The customer picker matches on name, email and phone fragments
 
 ### AC4: People rules hold
-- [ ] Opening a user and saving without typing a password leaves the password unchanged
-- [ ] Deleting yourself is refused
-- [ ] A locked user cannot be edited or deleted
+- [x] Opening a user and saving without typing a password leaves the password unchanged
+- [x] Deleting yourself is refused
+- [x] A locked user cannot be edited or deleted
 
-### AC5: Configuration reaches the storefront
-- [ ] Adding a closure removes that day from the public date picker
-- [ ] A closure over open orders warns, names them, and saves nothing until it is answered
+### AC5: The lists are `Crud`, except the one that is not
+- [x] People and closures are `Crud`, with its new item button, its editor and its delete confirmation
+- [x] The catalogue keeps `GridPro` and gets a new product control of its own
+- [x] Every catalogue column a person would sort by is sortable
+- [x] The catalogue filters are a header row inside the grid
+
+### AC6: Configuration reaches the storefront
+- [x] Adding a closure removes that day from the public date picker
+- [x] A closure over open orders warns, names them, and saves nothing until it is answered
 - [ ] Changing a location's slot length changes the offered times
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- Inline editing is the reason GridPro is in this application and it is untested. The cell editing itself needs a browser, `GridProEditIT`, but that the edited price and stock persist could be asserted browserless today and is not.
+- The markdown preview matching what the public page renders has no test.
+- Two of the three upload routes wait on the browser tier: drag and drop, `UploadDropZoneIT`, and clipboard paste, `ClipboardPasteIT`. The validation half is covered browserless, including a file that only claims to be an image.
+- Changing a location's slot length changing the offered times is untested. Closures are covered.
 
 ## Test cases
 
@@ -103,3 +111,4 @@ Nothing in this document is built yet.
 | ADM-11 | A locked user | Editing it | Refused | browserless | `UserAdminBrowserlessTest` |
 | ADM-12 | A new closure on a day with orders | Saving | The warning lists the affected orders | browserless | `ClosureAdminBrowserlessTest` |
 | ADM-13 | A closure saved | Opening the public date picker | That day is disabled with the reason | browserless | `SlotSelectionBrowserlessTest` |
+| ADM-14 | The catalogue admin | Opening it | A new product can be started, every listed column sorts, and the filters narrow the grid from its own header row | browserless | `CatalogueCrudBrowserlessTest` |

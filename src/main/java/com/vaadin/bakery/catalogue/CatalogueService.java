@@ -66,7 +66,31 @@ public class CatalogueService {
 
     @Transactional
     public Product save(Product product) {
+        if (product.getSlug() == null || product.getSlug().isBlank()) {
+            product.setSlug(freeSlugFrom(product.getName()));
+        }
         return products.save(product);
+    }
+
+    /**
+     * The slug is what a product's public URL is made of, and nothing asks a
+     * person for one: it comes from the name, and a second "Carrot cake" gets
+     * "carrot-cake-2" rather than a constraint violation nobody can read.
+     */
+    private String freeSlugFrom(String name) {
+        var base = java.text.Normalizer.normalize(name == null ? "" : name, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(java.util.Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+        if (base.isBlank()) {
+            base = "product";
+        }
+        var candidate = base;
+        for (int suffix = 2; products.findBySlug(candidate).isPresent(); suffix++) {
+            candidate = base + "-" + suffix;
+        }
+        return candidate;
     }
 
     /**
