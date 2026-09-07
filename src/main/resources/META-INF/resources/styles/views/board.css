@@ -1,0 +1,190 @@
+.order-board {
+}
+
+.order-board__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vaadin-gap-m, 1rem);
+  align-items: center;
+}
+
+.order-board__columns {
+  margin-block-start: var(--vaadin-gap-xs, .25rem);
+}
+
+.order-detail__timeline > div {
+  display: flex;
+  gap: var(--vaadin-gap-m, 1rem);
+  padding-block: .2rem;
+}
+
+.order-detail__timeline span:first-child {
+  min-width: 9rem;
+  opacity: .7;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vaadin-gap-s, .5rem);
+  margin-block-start: var(--vaadin-gap-l, 1.5rem);
+}
+
+.conversation {
+  margin-block-start: var(--vaadin-gap-l, 1.5rem);
+}
+
+.conversation__composer {
+  display: grid;
+  gap: var(--vaadin-gap-s, .5rem);
+}
+
+.conversation__dropzone {
+  display: block;
+  padding: var(--vaadin-gap-s, .5rem);
+  border: 1px dashed var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+  border-radius: var(--vaadin-radius-m, 8px);
+}
+
+/*
+ * The band answers to the width of the table, not the width of the window. A
+ * container query is the only thing that can: open the order panel and the
+ * table narrows while the window never moves, and the tiles have to notice.
+ */
+.order-board__band {
+  container-type: inline-size;
+  padding-block: var(--vaadin-gap-m, 1rem);
+}
+
+.order-board__band > * {
+  width: 100%;
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
+.order-board__tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--vaadin-gap-s, .5rem);
+}
+
+@container (min-width: 30rem) {
+  .order-board__tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 46rem) {
+  .order-board__tiles {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.order-board__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .1rem;
+  padding: var(--vaadin-gap-s, .5rem);
+  background: var(--vaadin-background-container, rgba(0, 0, 0, .04));
+  border-radius: var(--vaadin-radius-m, 8px);
+}
+
+/* The number is the thing being read, so it is read first. */
+.order-board__tile-quantity {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-board__tile-name {
+  font-size: .85em;
+}
+
+.order-board__tile-comment {
+  font-size: .8em;
+  opacity: .7;
+  font-style: italic;
+}
+
+.order-board__band-allergens,
+.order-board__band-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vaadin-gap-s, .5rem);
+  margin-block-start: var(--vaadin-gap-m, 1rem);
+}
+
+.order-board__band-history {
+  flex-direction: column;
+  gap: .1rem;
+  opacity: .75;
+  font-size: .9em;
+}
+
+.order-board__master {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: var(--vaadin-gap-m, 1rem);
+  box-sizing: border-box;
+}
+
+.order-detail {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--vaadin-gap-m, 1rem);
+  box-sizing: border-box;
+}
+
+/*
+ * The editor's own width is what decides its shape, and only a container query
+ * can say so: the same editor is 32rem wide inside the order panel and the full
+ * width of the page on the phone order screen, with the window unmoved in both
+ * cases. The container goes here rather than on the panel so that both hosts
+ * get the right answer.
+ */
+.order-editor {
+  container-type: inline-size;
+  /*
+   * Both hosts are vertical layouts, which align their children to the start,
+   * so a child is normally as wide as its contents. Inline size containment
+   * forbids exactly that, and without the stretch the editor computes to zero.
+   */
+  align-self: stretch;
+}
+
+.order-editor__row {
+  display: grid;
+  grid-template-columns: 2fr 6rem 2fr 6rem 3rem;
+  gap: var(--vaadin-gap-s, .5rem);
+  align-items: end;
+}
+
+.order-editor__price {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  padding-block-end: .6rem;
+}
+
+.order-editor__total {
+  display: block;
+  text-align: end;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-block: var(--vaadin-gap-m, 1rem);
+}
+
+@container (max-width: 34rem) {
+  .order-editor__row {
+    grid-template-columns: 1fr 4rem 3rem;
+  }
+
+  .order-editor__row .order-editor__price {
+    grid-column: 1 / -1;
+  }
+}

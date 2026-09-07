@@ -85,51 +85,55 @@ The bakery takes orders three ways, and the application has to be able to record
 - [ ] Search matches reference, name, phone and email
 
 ### AC2: Columns the reader controls, and hidden ones cost nothing
-- [ ] The column menu lists every column, each showing whether it is on
-- [ ] Turning a column on or off changes the table immediately
-- [ ] Turning off the expensive column does not increase the number of database queries on the next fetch, and its contents are never worked out
-- [ ] The last visible column cannot be turned off
+- [x] The column menu lists every column, each showing whether it is on
+- [x] Turning a column on or off changes the table immediately
+- [x] Turning off the expensive column does not increase the number of database queries on the next fetch, and its contents are never worked out
+- [x] The last visible column cannot be turned off
 
 ### AC3: Details and selection are independent
-- [ ] Expanding a row does not change the selection
+- [x] Expanding a row does not change the selection
 - [ ] Selecting a row does not open its details
 
 ### AC4: The details band reads well
 - [ ] The band's content is centred across the row rather than flush left
-- [ ] Each item appears as a tile whose quantity is its most prominent element
+- [x] Each item appears as a tile whose quantity is its most prominent element
 - [ ] Narrowing the table reflows the tiles, with the browser window unchanged
 - [ ] Allergens and the last two history entries are both present
 
 ### AC5: Opening an order keeps the list
-- [ ] Opening an order leaves the list on screen and in place
-- [ ] The address carries the reference, and following that address later arrives with the order open
-- [ ] Escape, clicking outside, and the close control each return to the plain list
+- [x] Opening an order leaves the list on screen and in place
+- [x] The address carries the reference, and following that address later arrives with the order open
+- [x] Escape, clicking outside, and the close control each return to the plain list
 
 ### AC6: Lines can be composed freely
-- [ ] A product can be added in any quantity the catalogue allows
-- [ ] An empty row is always available at the end without asking for one
-- [ ] Setting a quantity to zero removes the line
-- [ ] The total follows the lines before anything is saved
-- [ ] Leaving with unsaved changes asks first
+- [x] A product can be added in any quantity the catalogue allows
+- [x] An empty row is always available at the end without asking for one
+- [x] Setting a quantity to zero removes the line
+- [x] The total follows the lines before anything is saved
+- [x] Leaving with unsaved changes asks first
 
 ### AC7: All three channels can be recorded
-- [ ] An order taken at the board is recorded as a counter order
-- [ ] An order taken on the assistant screen is recorded as a phone order
+- [x] An order taken at the board is recorded as a counter order
+- [x] An order taken on the assistant screen is recorded as a phone order
 - [ ] An order placed by a customer is recorded as an online order
-- [ ] The counter and the telephone present the same line editor
+- [x] The counter and the telephone present the same line editor
 
 ### AC8: Accessibility
-- [ ] The select all box, the row boxes and every sorter are named
+- [x] The select all box, the row boxes and every sorter are named
 - [ ] The column menu, the order panel and the line editor are reachable and operable from the keyboard
 
 ### AC9: Bulk actions are honest
-- [ ] A bulk action reports how many succeeded and names every refusal with a reason
-- [ ] Every state change appends a history entry naming the actor
+- [x] A bulk action reports how many succeeded and names every refusal with a reason
+- [x] Every state change appends a history entry naming the actor
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- AC1 is the weakest covered part of this epic. The board is tested for sorting, for search by name and by reference, and nothing yet asserts the date grouping, the sticky group heading, the today and later default with its toggle to the past, or search by phone and by email.
+- Selecting a row not opening its details is untested. The other direction, expanding not changing the selection, is.
+- The band's allergens and its last two history entries are not asserted. The tiles and their quantities are.
+- Two of the band's criteria are about layout at a given width and wait on `OrderDetailsBandIT`: the centring and the reflow. No component API can answer either.
+- An order placed by a customer being recorded as an online order is not asserted anywhere. The counter and the telephone both are, which makes this the only channel taken on trust.
+- Keyboard operability of the column menu, the panel and the editor is unproven. Browserless cannot press Tab, so this needs either a browser test or removing the claim.
 
 ## Test cases
 
