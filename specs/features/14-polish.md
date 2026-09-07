@@ -57,7 +57,7 @@ The Aura pass from `05-theming.md` finished: palette in both schemes, contrast c
 
 ### Still open
 
-- Twenty of the ninety one classes named in these documents do not exist: eleven browser tests the tier has not reached yet, and nine browserless ones listed by name in `SpecConsistencyTest`. The check passes because it holds both lists, which keeps the gap visible instead of letting a document promise a test nobody wrote. `SmokeIT` is the one whose absence costs most: nothing today walks login, shop, order and board in one pass, and a route moved this session.
+- Eight of the ninety one classes named in these documents do not exist: six browser tests that need a gesture rather than an assertion, and two browserless ones whose behaviour is not built. `SpecConsistencyTest` holds both lists by name and insists every other class exists, so the gap cannot be closed by renaming a promise. The six are named in `08-testing.md`; the two are `InvoiceLocaleBrowserlessTest`, which needs an invoice to remember the language it was issued in, and `ResponsiveBoardBrowserlessTest`, which needs the board to become cards on a phone.
 - The coverage floor is JaCoCo at 70 percent of lines, failing the build, and the suite sits at 77. The views are excluded on purpose: a number that counts them measures how much of the application has a browser test, which is the question the `IT` list answers and a different one from this.
 - Nobody has run AC4 from a clean clone, and `DEMO.md` has not been walked end to end since the assistant and the kitchen board changed.
 

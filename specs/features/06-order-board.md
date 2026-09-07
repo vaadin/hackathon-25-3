@@ -95,9 +95,9 @@ The bakery takes orders three ways, and the application has to be able to record
 - [ ] Selecting a row does not open its details
 
 ### AC4: The details band reads well
-- [ ] The band's content is centred across the row rather than flush left
+- [x] The band's content is centred across the row rather than flush left
 - [x] Each item appears as a tile whose quantity is its most prominent element
-- [ ] Narrowing the table reflows the tiles, with the browser window unchanged
+- [x] Narrowing the table reflows the tiles, with the browser window unchanged
 - [ ] Allergens and the last two history entries are both present
 
 ### AC5: Opening an order keeps the list
@@ -128,10 +128,12 @@ The bakery takes orders three ways, and the application has to be able to record
 
 ### Still open
 
+- The board does not become cards on a narrow screen. The behaviour section asks for it, BOARD-08 names `ResponsiveBoardBrowserlessTest` for it, and the board is a `Grid` at every width: there is no card renderer to switch to. The test stays named and unwritten, because a test written against the grid would pass and prove nothing.
+
 - AC1 is the weakest covered part of this epic. The board is tested for sorting, for search by name and by reference, and nothing yet asserts the date grouping, the sticky group heading, the today and later default with its toggle to the past, or search by phone and by email.
 - Selecting a row not opening its details is untested. The other direction, expanding not changing the selection, is.
 - The band's allergens and its last two history entries are not asserted. The tiles and their quantities are.
-- Two of the band's criteria are about layout at a given width and wait on `OrderDetailsBandIT`: the centring and the reflow. No component API can answer either.
+- The band's centring and its reflow are now measured by `OrderDetailsBandIT`, which is the only place they can be: the tiles answer to the width of the table through a container query, and opening the order panel narrows the table while the browser window never moves.
 - An order placed by a customer being recorded as an online order is not asserted anywhere. The counter and the telephone both are, which makes this the only channel taken on trust.
 - Keyboard operability of the column menu, the panel and the editor is unproven. Browserless cannot press Tab, so this needs either a browser test or removing the claim.
 

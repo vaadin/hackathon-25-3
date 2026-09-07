@@ -58,19 +58,22 @@ Admin only, requires a reason, records it in the order history, and never reuses
 - [x] The CSV contains exactly the filtered rows
 
 ### AC3: The print view is printable
-- [ ] The shell is hidden and the document is black on white
+- [x] The shell is hidden and the document is black on white
 - [x] The line table is real table markup with a repeating header
-- [ ] A VAT summary per rate is present and adds up
+- [x] A VAT summary per rate is present and adds up
 
 ### AC4: Voiding is controlled
 - [ ] Only an admin can void, and a reason is required
 - [ ] A voided invoice prints with a watermark and its number is never reused
 
+
 ### Still open
+
+- An invoice does not remember the language it was issued in. INV-09 asks that an invoice issued in Spanish still reads Spanish when the reader has English selected, and there is nowhere to put that: the entity has no locale column, so the document is rendered in whoever is looking at it. `InvoiceLocaleBrowserlessTest` stays named and unwritten rather than testing something else.
 
 - The three filters are exercised one at a time through the export test. Nothing asserts them working together, which is where a filter bug would actually live.
 - Mark as paid, and undoing it inside the window, has no test.
-- The print view is covered for its table markup and its token. The rest of AC3 waits on `InvoicePrintIT`, which is the only way to ask whether the shell is hidden and the document prints black on white, and the VAT summary per rate is untested in either tier.
+- AC3 is measured by `InvoicePrintIT` under emulated print media, which needs CDP: there is no Selenium API for a medium, and TestBench hands back a proxy that has to be unwrapped before Chrome will take the command.
 - Voiding has no test of its own. That a voided number is never reused is covered by `InvoiceNumberingTest`; that only an admin may void, that a reason is required, and that the watermark prints are not.
 
 ## Test cases

@@ -88,7 +88,7 @@ Product descriptions are written by admins and still pass through the shared jso
 
 - Nothing asserts what a card contains: photo, name, price and allergen chips, or the lead time badge. The catalogue tests count and filter cards by name, which is a weaker claim than the one written here.
 - Allergens showing their translated full names on the product page is untested.
-- The PWA half is untested in both directions. The manifest and the service worker are declared on `Application` and no test opens them, and the offline page needs a real browser, so it waits on `PwaInstallIT`.
+- The PWA half is still untested in both directions, and `PwaInstallIT` is one of the six browser tests not written: it needs the network turned off, which is a CDP command rather than an assertion.
 
 ## Test cases
 

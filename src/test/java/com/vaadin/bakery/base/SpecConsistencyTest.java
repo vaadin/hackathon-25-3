@@ -29,11 +29,14 @@ class SpecConsistencyTest {
     private static final Path TESTS = Path.of("src/test/java");
     private static final Pattern VERIFIED_BY = Pattern.compile("`([A-Z][A-Za-z0-9]*(?:Test|IT))`");
 
-    /** Browser tests. They need a licence and a display, so they are a separate run. */
+    /**
+     * Browser tests the tier has not reached yet. This list shrinks: a name
+     * leaves it when the class is written, and after that the check below
+     * insists the class exists like any other. Twelve have left it.
+     */
     private static final Set<String> BROWSER_TIER = Set.of(
-            "AuraDarkModeIT", "ClipboardPasteIT",             "DashboardLayoutIT", "DatePickerMetadataIT", "DiagnosticsLayoutIT", "GridProEditIT",
-            "InvoicePrintIT", "KitchenBoardPushIT", "KitchenSummaryOverlayIT",
-            "PageTitleIT", "PwaInstallIT", "SmokeIT", "UploadDropZoneIT", "UserAvatarIT");
+            "ClipboardPasteIT", "DatePickerMetadataIT", "GridProEditIT",
+            "KitchenBoardPushIT", "PwaInstallIT", "UploadDropZoneIT");
 
     /**
      * Honest gaps. Each of these is a test the specifications ask for that has
@@ -43,7 +46,6 @@ class SpecConsistencyTest {
      */
     private static final Set<String> NOT_WRITTEN_YET = Set.of(
             "InvoiceLocaleBrowserlessTest",
-            "OrderDetailsBandIT",
             "ResponsiveBoardBrowserlessTest"
     );
 

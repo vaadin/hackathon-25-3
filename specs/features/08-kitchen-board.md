@@ -70,8 +70,8 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 - [x] Refreshing clears it
 
 ### AC6: The summary does not cost the board
-- [ ] Opening the production summary leaves the columns at exactly the width they had, with no card reflowed or clipped
-- [ ] The panel is no wider than the summary it contains
+- [x] Opening the production summary leaves the columns at exactly the width they had, with no card reflowed or clipped
+- [x] The panel is no wider than the summary it contains
 - [x] Closing the summary returns the board to what it was before it was opened
 
 ### Still open
@@ -84,7 +84,7 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 - AC4 has no test at all. `AttachLifecycleTest` proves the codebase uses `whenAttached` rather than overriding `onAttach`, which is a rule about how subscriptions are written, not evidence that this board releases its own or that nothing is delivered to a detached UI.
 - Staleness is measured against the wall clock and not against the application's `Clock` bean, which is frozen in tests and shifted for the demo dataset. The threshold is `bakery.kitchen.stale-after`, two minutes by default, and the check re-arms itself through `UI.triggerAfter`. What the browserless test covers is the arithmetic and the marker; the scheduling needs a live UI and belongs to the browser tier.
 - The highlight for a ticket that has been in preparation longer than expected, KIT-06, is still not built, and it is not an acceptance criterion here. It needs a notion of expected preparation time that the domain does not have: no product carries one, and inventing a constant would be a rule nobody agreed.
-- The two width criteria in AC6 are layout questions and wait on `KitchenSummaryOverlayIT`. The summary rides over the board as an overlay so that the columns keep their width, which is the intent behind them, and no test measures it.
+- The two width criteria in AC6 are measured by `KitchenSummaryOverlayIT`, and how they are measured took several attempts: the shell opens its drawer a moment after the first render, which moves every column and has nothing to do with the summary. The test compares the share of the board its columns occupy, read in one call so both numbers describe the same frame.
 
 ## Test cases
 

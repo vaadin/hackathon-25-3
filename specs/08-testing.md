@@ -40,6 +40,8 @@ TestBench owns, and this list is closed at about ten classes:
 | `DiagnosticsLayoutIT` | Whether panels share a row and a height |
 | `UserAvatarIT` | Whether the header shows the person. The avatar sits inside a MenuBar item, where browserless `find` cannot see it |
 
+Twelve of the eighteen are written. The six that are not are `ClipboardPasteIT`, `DatePickerMetadataIT`, `GridProEditIT`, `KitchenBoardPushIT`, `PwaInstallIT` and `UploadDropZoneIT`, and they are the six that need a gesture rather than an assertion: a real drop, a real paste, a double click that a synthesised event does not reproduce, a second browser, and the network turned off. `SpecConsistencyTest` holds those six by name and insists every other named class exists.
+
 If a proposed IT is not on this list, it belongs in the browserless tier or the list changes deliberately in this document.
 
 None of them is written. The list is a design decision about where the boundary sits, and it has held: everything else landed in the browserless tier, which is why that tier carries 218 tests. What is missing is the profile and the twelve classes, and until they exist the boundary is a claim rather than a result. `SpecConsistencyTest` knows this and keeps the list honest, so a class named here cannot be quietly forgotten.

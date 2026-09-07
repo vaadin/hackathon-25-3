@@ -189,6 +189,46 @@ public abstract class BrowserIT extends BrowserTestBase {
                 + script("return document.body.innerText.slice(0, 120).replace(/\\n/g, ' | ');");
     }
 
+    /**
+     * Waits until a measurement stops changing, and returns it.
+     *
+     * A layout that animates is briefly neither where it was nor where it is
+     * going, and a test that measures the moment an element appears measures
+     * the animation. Sleeping is forbidden in this suite and would be the wrong
+     * tool anyway: what the test is waiting for is not a duration, it is a
+     * value that has settled.
+     */
+    /** Waits until a snippet of JavaScript says true. */
+    protected void waitUntil(String javascript) {
+        patiently().until(driver -> Boolean.TRUE.equals(script(javascript)));
+    }
+
+    /**
+     * Waits until the shell has decided what to do with its drawer.
+     *
+     * `vaadin-app-layout` chooses between a drawer that takes space and one
+     * that floats over the content, from the window width, and it chooses after
+     * the first render. Anything measured before that is measured on a board
+     * that briefly had the whole window: two layout tests here failed exactly
+     * once each that way, comparing 451 against 365 with nothing wrong on the
+     * screen. At the width these tests set, the drawer is inline.
+     */
+    protected void waitForTheShellToSettle() {
+        waitUntil("var l = document.querySelector('vaadin-app-layout');"
+                + "return !!l && !l.hasAttribute('overlay') && l.hasAttribute('drawer-opened');");
+    }
+
+    protected <T> T settled(java.util.function.Supplier<T> measure) {
+        var seen = new java.util.concurrent.atomic.AtomicReference<T>(measure.get());
+        patiently().until(driver -> {
+            var now = measure.get();
+            var same = now != null && now.equals(seen.get());
+            seen.set(now);
+            return same;
+        });
+        return seen.get();
+    }
+
     protected Object script(String javascript) {
         return ((JavascriptExecutor) getDriver()).executeScript(javascript);
     }

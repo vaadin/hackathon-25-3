@@ -25,3 +25,4 @@ vite.generated.ts
 # and rewritten on every regeneration. Local, not part of the application. The
 # codebase scans skip it too, see GeneratedSources in the tests.
 **/CopilotAllComponentsView.java
+.playwright-mcp/
