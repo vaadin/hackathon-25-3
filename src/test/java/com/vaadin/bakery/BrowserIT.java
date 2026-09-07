@@ -101,15 +101,18 @@ public abstract class BrowserIT extends BrowserTestBase {
      * Signs in through the real form, which is the only way in.
      *
      * Four things here are not decoration, and between them they took the
-     * suite from two failed runs in three to eight clean ones in a row.
+     * suite from two failed runs in three to eight clean ones in a row. Which
+     * of the four did it is now known, and it was not the one we first
+     * credited: see the note on the token below.
      *
      * <p>The CSRF token is written into the hidden field by hand, from the
-     * {@code _csrf} meta tags. The login overlay renders
+     * {@code _csrf} meta tags, because the overlay renders
      * {@code <input id="csrf" type="hidden">} with no name and no value and
-     * fills both from those metas in its own submit handler, so a form posted
-     * with {@code form.submit()} carries no token at all. Waiting for the
-     * hidden field to exist, which is what this did before, waits for something
-     * that is there from the first paint and says nothing.
+     * fills both in its own submit handler. That much is true and it turned out
+     * not to matter: a bare project and this application both sign in from a
+     * scripted submit carrying no token, because CSRF is not enforced on that
+     * POST. It is kept because it costs nothing and would be correct in a setup
+     * that does enforce it. It is not why the flake stopped.
      *
      * <p>The wait afterwards is positive: off the login route <em>and</em> the
      * application shell present. "The URL no longer contains /login" passes on
@@ -124,7 +127,9 @@ public abstract class BrowserIT extends BrowserTestBase {
      *
      * <p>And it retries once, because the failures were intermittent and we
      * never found the reason. That is worth saying plainly rather than dressing
-     * up: what is fixed is that a bad sign in now fails as a bad sign in.
+     * up: what is fixed is that a bad sign in now fails as a bad sign in, and
+     * the probe above is almost certainly what stopped the flake, because it is
+     * the only one of the four that catches a login that did not take.
      */
     protected void signIn(String email, String password) {
         this.email = email;
