@@ -10,7 +10,7 @@ import com.vaadin.flow.component.clipboard.Clipboard;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.bakery.ordering.Conversations;
+import com.vaadin.bakery.ordering.OrderActivity;
 import com.vaadin.flow.signals.Signal;
 import com.vaadin.flow.component.messages.MessageInput;
 import com.vaadin.flow.component.messages.MessageList;
@@ -36,7 +36,7 @@ import java.util.List;
 public class ConversationPanel extends Composite<Div> {
 
     private final OrderService orders;
-    private final Conversations conversations;
+    private final OrderActivity activity;
     private final String reference;
     private final boolean staffSide;
     private final User staffUser;
@@ -44,10 +44,10 @@ public class ConversationPanel extends Composite<Div> {
     private final MessageList list = new MessageList();
     private final List<OrderMessageAttachment> pending = new ArrayList<>();
 
-    public ConversationPanel(OrderService orders, Conversations conversations, String reference,
+    public ConversationPanel(OrderService orders, OrderActivity activity, String reference,
             boolean staffSide, User staffUser, String authorName, boolean closed) {
         this.orders = orders;
-        this.conversations = conversations;
+        this.activity = activity;
         this.reference = reference;
         this.staffSide = staffSide;
         this.staffUser = staffUser;
@@ -72,7 +72,7 @@ public class ConversationPanel extends Composite<Div> {
         // it; the messages themselves still come from the database, because
         // that is where the attachments and the read marks are.
         Signal.effect(this, () -> {
-            conversations.forOrder(reference).get();
+            activity.forOrder(reference).get();
             refresh();
         });
         // The author column says "the bakery" for staff messages, so the whole

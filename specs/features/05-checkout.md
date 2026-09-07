@@ -83,7 +83,7 @@ The page is not a checkout step: it has no breadcrumb and no way back into a che
 - [x] The confirmation shows the reference and a working tracking link
 
 ### AC4: Tracking is live and private
-- [ ] A staff state change appears on the tracking page without a reload
+- [x] A staff state change appears on the tracking page without a reload
 - [x] A wrong token shows not found
 - [x] Cancel appears only while the order is new
 

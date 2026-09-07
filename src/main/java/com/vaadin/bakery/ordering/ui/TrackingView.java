@@ -4,7 +4,8 @@ import com.vaadin.bakery.base.SafeHtml;
 import com.vaadin.bakery.base.error.DomainException;
 import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.bakery.ordering.Order;
-import com.vaadin.bakery.ordering.Conversations;
+import com.vaadin.bakery.ordering.OrderActivity;
+import com.vaadin.flow.signals.Signal;
 import com.vaadin.bakery.ordering.OrderService;
 import com.vaadin.bakery.ordering.OrderState;
 import com.vaadin.bakery.base.i18n.Translations;
@@ -42,12 +43,12 @@ public class TrackingView extends VerticalLayout implements BeforeEnterObserver 
 
     private final OrderService orders;
     private final CartSignals cart;
-    private final Conversations conversations;
+    private final OrderActivity activity;
 
-    public TrackingView(OrderService orders, CartSignals cart, Conversations conversations) {
+    public TrackingView(OrderService orders, CartSignals cart, OrderActivity activity) {
         this.orders = orders;
         this.cart = cart;
-        this.conversations = conversations;
+        this.activity = activity;
         addClassName("tracking-view");
     }
 
@@ -65,7 +66,17 @@ public class TrackingView extends VerticalLayout implements BeforeEnterObserver 
                     Translations.bindText(new Anchor("shop", ""), "catalogue.backToShop"));
             return;
         }
-        render(order, token);
+
+        // The page follows the order rather than showing the state it had when
+        // it loaded. A customer sits on this screen waiting to hear that their
+        // cake is ready, and the one thing it must not do is need a refresh to
+        // say so. The effect reads the order's shared signal, so anything the
+        // counter or the kitchen does redraws it here.
+        Signal.effect(this, () -> {
+            activity.forOrder(reference).get();
+            removeAll();
+            orders.byReferenceAndToken(reference, token).ifPresent(fresh -> render(fresh, token));
+        });
     }
 
     private void render(Order order, String token) {
@@ -119,7 +130,7 @@ public class TrackingView extends VerticalLayout implements BeforeEnterObserver 
         add(actions);
 
         // The customer's side of the conversation, with the bakery.
-        add(new ConversationPanel(orders, conversations, order.getReference(), false, null,
+        add(new ConversationPanel(orders, activity, order.getReference(), false, null,
                 order.getCustomer().getFirstName(), !order.getState().isOpen()));
     }
 

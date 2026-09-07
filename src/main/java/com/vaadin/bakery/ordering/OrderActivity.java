@@ -7,14 +7,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 
 /**
- * One shared signal per conversation, so a reply reaches the other side without
- * anybody reloading a page.
+ * One shared signal per order, so anything that happens to it reaches every
+ * screen showing it without anybody reloading a page.
  *
- * The signal carries a count and nothing else. The messages themselves stay in
- * the database, because a conversation has attachments, ordering and read
- * marks, and putting all of that through a shared signal would be a second copy
- * of the truth for no gain. What the signal has to say is only "there is
- * something new", and every panel watching that reference goes and reads it.
+ * The signal carries a count and nothing else. What happened stays in the
+ * database, because an order has attachments, a history, read marks and a
+ * state machine, and putting all of that through a shared signal would be a
+ * second copy of the truth for no gain. What the signal has to say is only
+ * "something about this order changed", and every screen watching that
+ * reference goes and reads it.
+ *
+ * Two kinds of thing bump it and both matter to the same reader: a message
+ * posted in the conversation, and a state change. A customer watching their
+ * tracking page wants to know when the bakery replies and when the cake is
+ * ready, and neither of those should need a refresh.
  *
  * The map grows by one entry per order anybody has open. That is bounded by the
  * orders in play rather than by the orders that exist, and an entry is a long,
@@ -22,7 +28,7 @@ import org.springframework.stereotype.Component;
  * live conversations would key this differently.
  */
 @Component
-public class Conversations {
+public class OrderActivity {
 
     private final Map<String, SharedValueSignal<Long>> perOrder = new ConcurrentHashMap<>();
 
@@ -32,8 +38,8 @@ public class Conversations {
             }));
     }
 
-    /** Says a message landed. Every panel on that order is watching this. */
-    public void posted(String reference) {
+    /** Says something happened. Every screen on that order is watching this. */
+    public void changed(String reference) {
         var signal = forOrder(reference);
         signal.set(signal.peek() + 1);
     }

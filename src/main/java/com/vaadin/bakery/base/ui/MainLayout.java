@@ -5,6 +5,7 @@ import com.vaadin.bakery.base.security.CurrentUser;
 import com.vaadin.bakery.base.ui.AppearanceSettings.Theme;
 import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.theme.aura.Aura;
@@ -71,14 +72,49 @@ public class MainLayout extends AppLayout {
         // rather than only on the ones inside this shell.
         ThemeBinding.apply(this, appearance);
 
-        whenAttached(ui -> {
-            viewTitle.bindText(ui.routerStateSignal().map(state -> state.currentView()
-                    .filter(view -> view instanceof Component)
-                    .flatMap(view -> MenuConfiguration.getPageHeader((Component) view))
-                    .orElse("")));
-            return () -> {
-            };
-        });
+        // The title in the navbar answers to two things, not one. Binding it to
+        // the router state alone leaves it in the language it was first drawn
+        // in: the signal does not change when somebody switches language, so
+        // the mapped text never runs again and the header stays English over a
+        // Spanish page. Reading the locale signal inside the same effect is
+        // what makes it depend on both.
+        whenAttached(ui -> Signal.effect(this, () -> {
+            ui.localeSignal().get();
+            var title = titleFor(ui);
+            viewTitle.setText(title);
+            // And the browser tab. The router sets it once from `@PageTitle`,
+            // which is a literal, so nothing moves it when the language
+            // changes: the tab keeps saying "Opening hours" over a page that
+            // now says "Horario". Setting it here is what makes the two agree.
+            if (!title.isBlank()) {
+                ui.getPage().setTitle(title);
+            }
+        }));
+    }
+
+    /**
+     * The route's own name, in the reader's language.
+     *
+     * {@code MenuConfiguration.getPageHeader} answers from `@Menu` and
+     * `@PageTitle`, which are English literals: it cannot be translated, and a
+     * navbar bound to it stays English over a Spanish page however the binding
+     * is written. So the shell resolves the same bundle key the side navigation
+     * uses for that route, and falls back to the header when a route has no key
+     * of its own, such as a panel opened over the board.
+     */
+    private String titleFor(UI ui) {
+        var location = ui.getInternals().getActiveViewLocation();
+        var key = location == null ? null : navigationKey(location.getPath());
+        if (key != null) {
+            var translated = getTranslation(key);
+            if (!translated.isBlank() && !translated.contains(key)) {
+                return translated;
+            }
+        }
+        return ui.routerStateSignal().get().currentView()
+                .filter(view -> view instanceof Component)
+                .flatMap(view -> MenuConfiguration.getPageHeader((Component) view))
+                .orElse("");
     }
 
     private Component brand() {

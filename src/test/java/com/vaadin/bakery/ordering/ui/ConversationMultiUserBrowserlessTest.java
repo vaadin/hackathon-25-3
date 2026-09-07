@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.vaadin.bakery.Application;
 import com.vaadin.bakery.TestLogin;
-import com.vaadin.bakery.ordering.Conversations;
+import com.vaadin.bakery.ordering.OrderActivity;
 import com.vaadin.bakery.ordering.OrderRepository;
 import com.vaadin.bakery.ordering.OrderService;
 import com.vaadin.bakery.ordering.OrderState;
@@ -42,7 +42,7 @@ class ConversationMultiUserBrowserlessTest extends SpringBrowserlessTest {
     private OrderRepository orders;
 
     @Autowired
-    private Conversations conversations;
+    private OrderActivity activity;
 
     @BeforeEach
     void signIn() {
@@ -101,11 +101,11 @@ class ConversationMultiUserBrowserlessTest extends SpringBrowserlessTest {
     @Test
     void postingMovesTheOrdersOwnSignal() {
         var reference = anOpenOrder();
-        long before = conversations.forOrder(reference).peek();
+        long before = activity.forOrder(reference).peek();
 
         orderService.post(reference, "The bakery", true, null, "On it", List.of());
 
-        assertTrue(conversations.forOrder(reference).peek() > before,
+        assertTrue(activity.forOrder(reference).peek() > before,
                 "the shared value moved, which is what reaches the other screens");
     }
 }

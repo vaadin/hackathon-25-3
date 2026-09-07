@@ -14,6 +14,7 @@ import java.time.Year;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,16 +28,16 @@ public class OrderService {
     private final SlotService slots;
     private final Clock clock;
     private final CustomerService customers;
-    private final Conversations conversations;
+    private final OrderActivity activity;
 
     public OrderService(OrderRepository orders, ProductRepository products, SlotService slots, Clock clock,
-            CustomerService customers, Conversations conversations) {
+            CustomerService customers, OrderActivity activity) {
         this.orders = orders;
         this.products = products;
         this.slots = slots;
         this.clock = clock;
         this.customers = customers;
-        this.conversations = conversations;
+        this.activity = activity;
     }
 
     @Transactional(readOnly = true)
@@ -102,9 +103,9 @@ public class OrderService {
         attachments.forEach(attachment -> message.getAttachments().add(attachment));
         order.getMessages().add(message);
         orders.save(order);
-        // Everybody with this conversation open hears about it, which is the
+        // Everybody with this order open hears about it, which is the
         // difference between a message thread and a page you have to reload.
-        conversations.posted(reference);
+        activity.changed(reference);
         return new OrderMessageLine(message.getId(), message.getAuthorName(), message.isFromStaff(),
                 message.getText(), message.getSentAt(), message.isReadByStaff(),
                 message.getAttachments().stream()
@@ -293,6 +294,15 @@ public class OrderService {
         }
         var current = orders.findById(order.getId())
                 .orElseThrow(() -> new DomainException.NotFound("ordering.order.notFound"));
+        // The caller handed us the order as their screen had it. Loading it
+        // again by id throws that away, and with it the version column, so two
+        // baristas editing one order both saved and the second silently won.
+        // Comparing the versions is what makes the second one lose out loud.
+        if (order.getVersion() != current.getVersion()) {
+            throw new OptimisticLockingFailureException(
+                    "Order " + current.getReference() + " changed since it was opened: the screen had version "
+                            + order.getVersion() + " and the database has " + current.getVersion());
+        }
 
         var items = new java.util.ArrayList<OrderItem>();
         for (CartLine line : lines) {
@@ -338,7 +348,11 @@ public class OrderService {
         }
         current.setState(target);
         current.addHistory(new OrderHistoryItem(target, message, actor));
-        return orders.save(current);
+        var saved = orders.save(current);
+        // The customer watching their tracking page is on the other end of
+        // this, and so is every board showing the order.
+        activity.changed(saved.getReference());
+        return saved;
     }
 
     /** A customer may withdraw only while nothing has been baked. */

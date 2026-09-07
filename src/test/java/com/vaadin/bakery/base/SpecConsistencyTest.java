@@ -42,15 +42,9 @@ class SpecConsistencyTest {
      * closed.
      */
     private static final Set<String> NOT_WRITTEN_YET = Set.of(
-            "ConcurrentEditBrowserlessTest",
             "InvoiceLocaleBrowserlessTest",
-            "LocaleSwitchDerivedTextBrowserlessTest",
-            "LocaleSwitchTransientTextBrowserlessTest",
             "OrderDetailsBandIT",
-            "PageTitleLocaleBrowserlessTest",
-            "ResponsiveBoardBrowserlessTest",
-            "TrackingLiveBrowserlessTest",
-            "UserAvatarBrowserlessTest"
+            "ResponsiveBoardBrowserlessTest"
     );
 
     private Set<String> namedTestClasses() throws IOException {

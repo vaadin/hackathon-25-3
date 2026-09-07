@@ -70,7 +70,7 @@ Any component that subscribes to something outside itself registers in `Componen
 
 ### AC2: The shell works
 - [ ] The side navigation shows only what the current user may reach
-- [ ] The page title comes from the router state, and changing view changes it
+- [x] The page title comes from the router state, and changing view changes it
 - [x] The theme toggle switches light and dark without a reload, and the choice survives a logout and a login
 
 ### AC3: Security is enforced by annotation
@@ -82,10 +82,10 @@ Any component that subscribes to something outside itself registers in `Componen
 ### AC4: Internationalisation is real
 - [x] Switching language retranslates the screen that is already open, with no reload and no navigation of any kind in between
 - [ ] Labels, placeholders, accessible names, column headings, dropdown options, empty states and navigation entries follow the language, not only headings and buttons
-- [ ] Dates, times, weekday and month names and money follow the selected language, including inside list cells whose text is derived rather than stored
-- [ ] Nothing already started is lost by switching: form values, basket and filters all survive
-- [ ] Text composed at the moment it was shown, such as a notification already on screen, keeps the language it appeared in
-- [ ] The view title in the shell and the browser tab title follow the language
+- [x] Dates, times, weekday and month names and money follow the selected language, including inside list cells whose text is derived rather than stored
+- [x] Nothing already started is lost by switching: form values, basket and filters all survive
+- [x] Text composed at the moment it was shown, such as a notification already on screen, keeps the language it appeared in
+- [x] The view title in the shell and the browser tab title follow the language
 - [x] No user visible string is written into the source rather than the bundles, annotation values included, asserted by a test that greps the sources
 
 ### AC5: The about page tells the truth

@@ -50,7 +50,7 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 
 ### AC1: The board is live
 - [x] A state change made by one baker appears on another baker's board with no reload
-- [ ] The same change appears on the customer's tracking page
+- [x] The same change appears on the customer's tracking page
 - [x] The changed ticket is visually flagged for a moment on the observing screens
 
 ### AC2: Claiming is safe
