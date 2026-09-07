@@ -24,6 +24,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.signals.Signal;
 import com.vaadin.flow.signals.local.ValueSignal;
 import jakarta.annotation.security.RolesAllowed;
+import com.vaadin.flow.server.streams.DownloadHandler;
+import com.vaadin.flow.server.streams.DownloadResponse;
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -87,7 +90,12 @@ public class InvoiceListView extends VerticalLayout {
         Translations.bind(statusFilter, statusFilter::setEmptySelectionCaption, "catalogue.category.all");
         statusFilter.addValueChangeListener(event -> status.set(event.getValue()));
 
-        var export = Translations.bindText(new Button("", event -> exportCsv()), "billing.invoice.export");
+        // An anchor over a DownloadHandler, not a button: the bytes have to
+        // reach the browser as a response, and a click handler that builds a
+        // string and shows a notification is what "export" looked like before.
+        var export = Translations.bindText(new Anchor(csvDownload(), ""), "billing.invoice.export");
+        export.getElement().setAttribute("download", true);
+        export.addClassName("invoice-list__export");
 
         add(new Div(searchField, statusFilter, export), grid);
         // Re-running the load on a locale change is what redraws the cells whose
@@ -158,10 +166,16 @@ public class InvoiceListView extends VerticalLayout {
         return rows.toString();
     }
 
-    private void exportCsv() {
-        var content = csv();
-        var bytes = content.getBytes(StandardCharsets.UTF_8);
-        Notification.show(getTranslation("billing.invoice.exported", bytes.length));
+    /**
+     * The file, built when it is asked for rather than when the page is drawn,
+     * so it carries whatever the filter shows at the moment of the click.
+     */
+    private DownloadHandler csvDownload() {
+        return DownloadHandler.fromInputStream(event -> {
+            var bytes = csv().getBytes(StandardCharsets.UTF_8);
+            return new DownloadResponse(new ByteArrayInputStream(bytes), "invoices.csv",
+                    "text/csv; charset=utf-8", bytes.length);
+        });
     }
 
     Grid<Invoice> grid() {

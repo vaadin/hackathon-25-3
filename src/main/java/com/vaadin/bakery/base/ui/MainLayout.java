@@ -47,9 +47,6 @@ public class MainLayout extends AppLayout {
     private final AppearanceSettings appearance;
     private final AuthenticationContext authentication;
     private final Span viewTitle = new Span();
-    private transient com.vaadin.flow.shared.Registration themeStylesheet;
-    private transient com.vaadin.flow.shared.Registration paletteStylesheet;
-    private transient String loadedStylesheet;
 
     public MainLayout(CurrentUser currentUser, CartSignals cart, AppearanceSettings appearance,
             AuthenticationContext authentication) {
@@ -63,44 +60,11 @@ public class MainLayout extends AppLayout {
 
         // Attach scoped setup, the 25.3 way: no onAttach override, and whatever
         // the function returns is released when the layout detaches.
+        // The theme and the colour scheme, applied the same way on every route
+        // rather than only on the ones inside this shell.
+        ThemeBinding.apply(this, appearance);
+
         whenAttached(ui -> {
-            // Page.setColorScheme, not a theme attribute: Aura follows the CSS
-            // color-scheme property, and so does every light-dark() value in our
-            // own stylesheets. Setting theme="dark" on the body, which is what
-            // the Lumo 24 examples do, changes nothing at all here.
-            Signal.effect(this, () -> ui.getPage().setColorScheme(
-                    Boolean.TRUE.equals(appearance.dark().get())
-                            ? ColorScheme.Value.DARK
-                            : ColorScheme.Value.LIGHT));
-
-            // Exactly one theme stylesheet at a time, plus the bakery palette
-            // when the chosen variant asks for it. Loading both themes at once
-            // would leave one of them half applied, and a plain theme has to
-            // look exactly like itself for the comparison to mean anything.
-            Signal.effect(this, () -> {
-                Theme wanted = appearance.theme().get();
-
-                // Only touch what actually changes. Removing a stylesheet and
-                // adding the same URL back in one round trip loses it: the two
-                // operations reach the browser together and the add is treated
-                // as a duplicate of a sheet that is still there. Switching
-                // between Lumo and "Lumo with the bakery colours" left the page
-                // with no theme at all until this was split in two.
-                if (!wanted.stylesheet().equals(loadedStylesheet)) {
-                    if (themeStylesheet != null) {
-                        themeStylesheet.remove();
-                    }
-                    themeStylesheet = ui.getPage().addStyleSheet(wanted.stylesheet());
-                    loadedStylesheet = wanted.stylesheet();
-                }
-
-                if (wanted.hasBakeryPalette() && paletteStylesheet == null) {
-                    paletteStylesheet = ui.getPage().addStyleSheet(AppearanceSettings.BAKERY_PALETTE);
-                } else if (!wanted.hasBakeryPalette() && paletteStylesheet != null) {
-                    paletteStylesheet.remove();
-                    paletteStylesheet = null;
-                }
-            });
             viewTitle.bindText(ui.routerStateSignal().map(state -> state.currentView()
                     .filter(view -> view instanceof Component)
                     .flatMap(view -> MenuConfiguration.getPageHeader((Component) view))

@@ -8,6 +8,8 @@ import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.Table;
+import com.vaadin.bakery.base.ui.AppearanceSettings;
+import com.vaadin.bakery.base.ui.ThemeBinding;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -28,7 +30,9 @@ import java.util.LinkedHashMap;
  * Anonymous by route, protected by the invoice number plus the order's tracking
  * token, exactly like the tracking page.
  */
-@Route("invoices/:number/print")
+// autoLayout = false: a page that exists to be printed has no business
+// carrying a drawer, a header and a navigation menu into the paper.
+@Route(value = "invoices/:number/print", autoLayout = false)
 @PageTitle("Invoice")
 @AnonymousAllowed
 public class InvoicePrintView extends VerticalLayout implements BeforeEnterObserver {
@@ -37,8 +41,11 @@ public class InvoicePrintView extends VerticalLayout implements BeforeEnterObser
 
     private final InvoiceService invoices;
 
-    public InvoicePrintView(InvoiceService invoices) {
+    public InvoicePrintView(InvoiceService invoices, AppearanceSettings appearance) {
         this.invoices = invoices;
+        // Outside the shell as well, since autoLayout is off, so it applies the
+        // theme itself or it prints unstyled.
+        ThemeBinding.apply(this, appearance);
         addClassName("invoice-print");
     }
 

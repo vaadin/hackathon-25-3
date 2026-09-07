@@ -6,6 +6,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.PageTitleGenerator;
 import com.vaadin.flow.server.VaadinService;
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * The 25.3 way of naming a page whose title depends on the route: the generator
@@ -28,10 +29,34 @@ public class ProductPageTitle implements PageTitleGenerator {
 
     @Override
     public String generatePageTitle(PageTitleContext context) {
-        return context.routeParameters().get("slug")
+        return slug(context)
                 .flatMap(catalogue::bySlug)
                 .map(product -> product.getName())
                 .orElseGet(this::noSuchProduct);
+    }
+
+    /**
+     * The slug, from the context when there is one and from the open location
+     * when there is not.
+     *
+     * The router calls this with the route parameters and everything works.
+     * {@code MenuConfiguration.getPageHeader}, which is what the shell binds
+     * its header to, calls the same generator with a context carrying none, so
+     * the slug is absent, so the header reads "we cannot find that product"
+     * over the product the page is showing. Recorded in
+     * {@code specs/FEEDBACK-25.3.md}: delete this the day the context is
+     * complete whoever asks.
+     */
+    private Optional<String> slug(PageTitleContext context) {
+        var fromContext = context.routeParameters().get("slug");
+        if (fromContext.isPresent()) {
+            return fromContext;
+        }
+        return Optional.ofNullable(UI.getCurrent())
+                .map(ui -> ui.getInternals().getActiveViewLocation())
+                .map(location -> location.getSegments())
+                .filter(segments -> segments.size() >= 2 && "products".equals(segments.get(0)))
+                .map(segments -> segments.get(1));
     }
 
     /** The tab of a slug nobody sells says the same as the page under it. */

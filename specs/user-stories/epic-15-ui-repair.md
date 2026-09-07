@@ -35,7 +35,19 @@ One commit, many views, no new dependency. Everything here is CSS or a formatter
 
 ---
 
-### US-15.3: The dashboard reads at a glance
+### US-15.3: `Crud` for the three admin views
+
+**Tasks:**
+- [ ] `vaadin-crud-flow` as an ordinary dependency, no profile and no fallback
+- [ ] Catalogue, people and closures on `Crud`, with its new item button, its editor and its delete confirmation
+- [ ] Sortable columns where a person would sort
+- [ ] The filters as a header row inside the grid
+
+**Verified by:** `CatalogueCrudBrowserlessTest`
+
+---
+
+### US-15.4: The dashboard reads at a glance
 
 **Tasks:**
 - [ ] `vaadin-dashboard-flow` as an ordinary dependency
@@ -47,7 +59,7 @@ One commit, many views, no new dependency. Everything here is CSS or a formatter
 
 ---
 
-### US-15.4: The order board's toolbar and grid
+### US-15.5: The order board's toolbar and grid
 
 **Tasks:**
 - [ ] A selection column no wider than its checkbox
@@ -59,7 +71,7 @@ One commit, many views, no new dependency. Everything here is CSS or a formatter
 
 ---
 
-### US-15.5: The catalogue as a master detail
+### US-15.6: The catalogue as a master detail
 
 **Tasks:**
 - [ ] A product opens over the list in an overlay rather than replacing the page
@@ -69,7 +81,7 @@ One commit, many views, no new dependency. Everything here is CSS or a formatter
 
 ---
 
-### US-15.6: Diagnostics side by side
+### US-15.7: Diagnostics side by side
 
 **Tasks:**
 - [ ] Panels share a row when there is room, and a height when they share a row

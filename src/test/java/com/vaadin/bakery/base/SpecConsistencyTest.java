@@ -47,8 +47,6 @@ class SpecConsistencyTest {
             "RowActionsTest",
             "CatalogueOverlayBrowserlessTest",
             "BoardToolbarBrowserlessTest",
-            "ProductHeaderBrowserlessTest",
-            "InvoicePrintBrowserlessTest",
             "ConcurrentEditBrowserlessTest",
             "ConversationMultiUserBrowserlessTest",
             "InvoiceLocaleBrowserlessTest",

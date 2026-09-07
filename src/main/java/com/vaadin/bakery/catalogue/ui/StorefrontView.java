@@ -24,6 +24,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
  * shareable.
  */
 @Route("shop")
+@PageTitle("Shop")
 @Menu(order = 1, title = "Shop", icon = "vaadin:shop")
 @AnonymousAllowed
 public class StorefrontView extends VerticalLayout implements HasUrlParameter<String>, BeforeEnterObserver {

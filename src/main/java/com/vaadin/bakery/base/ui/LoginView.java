@@ -13,7 +13,12 @@ import java.util.Locale;
 @AnonymousAllowed
 public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 
-    public LoginView() {
+    public LoginView(AppearanceSettings appearance) {
+        // The first page anybody sees is outside the shell, so it applies the
+        // theme itself. Without this it arrives unstyled on a cold load and
+        // looks right only once a session has been inside MainLayout.
+        ThemeBinding.apply(this, appearance);
+
         setForgotPasswordButtonVisible(false);
         setAction("login");
         setOpened(true);
