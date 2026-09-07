@@ -33,22 +33,22 @@ Both are written as assertions, not as screenshots.
 - [ ] `/actuator/vaadin/observability` returns insights
 
 ### AC2: The diagnostics view needs no backend
-- [ ] Session lock, RPC and data provider panels populate under normal use with the default profile
+- [x] Session lock, RPC and data provider panels populate under normal use with the default profile
 
 ### AC3: It proves the Grid claim
-- [ ] Toggling the expensive column on the order board does not increase the query counter
+- [x] Toggling the expensive column on the order board does not increase the query counter
 
 ### AC4: Stale UI detection works
 - [ ] A deferred callback delivered through `UI.triggerAfter` reaches the UI with no push connection
 - [ ] A callback whose UI has gone increments the undelivered counter
 
 ### AC5: Access is controlled
-- [ ] Only an admin can open the diagnostics view or the actuator endpoints, apart from health
+- [x] Only an admin can open the diagnostics view or the actuator endpoints, apart from health
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- Neither endpoint criterion is tested. `ObservabilityEndpointTest` proves health is public and that the metrics endpoint is not, which is AC5, not AC1. Asserting the Vaadin metrics themselves needs a run with the `observability` profile, and nothing runs one.
+- AC4 needs rereading rather than testing. `Application` is now annotated `@Push`, because the assistant streams its answer token by token and those tokens reach the browser no other way. The premise of both criteria, a deferred callback delivered with no push connection, no longer describes this application. The button in the diagnostics view still schedules the callback and still reports what it cost, so the interesting part survives, but the undelivered counter now needs a UI that has actually gone rather than one that merely cannot be reached.
 
 ## Test cases
 

@@ -1,0 +1,29 @@
+.diagnostics {
+}
+
+.diagnostics__panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  gap: var(--vaadin-gap-m, 1rem);
+  margin-block-start: var(--vaadin-gap-m, 1rem);
+  align-items: start;
+}
+
+.diagnostics__row {
+  display: flex;
+  justify-content: space-between;
+  padding-block: .15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.diagnostics__panel table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.diagnostics__panel th,
+.diagnostics__panel td {
+  text-align: start;
+  padding: .2rem .5rem;
+  border-bottom: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+}

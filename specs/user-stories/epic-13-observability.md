@@ -9,7 +9,7 @@
 ### US-13.1: Observability Kit
 
 **Tasks:**
-- [ ] `observability` profile with the starter, actuator and the Prometheus registry
+- [x] `observability` profile with the starter, actuator and the Prometheus registry
 - [ ] `vaadin.observability.*` configuration, endpoints restricted to admin except health
 - [ ] `docker compose` with Prometheus and Grafana, plus a committed dashboard JSON with the four rows
 
@@ -20,9 +20,9 @@
 ### US-13.2: Diagnostics view
 
 **Tasks:**
-- [ ] `/admin/diagnostics` with panels for session lock contention, RPC traffic, data provider queries and stale UI
-- [ ] Listeners registered on the `VaadinService` event bus, released on shutdown
-- [ ] Works with the default profile, because the event bus is free platform
+- [x] `/admin/diagnostics` with panels for session lock contention, RPC traffic, data provider queries and stale UI
+- [x] Listeners registered on the `VaadinService` event bus, released on shutdown
+- [x] Works with the default profile, because the event bus is free platform
 
 **25.3 APIs:** VaadinService event bus.
 **Verified by:** `DiagnosticsBrowserlessTest`
@@ -32,7 +32,7 @@
 ### US-13.3: Proving the claims
 
 **Tasks:**
-- [ ] Query counter used by `HiddenColumnCostBrowserlessTest` to prove hidden columns cost nothing
+- [x] Query counter used by `HiddenColumnCostBrowserlessTest` to prove hidden columns cost nothing
 - [ ] Same counter used by `DashboardQueryCostBrowserlessTest` to hold the dashboard under ten queries
 
 **Verified by:** `HiddenColumnCostBrowserlessTest`, `DashboardQueryCostBrowserlessTest`
