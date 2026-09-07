@@ -3,6 +3,7 @@ package com.vaadin.bakery.base.ui;
 import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.bakery.base.security.CurrentUser;
 import com.vaadin.bakery.base.ui.AppearanceSettings.Theme;
+import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.page.ColorScheme;
@@ -42,6 +43,7 @@ public class MainLayout extends AppLayout {
     private static final Set<String> ADMINISTRATION = Set.of("admin");
 
     private final CurrentUser currentUser;
+    private final CartSignals cart;
     private final AppearanceSettings appearance;
     private final AuthenticationContext authentication;
     private final Span viewTitle = new Span();
@@ -49,9 +51,10 @@ public class MainLayout extends AppLayout {
     private transient com.vaadin.flow.shared.Registration paletteStylesheet;
     private transient String loadedStylesheet;
 
-    public MainLayout(CurrentUser currentUser, AppearanceSettings appearance,
+    public MainLayout(CurrentUser currentUser, CartSignals cart, AppearanceSettings appearance,
             AuthenticationContext authentication) {
         this.currentUser = currentUser;
+        this.cart = cart;
         this.appearance = appearance;
         this.authentication = authentication;
         setPrimarySection(Section.DRAWER);
@@ -153,7 +156,7 @@ public class MainLayout extends AppLayout {
         Translations.bind(themeToggle, themeToggle::setAriaLabel, "app.theme.toggle");
         themeToggle.addClickListener(event -> appearance.toggleDark());
 
-        var header = new HorizontalLayout(themeSelector(), languageSelector(), themeToggle,
+        var header = new HorizontalLayout(cartBadge(), themeSelector(), languageSelector(), themeToggle,
                 userMenu());
         header.setAlignItems(FlexComponent.Alignment.CENTER);
         header.addClassName("app-header");
@@ -162,6 +165,19 @@ public class MainLayout extends AppLayout {
         return header;
     }
 
+    /** The badge reads the same signal the cart page writes, so they agree by construction. */
+    private Component cartBadge() {
+        var count = new Span();
+        count.getElement().getThemeList().add("badge primary small");
+        count.bindText(cart.itemCount().map(String::valueOf));
+        count.bindVisible(com.vaadin.flow.signals.Signal.computed(() -> cart.itemCount().get() > 0));
+
+        var link = new com.vaadin.flow.component.html.Anchor("cart", "");
+        link.addClassName("cart-badge");
+        Translations.bind(link, link::setAriaLabel, "cart.title");
+        link.add(new Icon(VaadinIcon.CART), count);
+        return link;
+    }
 
     private Component languageSelector() {
         var menu = new MenuBar();

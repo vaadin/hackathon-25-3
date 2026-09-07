@@ -51,32 +51,34 @@ Capacity is advisory in the picker and authoritative in the service. Between cho
 ## Acceptance criteria
 
 ### AC1: The badge is always right
-- [ ] Adding from a card updates the badge without a navigation
+- [x] Adding from a card updates the badge without a navigation
 - [ ] Changing a quantity on the cart page updates the badge and the totals
-- [ ] Setting a quantity to zero removes the line
+- [x] Setting a quantity to zero removes the line
 
 ### AC2: The calendar tells the truth
-- [ ] Closed weekdays for the chosen location are not selectable
-- [ ] Closure dates are not selectable and show their reason
-- [ ] Dates before the cart's earliest possible day are not selectable
+- [x] Closed weekdays for the chosen location are not selectable
+- [x] Closure dates are not selectable and show their reason
+- [x] Dates before the cart's earliest possible day are not selectable
 - [ ] A fully booked day is not selectable and says so
 
 ### AC3: Metadata renders
-- [ ] Each selectable day shows its remaining capacity
-- [ ] A nearly full day is visually distinct from an empty one
+- [x] Each selectable day shows its remaining capacity
+- [x] A nearly full day is visually distinct from an empty one
 - [ ] Changing the location refreshes the metadata without rebuilding the picker
 
 ### AC4: Time defaults are useful
-- [ ] Choosing a date prefills the next free time on that date
+- [x] Choosing a date prefills the next free time on that date
 - [ ] Full times are not offered
 
 ### AC5: Capacity is enforced
-- [ ] Submitting into a slot that just filled is refused with the slot named and nothing is written
+- [x] Submitting into a slot that just filled is refused with the slot named and nothing is written
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- Changing a quantity to something other than zero is not asserted against the badge and the totals. Removal is, and adding is, and the case in between is not.
+- A fully booked day being unselectable is untested at the day level. `fullSlotsAreNotOffered` only asserts that no option reports a negative remaining count, which is true of any list of options and proves nothing about a full one being hidden. That test needs rewriting around a slot deliberately filled first, and until then both that criterion and the full times one stay open.
+- Changing the location refreshes the metadata without rebuilding the picker: implemented, never asserted.
+- CART-06 and CART-07 are browser tier by design and wait on `DatePickerMetadataIT`. The capacity number and the part name are covered browserless, the hover reason is not.
 
 ## Test cases
 

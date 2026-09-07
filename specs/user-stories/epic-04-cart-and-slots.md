@@ -9,9 +9,9 @@
 ### US-4.1: Cart state
 
 **Tasks:**
-- [ ] `@VaadinSessionScope CartSignals` with `ListSignal<CartLine>` and computed totals
-- [ ] Header badge bound to the computed count
-- [ ] Add to cart from card and from product page
+- [x] `@VaadinSessionScope CartSignals` with `ListSignal<CartLine>` and computed totals
+- [x] Header badge bound to the computed count
+- [x] Add to cart from card and from product page
 - [ ] Cart survives navigation and a language switch
 
 **Verified by:** `CartBrowserlessTest`
@@ -21,10 +21,10 @@
 ### US-4.2: Cart page
 
 **Tasks:**
-- [ ] Lines bound through `base/signals/Children.java`, quantity stepper, per line comment, remove
-- [ ] Zero quantity removes the line
-- [ ] Net, VAT and gross as computed signals
-- [ ] Flag lines whose product became unavailable, and block checkout until removed
+- [x] Lines bound through `base/signals/Children.java`, quantity stepper, per line comment, remove
+- [x] Zero quantity removes the line
+- [x] Net, VAT and gross as computed signals
+- [x] Flag lines whose product became unavailable, and block checkout until removed
 - [ ] Session expiry message with a link to the catalogue
 
 **Verified by:** `CartBrowserlessTest`
@@ -34,9 +34,9 @@
 ### US-4.3: Slot service
 
 **Tasks:**
-- [ ] Generate slots from location, opening hours, slot length and closures
-- [ ] `DaySlotLoad` for a date range, in one query
-- [ ] Capacity check inside the ordering transaction
+- [x] Generate slots from location, opening hours, slot length and closures
+- [x] `DaySlotLoad` for a date range, in one query
+- [x] Capacity check inside the ordering transaction
 
 **Verified by:** `SlotServiceTest`, `SlotConcurrencyTest`
 
@@ -47,11 +47,11 @@
 **As a** visitor **I want** impossible days to be unselectable **so that** I do not promise myself a cake that cannot exist.
 
 **Tasks:**
-- [ ] `setDisabledWeekdays` from the location's closed weekdays
-- [ ] Disable closure dates, dates before today plus the cart's largest lead time, and fully booked days
-- [ ] `DateMetadataProvider` adding remaining capacity and a custom part name per day
-- [ ] Tooltip explaining why a day is disabled, using the closure reason
-- [ ] `refreshDateMetadata()` when the location or the cart changes
+- [x] `setDisabledWeekdays` from the location's closed weekdays
+- [x] Disable closure dates, dates before today plus the cart's largest lead time, and fully booked days
+- [x] `DateMetadataProvider` adding remaining capacity and a custom part name per day
+- [x] Tooltip explaining why a day is disabled, using the closure reason
+- [x] `refreshDateMetadata()` when the location or the cart changes
 
 **25.3 APIs:** disabled dates and weekdays, date metadata provider, `refreshDateMetadata`.
 **Verified by:** `SlotSelectionBrowserlessTest`, `DatePickerMetadataIT`
@@ -61,8 +61,8 @@
 ### US-4.5: Time selection
 
 **Tasks:**
-- [ ] Offer only slots that exist and are not full
-- [ ] Prefill the next free time on the chosen date, using the DateTimePicker default time behaviour
+- [x] Offer only slots that exist and are not full
+- [x] Prefill the next free time on the chosen date, using the DateTimePicker default time behaviour
 
 **Verified by:** `SlotSelectionBrowserlessTest`
 
@@ -76,4 +76,4 @@
 ## Definition of Done
 
 - [ ] Every acceptance criterion in `features/04-cart-and-slots.md` is checked
-- [ ] No path exists that books an order into a closed or full slot
+- [x] No path exists that books an order into a closed or full slot
