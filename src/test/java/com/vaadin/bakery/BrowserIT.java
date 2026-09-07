@@ -204,19 +204,21 @@ public abstract class BrowserIT extends BrowserTestBase {
     }
 
     /**
-     * Waits until the shell has decided what to do with its drawer.
+     * There is nothing to wait for, and this is the note that says so.
      *
-     * `vaadin-app-layout` chooses between a drawer that takes space and one
-     * that floats over the content, from the window width, and it chooses after
-     * the first render. Anything measured before that is measured on a board
-     * that briefly had the whole window: two layout tests here failed exactly
-     * once each that way, comparing 451 against 365 with nothing wrong on the
-     * screen. At the width these tests set, the drawer is inline.
+     * A helper lived here that waited for `AppLayout` to have `drawer-opened`
+     * and no `overlay`, on the assumption that those attributes mark the point
+     * where the shell has settled. They do not. Measured on a cold load at a
+     * 1533 pixel viewport: at 169 ms the drawer is already 256 pixels wide, the
+     * navigation is visible, the view is opaque, and the content is still 1533
+     * wide; at 190 ms the same content is 1277. Both attributes hold their
+     * final values in both samples.
+     *
+     * So a layout test must not compare an absolute width against one it read
+     * earlier. Measure a width and its container's in one script call and
+     * compare the share, the way {@code KitchenSummaryOverlayIT} does. The
+     * measurements are in {@code specs/FEEDBACK-PLATFORM.md}.
      */
-    protected void waitForTheShellToSettle() {
-        waitUntil("var l = document.querySelector('vaadin-app-layout');"
-                + "return !!l && !l.hasAttribute('overlay') && l.hasAttribute('drawer-opened');");
-    }
 
     protected <T> T settled(java.util.function.Supplier<T> measure) {
         var seen = new java.util.concurrent.atomic.AtomicReference<T>(measure.get());

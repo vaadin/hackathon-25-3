@@ -89,7 +89,6 @@ class KitchenSummaryOverlayIT extends BrowserIT {
     void thePanelIsNoWiderThanTheSummaryItContains() {
         signIn("baker@bakery.test", "baker");
         open("/kitchen");
-        waitForTheShellToSettle();
         toggleSummary();
 
         var measured = (List<Long>) script(
