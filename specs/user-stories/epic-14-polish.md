@@ -9,7 +9,7 @@
 ### US-14.1: Spec and test consistency
 
 **Tasks:**
-- [ ] `SpecConsistencyTest` parsing every feature document and asserting each `Verified by` class exists
+- [x] `SpecConsistencyTest` parsing every feature document and asserting each `Verified by` class exists
 - [ ] Fill every gap it reports
 - [ ] JaCoCo floor from `08-testing.md`, failing the build below it
 
@@ -20,9 +20,9 @@
 ### US-14.2: Multi user and browser coverage
 
 **Tasks:**
-- [ ] Multi user browserless coverage for the kitchen board and the conversation
+- [x] Multi user browserless coverage for the kitchen board and the conversation
 - [ ] The closed TestBench list, bootstrapped with the Copilot Test Recorder and hardened by hand
-- [ ] No `Thread.sleep` anywhere, no test depending on the wall clock
+- [x] No `Thread.sleep` anywhere, no test depending on the wall clock
 
 **Verified by:** the IT list in `08-testing.md`
 
@@ -31,8 +31,8 @@
 ### US-14.3: Translation sweep
 
 **Tasks:**
-- [ ] `NoHardcodedStringsTest` green across the whole source tree
-- [ ] `TranslationCompletenessTest` green for both bundles
+- [x] `NoHardcodedStringsTest` green across the whole source tree
+- [x] `TranslationCompletenessTest` green for both bundles
 - [ ] Spanish reviewed by a human
 
 **Verified by:** `NoHardcodedStringsTest`, `TranslationCompletenessTest`
@@ -42,9 +42,9 @@
 ### US-14.4: About page in Kotlin
 
 **Tasks:**
-- [ ] `kotlin-maven-plugin` for one source file
+- [x] `kotlin-maven-plugin` for one source file
 - [ ] `/about` listing version, profiles, flags, licence, AI provider and observability, each linking to its demo view
-- [ ] Header comment and a `CLAUDE.md` note that the dev loop does not hot swap Kotlin
+- [x] Header comment and a `CLAUDE.md` note that the dev loop does not hot swap Kotlin
 
 **25.3 APIs:** Copilot Kotlin support, exercised while writing it.
 **Verified by:** `AboutViewBrowserlessTest`
@@ -65,9 +65,9 @@
 ### US-14.6: Documentation and demo script
 
 **Tasks:**
-- [ ] `README.md`: what it is, how to run it, demo accounts, profiles, what needs a licence
-- [ ] `DEMO.md`: a five minute and a fifteen minute script, with a fallback for every step that needs network, licence or key
-- [ ] `specs/CHANGELOG-RISK.md`: every preview or beta API, where it is used, what to recheck at GA
+- [x] `README.md`: what it is, how to run it, demo accounts, profiles, what needs a licence
+- [x] `DEMO.md`: a five minute and a fifteen minute script, with a fallback for every step that needs network, licence or key
+- [x] `specs/CHANGELOG-RISK.md`: every preview or beta API, where it is used, what to recheck at GA
 - [ ] Branch README keeping the hackathon rules block on top, project write up below
 
 **Verified by:** manual, on a clean clone
@@ -87,5 +87,5 @@
 
 ## Definition of Done
 
-- [ ] `./mvnw verify` green on the default profile with no licence, no key and no network
+- [x] `./mvnw verify` green on the default profile with no licence, no key and no network
 - [ ] A stranger can clone, run and demo the application using only the README and `DEMO.md`

@@ -40,16 +40,16 @@ The Aura pass from `05-theming.md` finished: palette in both schemes, contrast c
 
 ### AC1: The suite is complete and green
 - [ ] Every `Verified by` class named in a feature document exists
-- [ ] `./mvnw verify` is green with the default profile, no licence, no key, no network
+- [x] `./mvnw verify` is green with the default profile, no licence, no key, no network
 - [ ] The coverage floor holds
 
 ### AC2: Translations are complete
-- [ ] No user visible literal outside the bundles
-- [ ] Both bundles have the same key set
+- [x] No user visible literal outside the bundles
+- [x] Both bundles have the same key set
 
 ### AC3: The about page tells the truth
-- [ ] It reports version, profiles, flags, the assistant and the observability state accurately
-- [ ] It is written in Kotlin and compiles in the normal build
+- [x] It reports version, profiles, flags, the assistant and the observability state accurately
+- [x] It is written in Kotlin and compiles in the normal build
 
 ### AC4: The documentation lets a stranger run it
 - [ ] A clean clone runs with two commands
@@ -57,8 +57,9 @@ The Aura pass from `05-theming.md` finished: palette in both schemes, contrast c
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- Thirteen classes named in these documents do not exist. `SpecConsistencyTest` passes because it holds that list by name, which keeps the gap visible instead of letting it rot, but the criterion as written is not met.
+- There is no coverage floor. JaCoCo was specified in `08-testing.md` and is not in the pom.
+- Nobody has run AC4 from a clean clone, and `DEMO.md` has not been walked end to end since the assistant and the kitchen board changed.
 
 ## Test cases
 

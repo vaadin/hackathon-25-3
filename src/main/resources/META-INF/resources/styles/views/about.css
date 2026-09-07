@@ -1,0 +1,15 @@
+.about,
+.hours-view {
+  max-width: 72rem;
+}
+
+.about__capabilities {
+  display: grid;
+  gap: var(--vaadin-gap-s, .5rem);
+}
+
+.about__capability {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
