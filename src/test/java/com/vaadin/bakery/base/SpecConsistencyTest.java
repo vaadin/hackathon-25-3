@@ -43,6 +43,11 @@ class SpecConsistencyTest {
      * closed.
      */
     private static final Set<String> NOT_WRITTEN_YET = Set.of(
+            "RowActionsTest",
+            "CatalogueOverlayBrowserlessTest",
+            "BoardToolbarBrowserlessTest",
+            "ProductHeaderBrowserlessTest",
+            "InvoicePrintBrowserlessTest",
             "ConcurrentEditBrowserlessTest",
             "ConversationMultiUserBrowserlessTest",
             "InvoiceLocaleBrowserlessTest",
