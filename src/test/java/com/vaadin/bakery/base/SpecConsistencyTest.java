@@ -31,8 +31,9 @@ class SpecConsistencyTest {
 
     /** Browser tests. They need a licence and a display, so they are a separate run. */
     private static final Set<String> BROWSER_TIER = Set.of(
-            "AuraDarkModeIT", "ChartsRenderIT", "ClipboardPasteIT", "ColdLoginThemeIT",
-            "InvoiceCsvExportIT",             "DashboardLayoutIT", "DatePickerMetadataIT", "DiagnosticsLayoutIT", "GridProEditIT",
+            "AuraDarkModeIT", "ClipboardPasteIT", "ColdLoginThemeIT",
+            "InvoiceCsvExportIT", "DashboardLayoutIT", "DatePickerMetadataIT",
+            "DiagnosticsLayoutIT", "GridProEditIT",
             "InvoicePrintIT", "KitchenBoardPushIT", "KitchenSummaryOverlayIT",
             "PageTitleIT", "PwaInstallIT", "SmokeIT", "UploadDropZoneIT", "UserAvatarIT");
 

@@ -8,7 +8,7 @@ The old app had seven unit tests about date formatting and five TestBench classe
 | --- | --- | --- | --- | --- |
 | Unit | JUnit 6 | `*Test` | `mvn test` | Money and VAT arithmetic, state machine, slot computation, invoice numbering, sanitization, the mock provider |
 | Browserless | `browserless-test-junit6`, version from the BOM | `*BrowserlessTest` | `mvn test` | Everything reachable through the component API: routing, security, binder and validation, signals, grid contents, multi user state |
-| End to end | TestBench, profile `it` | `*IT` | `mvn verify -Pit` | Only what needs a real browser. **Specified, not built:** there is no `it` profile and no TestBench dependency yet |
+| End to end | TestBench, profile `it` | `*IT` | `mvn verify -Pit` | Only what needs a real browser. The profile starts the application on port 8081, runs every `*IT` against a local Chrome and stops it again. Surefire never sees these, because `*IT` does not match its default includes, so the ordinary gate needs no browser |
 | Live model | JUnit tag `live-ai` | `*Test` | `mvn test -Pai -Dsurefire.excludedGroups=` | The one test that leaves the machine. `LiveAssistantTest` proves the assistant really reaches OpenAI, which no mock can. Excluded from every default run |
 
 Browserless testing is free since 25.1 and needs neither a browser nor a servlet container, which is why it carries the bulk of the suite. `browserless-test` is versioned independently of the platform and is never hand pinned.
@@ -34,6 +34,11 @@ TestBench owns, and this list is closed at about ten classes:
 | `SmokeIT` | Login, storefront, order, board, in one pass |
 | `KitchenSummaryOverlayIT` | Whether opening the production summary takes width from the board. Only a real layout can answer it |
 | `OrderDetailsBandIT` | Whether the item tiles in an expanded row reflow to the width of the table rather than the window. A layout question, not a component one |
+| `ColdLoginThemeIT` | Whether the first page anybody sees has a theme. The stylesheet is added at runtime, so only a cold load in a browser can answer it |
+| `InvoiceCsvExportIT` | Whether a file is actually downloaded, which is a response the server never sees the end of |
+| `DashboardLayoutIT` | Whether a widget spans the columns it should, and stops spanning when the screen narrows |
+| `DiagnosticsLayoutIT` | Whether panels share a row and a height |
+| `UserAvatarIT` | Whether the header shows the person. The avatar sits inside a MenuBar item, where browserless `find` cannot see it |
 
 If a proposed IT is not on this list, it belongs in the browserless tier or the list changes deliberately in this document.
 

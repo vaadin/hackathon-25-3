@@ -125,6 +125,15 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- The browser tier. The dependency is always here so that the *IT
+             sources compile in an IDE and in a plain build; the it profile
+             below is what actually starts a browser and runs them. -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-testbench-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- One Kotlin file, the about view, to exercise the Copilot Kotlin
              support. Note that the dev loop compiles Java only, so editing it
              needs a restart. -->
@@ -265,6 +274,67 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <!-- The browser tier. Starts the application, runs every *IT
+                 against a real Chrome, and stops it again:
+
+                   ./mvnw verify -Pit
+
+                 Surefire never sees these, because *IT does not match its
+                 default includes, so the ordinary gate stays as fast as it is
+                 and needs no browser. -->
+            <id>it</id>
+            <properties>
+                <it.port>8081</it.port>
+                <it.headless>true</it.headless>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>start-for-it</id>
+                                <goals><goal>start</goal></goals>
+                                <configuration>
+                                    <arguments>
+                                        <argument>--server.port=${it.port}</argument>
+                                        <argument>--spring.datasource.url=jdbc:h2:mem:bakery-it;DB_CLOSE_DELAY=-1</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>stop-for-it</id>
+                                <goals><goal>stop</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                            <systemPropertyVariables>
+                                <it.port>${it.port}</it.port>
+                                <it.headless>${it.headless}</it.headless>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>observability</id>
             <dependencies>

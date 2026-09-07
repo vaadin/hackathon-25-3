@@ -1,4 +1,7 @@
 target/
+
+# TestBench writes a screenshot per failed browser test
+error-screenshots/
 node_modules/
 .vaadin/
 src/main/bundles/
