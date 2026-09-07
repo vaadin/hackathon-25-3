@@ -111,12 +111,18 @@ public class OrderBoardView extends MasterDetailLayout {
         Translations.onLocale(grid, locale -> {
             var i18n = new GridI18n();
             i18n.setSelectAll(getTranslation(locale, "board.i18n.selectAll"));
-            // Empty on purpose. The grid puts this string in a span it marks
-            // sr-only, and nothing styles that class inside its shadow root, so
-            // the sentence is drawn on screen and sizes the column: that is
-            // where the 199 pixel selection column came from. There is no
-            // checkbox to explain either, since select all is hidden above.
-            // See specs/FEEDBACK-25.3.md.
+            // Empty on purpose, and not for the reason it first looked like.
+            // The grid hides this string properly: it is in a span marked
+            // sr-only, and a declared theme makes that span one pixel square.
+            // This application declares no theme, because it chooses one at
+            // runtime, and a theme added with addStyleSheet never reaches a
+            // component's shadow root: the span comes out 140 pixels wide and
+            // takes the column with it. A bare reproducer showed that, in
+            // specs/issues/01-runtime-theme-shadow-dom.md.
+            //
+            // So this line buys a 59 pixel column and costs a screen reader
+            // the announcement. That is the wrong trade and it is the one this
+            // application's runtime theme switching leaves available.
             i18n.setSelectAllUnavailable("");
             i18n.setSelectRow(getTranslation(locale, "board.i18n.selectRow"));
             i18n.setSorter(getTranslation(locale, "board.i18n.sorter"));

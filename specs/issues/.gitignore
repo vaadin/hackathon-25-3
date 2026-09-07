@@ -1,0 +1,11 @@
+# Reproducer build output. The projects are sources, not builds.
+*/target/
+*/node_modules/
+*/src/main/frontend/generated/
+*/src/main/bundles/
+*/package.json
+*/package-lock.json
+*/tsconfig.json
+*/types.d.ts
+*/vite.config.ts
+*/vite.generated.ts
