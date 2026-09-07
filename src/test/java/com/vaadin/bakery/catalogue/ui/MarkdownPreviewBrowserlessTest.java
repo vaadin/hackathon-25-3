@@ -33,11 +33,13 @@ class MarkdownPreviewBrowserlessTest extends SpringBrowserlessTest {
     /**
      * What the preview holds, from the editor rather than from the component.
      *
-     * The dialog's fields are not in the tree the finder walks, and
-     * {@code Markdown.getContent()} throws {@code BindingActiveException} when
-     * the content is bound to a signal, which it is here and which is the whole
-     * point of the arrangement. Both rows are in
-     * {@code specs/FEEDBACK-25.3.md}.
+     * The dialog's fields are not in the tree the finder walks, so the editor
+     * hands them over. Reading the signal rather than the component is a
+     * preference and not a workaround: a bare project shows
+     * {@code Markdown.getContent()} returning the bound value quite happily,
+     * and the {@code BindingActiveException} that made this look otherwise came
+     * from a `Button` being rebound on its second attach, which is a different
+     * finding entirely.
      */
     private ProductEditor editor() {
         return find(ProductAdminView.class).single().editor();
