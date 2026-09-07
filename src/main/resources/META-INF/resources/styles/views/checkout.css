@@ -1,0 +1,67 @@
+.checkout-view {
+  max-width: 46rem;
+}
+
+.checkout-view__steps {
+  margin-block-end: var(--vaadin-gap-m, 1rem);
+}
+
+.checkout-view__summary-row,
+.tracking-view__item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--vaadin-gap-m, 1rem);
+  padding-block: .25rem;
+  border-bottom: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+}
+
+.checkout-view__total,
+.tracking-view h2 + span {
+  font-weight: 700;
+}
+
+.checkout-view__problems {
+  color: var(--vaadin-input-field-error-color, #b3261e);
+}
+
+.tracking-view__timeline > div {
+  display: flex;
+  gap: var(--vaadin-gap-m, 1rem);
+  padding-block: .2rem;
+}
+
+.tracking-view__timeline span:first-child {
+  min-width: 9rem;
+  opacity: .7;
+  font-variant-numeric: tabular-nums;
+}
+
+.tracking-view__actions {
+  display: flex;
+  gap: var(--vaadin-gap-m, 1rem);
+  margin-block-start: var(--vaadin-gap-l, 1.5rem);
+}
+
+.checkout-done__state {
+  margin-block-end: var(--vaadin-gap-s, .5rem);
+}
+
+.checkout-done__link {
+  margin-block-start: var(--vaadin-gap-l, 1.5rem);
+  padding: var(--vaadin-padding-m, 1rem);
+  border: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+  border-radius: var(--vaadin-radius-l, .5rem);
+  background: var(--vaadin-background-container, transparent);
+}
+
+/* The field and its copy button read as one control, so they share a baseline
+   and the field takes whatever the button leaves. */
+.checkout-done__link > div {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--vaadin-gap-s, .5rem);
+}
+
+.checkout-done__link > div > vaadin-text-field {
+  flex: 1;
+}

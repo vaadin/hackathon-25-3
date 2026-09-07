@@ -68,35 +68,36 @@ The page is not a checkout step: it has no breadcrumb and no way back into a che
 
 ### AC1: It is a step view, and moving through it loses nothing
 - [ ] Breadcrumbs reflect the route hierarchy with no hand written trail
-- [ ] Going back keeps the values already entered, however many times the visitor moves either way
-- [ ] Every step offers Back and Continue, and Back validates nothing
-- [ ] A refresh resumes the same step, with its values
+- [x] Going back keeps the values already entered, however many times the visitor moves either way
+- [x] Every step offers Back and Continue, and Back validates nothing
+- [x] A refresh resumes the same step, with its values
 
 ### AC2: Validation happens per step and again at the end
-- [ ] An incomplete contact step can be left without an error
-- [ ] Leaving a step forward validates that step's own fields, and no other step's
-- [ ] The review step refuses to place an order that fails `OnSubmit`, whatever each step said on its own
-- [ ] The place order button is disabled until every step is submit valid
+- [x] An incomplete contact step can be left without an error
+- [x] Leaving a step forward validates that step's own fields, and no other step's
+- [x] The review step refuses to place an order that fails `OnSubmit`, whatever each step said on its own
+- [x] The place order button is disabled until every step is submit valid
 
 ### AC3: Placing works
-- [ ] A placed order has a reference, a booked slot, a first history entry and correct totals
-- [ ] The confirmation shows the reference and a working tracking link
+- [x] A placed order has a reference, a booked slot, a first history entry and correct totals
+- [x] The confirmation shows the reference and a working tracking link
 
 ### AC4: Tracking is live and private
 - [ ] A staff state change appears on the tracking page without a reload
-- [ ] A wrong token shows not found
-- [ ] Cancel appears only while the order is new
+- [x] A wrong token shows not found
+- [x] Cancel appears only while the order is new
 
 ### AC5: Reorder
-- [ ] Reordering fills the cart with the same lines
+- [x] Reordering fills the cart with the same lines
 - [ ] Unavailable products are skipped and named
 
 The draft group is what makes the forward check possible. `OnDraft` was declared in epic 02 and never used: the shape rules, `@Email`, `@Pattern` and the sizes, now carry it alongside `Default`, while `@NotBlank` stays in `Default` alone. So a draft validation asks whether what is written is well formed without asking whether it is finished, and persistence keeps the guarantee it always had.
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- The breadcrumb trail is built from the route hierarchy and nothing tests it.
+- Reorder proves every line that is still sold comes back. It does not cover the discontinued line being named, which is the half a customer would notice.
+- CHK-08, a state change appearing on an open tracking page with no reload, waits on `TrackingLiveBrowserlessTest`. It is the last unproven claim about signals reaching a customer facing screen.
 
 ## Test cases
 
