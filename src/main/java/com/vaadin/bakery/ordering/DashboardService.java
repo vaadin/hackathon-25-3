@@ -92,15 +92,19 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public List<ProductSales> topProducts(LocalDate from, LocalDate to, int limit) {
         Map<String, int[]> perProduct = new LinkedHashMap<>();
-        orders.findByPickupDateBetweenAndStateInOrderByPickupDateAscPickupTimeAsc(from, to,
-                        List.of(OrderState.PICKED_UP, OrderState.READY, OrderState.IN_PREPARATION,
-                                OrderState.CONFIRMED))
-                .forEach(order -> orders.findByReference(order.getReference()).ifPresent(full ->
-                        full.getItems().forEach(item -> {
-                            var slot = perProduct.computeIfAbsent(item.getProduct().getName(), key -> new int[2]);
-                            slot[0] += item.getQuantity();
-                            slot[1] += item.gross().cents();
-                        })));
+        // One query for every line in the range. This used to walk the orders
+        // and re-fetch each one by reference to reach its items, which is a
+        // query per order on the heaviest page in the application.
+        for (var line : orders.linesSoldBetween(from, to,
+                List.of(OrderState.PICKED_UP, OrderState.READY, OrderState.IN_PREPARATION,
+                        OrderState.CONFIRMED))) {
+            var slot = perProduct.computeIfAbsent(line.getProduct(), key -> new int[2]);
+            slot[0] += line.getQuantity();
+            // Per line, because that is where VAT rounds, and the same total
+            // has to come out here as on the invoice.
+            var net = Money.ofCents(line.getUnitPriceCents()).times(line.getQuantity());
+            slot[1] += net.plus(net.percentage(line.getVatRate().percent())).cents();
+        }
 
         return perProduct.entrySet().stream()
                 .sorted((left, right) -> Integer.compare(right.getValue()[0], left.getValue()[0]))

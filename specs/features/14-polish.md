@@ -41,7 +41,7 @@ The Aura pass from `05-theming.md` finished: palette in both schemes, contrast c
 ### AC1: The suite is complete and green
 - [ ] Every `Verified by` class named in a feature document exists
 - [x] `./mvnw verify` is green with the default profile, no licence, no key, no network
-- [ ] The coverage floor holds
+- [x] The coverage floor holds
 
 ### AC2: Translations are complete
 - [x] No user visible literal outside the bundles
@@ -58,7 +58,7 @@ The Aura pass from `05-theming.md` finished: palette in both schemes, contrast c
 ### Still open
 
 - Thirteen classes named in these documents do not exist. `SpecConsistencyTest` passes because it holds that list by name, which keeps the gap visible instead of letting it rot, but the criterion as written is not met.
-- There is no coverage floor. JaCoCo was specified in `08-testing.md` and is not in the pom.
+- The coverage floor is JaCoCo at 70 percent of lines, failing the build, and the suite sits at 77. The views are excluded on purpose: a number that counts them measures how much of the application has a browser test, which is the question the `IT` list answers and a different one from this.
 - Nobody has run AC4 from a clean clone, and `DEMO.md` has not been walked end to end since the assistant and the kitchen board changed.
 
 ## Test cases

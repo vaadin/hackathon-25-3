@@ -7,6 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.vaadin.bakery.Application;
 import com.vaadin.bakery.catalogue.ProductRepository;
+import com.vaadin.bakery.ordering.CartLine;
+import com.vaadin.bakery.ordering.Channel;
+import com.vaadin.bakery.ordering.DaySlotLoad;
+import com.vaadin.bakery.ordering.OrderService;
+import com.vaadin.bakery.ordering.SlotOption;
+import com.vaadin.bakery.people.CustomerService;
 import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.bakery.ordering.PickupClosure;
 import com.vaadin.bakery.ordering.PickupClosureRepository;
@@ -15,6 +21,7 @@ import com.vaadin.bakery.ordering.SlotService;
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +34,8 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("test")
+// One test here fills a slot, and a filled slot must not follow the others out.
+@org.springframework.transaction.annotation.Transactional
 class SlotSelectionBrowserlessTest {
 
     @Autowired
@@ -43,6 +52,12 @@ class SlotSelectionBrowserlessTest {
 
     @Autowired
     private Clock clock;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private CustomerService customers;
 
     @Test
     void closedWeekdaysAreNeverSelectable() {
@@ -132,13 +147,51 @@ class SlotSelectionBrowserlessTest {
         assertEquals(firstFree.time(), next.get(), "the first free slot of the day, not just the first slot");
     }
 
+    /**
+     * CART-11. A time with nothing left is offered as taken, and the picker's
+     * default steps over it.
+     *
+     * This assertion used to be that no option had a negative remaining count,
+     * which {@code SlotOption.remaining} guarantees with a {@code Math.max}
+     * whatever the state of the database. It passed on an empty calendar, it
+     * would have passed with the rule deleted, and it never filled a slot.
+     */
     @Test
     void fullSlotsAreNotOffered() {
         var location = locations.findAll().getFirst();
-        var date = LocalDate.now(clock).minusDays(3);
+        var product = products.findByAvailableTrueOrderBySortOrderAsc().stream()
+                .filter(candidate -> candidate.getLeadTimeDays() == 0)
+                .findFirst()
+                .orElseThrow();
+        var date = slots.load(location, LocalDate.now(clock).plusDays(10),
+                        LocalDate.now(clock).plusDays(20), 0).stream()
+                .filter(DaySlotLoad::isSelectable)
+                .findFirst()
+                .orElseThrow()
+                .date();
+        var time = slots.options(location, date).stream()
+                .filter(SlotOption::isAvailable)
+                .findFirst()
+                .orElseThrow()
+                .time();
 
-        var options = slots.options(location, date);
-        assertNotNull(options);
-        assertTrue(options.stream().allMatch(option -> option.remaining() >= 0));
+        // Fill it to the brim, the way customers do.
+        for (int taken = 0; taken < location.getSlotCapacity(); taken++) {
+            var customer = customers.findOrCreate("Full", "Slot" + taken,
+                    "full.slot." + taken + "@example.test", "+34 600 000 002");
+            orderService.place(List.of(new CartLine(product.getId(), 1, null)), customer, location, date, time,
+                    Channel.ONLINE, null, null);
+        }
+
+        var afterwards = slots.options(location, date).stream()
+                .filter(option -> option.time().equals(time))
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(0, afterwards.remaining(), "nothing left in that slot");
+        assertFalse(afterwards.isAvailable(), "so it is not available");
+        assertFalse(slots.hasCapacity(location, date, time), "and the authoritative check agrees");
+        assertTrue(slots.nextFreeTime(location, date).stream().noneMatch(free -> free.equals(time)),
+                "the default the picker offers steps over it");
     }
 }

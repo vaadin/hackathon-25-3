@@ -68,7 +68,7 @@ Capacity is advisory in the picker and authoritative in the service. Between cho
 
 ### AC4: Time defaults are useful
 - [x] Choosing a date prefills the next free time on that date
-- [ ] Full times are not offered
+- [x] Full times are not offered
 
 ### AC5: Capacity is enforced
 - [x] Submitting into a slot that just filled is refused with the slot named and nothing is written
@@ -76,7 +76,7 @@ Capacity is advisory in the picker and authoritative in the service. Between cho
 ### Still open
 
 - Changing a quantity to something other than zero is not asserted against the badge and the totals. Removal is, and adding is, and the case in between is not.
-- A fully booked day being unselectable is untested at the day level. `fullSlotsAreNotOffered` only asserts that no option reports a negative remaining count, which is true of any list of options and proves nothing about a full one being hidden. That test needs rewriting around a slot deliberately filled first, and until then both that criterion and the full times one stay open.
+- A fully booked **day** being unselectable is still untested at the day level. The time level is now covered: `fullSlotsAreNotOffered` fills a slot to its capacity and asserts the time reports nothing left, is not available, is refused by the authoritative check, and is stepped over by the default the picker offers. It used to assert that no option reported a negative remaining count, which `SlotOption.remaining` guarantees with a `Math.max` whatever the database holds: it passed on an empty calendar and would have passed with the rule deleted.
 - Changing the location refreshes the metadata without rebuilding the picker: implemented, never asserted.
 - CART-06 and CART-07 are browser tier by design and wait on `DatePickerMetadataIT`. The capacity number and the part name are covered browserless, the hover reason is not.
 
@@ -93,4 +93,5 @@ Capacity is advisory in the picker and authoritative in the service. Between cho
 | CART-07 | A day with two places left | Opening the picker | That day shows a remaining capacity of two | testbench | `DatePickerMetadataIT` |
 | CART-08 | A date chosen | Opening the time picker | The default is the next free slot | browserless | `SlotSelectionBrowserlessTest` |
 | CART-09 | A slot with one place, taken concurrently | Submitting | Refused with the slot named, cart intact | browserless | `SlotConcurrencyTest` |
+| CART-11 | A slot filled to its capacity | Asking for that day's times | The time reports nothing left, is not available, and the picker's default steps over it | browserless | `SlotSelectionBrowserlessTest` |
 | CART-10 | A product made unavailable while in the cart | Opening the cart | The line is flagged and checkout is blocked | browserless | `CartBrowserlessTest` |

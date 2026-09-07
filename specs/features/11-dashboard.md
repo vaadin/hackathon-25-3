@@ -52,14 +52,14 @@ The dashboard is the heaviest page in the application and it is the one the obse
 - [x] Every panel renders, and a range with no data says so rather than drawing nothing
 
 ### AC3: It is cheap
-- [ ] A dashboard load issues fewer than ten database queries, asserted by the diagnostics counter
+- [x] A dashboard load issues fewer than ten database queries, asserted by the statements Hibernate prepares
 
 ### AC4: It is responsive
 - [x] At phone width the panels stack and remain readable
 
 ### Still open
 
-- The query budget is unasserted, and it is the last criterion here that is not met. `OrderQueryCounter` and the diagnostics view can both see the number, so this one is cheap to close and simply is not done. It is also the one that most likely fails today: `topProducts` reads each order's items with a second query per order, which is a query per order in the range and not a constant.
+- The query budget is asserted against **Hibernate's own statement count**, not against `OrderQueryCounter`. The counter only sees what the order board fetches, and counting service calls would have missed the thing worth catching: `topProducts` walked the orders in the range and fetched each one again by reference, so a week's dashboard prepared 96 statements and a quarter's prepared 1108, while every service call looked innocent. It is one query now, and the test fails if it stops being one. It is also the one that most likely fails today: `topProducts` reads each order's items with a second query per order, which is a query per order in the range and not a constant.
 - The Attention and Slot utilisation panels described above do not exist yet. The four that do are the ones the acceptance criteria name.
 - Panels stacking at phone width was checked in a browser, at 390 pixels, and holds. There is still no test for it in either tier: the browserless tier cannot measure a layout and the browser tier is unwritten.
 
@@ -70,6 +70,6 @@ The dashboard is the heaviest page in the application and it is the one the obse
 | DASH-01 | The seeded data | Opening the dashboard | Today's counters match a direct query | browserless | `DashboardBrowserlessTest` |
 | DASH-02 | The dashboard | Changing the range to last 7 days | Every panel updates | browserless | `DashboardBrowserlessTest` |
 | DASH-03 | A range with no orders | Opening the dashboard | Every panel renders an empty state rather than nothing | browserless | `DashboardBrowserlessTest` |
-| DASH-04 | A query counter running | Loading the dashboard | Fewer than ten queries | browserless | `DiagnosticsBrowserlessTest` |
+| DASH-04 | Hibernate statistics on | Loading the dashboard | Fewer than ten prepared statements, and top products is one of them | unit | `DashboardQueryBudgetTest` |
 | DASH-05 | A range with no orders | Opening the dashboard | Empty states, no exception | browserless | `DashboardBrowserlessTest` |
 | DASH-06 | The dashboard | Opening it | Charts render | testbench | `ChartsRenderIT` |
