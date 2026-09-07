@@ -22,6 +22,9 @@ import com.vaadin.flow.component.charts.model.Marker;
 import com.vaadin.flow.component.charts.model.PlotOptionsSpline;
 import com.vaadin.flow.component.charts.model.XAxis;
 import com.vaadin.flow.component.charts.model.YAxis;
+import com.vaadin.flow.component.dashboard.Dashboard;
+import com.vaadin.flow.component.dashboard.DashboardVariant;
+import com.vaadin.flow.component.dashboard.DashboardWidget;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -77,7 +80,7 @@ public class DashboardView extends VerticalLayout {
     private final DashboardService dashboard;
     private final Clock clock;
     private final ValueSignal<Range> range = new ValueSignal<>(Range.WEEK);
-    private final Div panels = new Div();
+    private final Dashboard panels = new Dashboard();
     private final AskPanel ask;
 
     public DashboardView(DashboardService dashboard, Clock clock, AssistantStatus assistant,
@@ -95,6 +98,13 @@ public class DashboardView extends VerticalLayout {
         selector.addValueChangeListener(event -> range.set(event.getValue()));
 
         panels.addClassName("dashboard__panels");
+        // Widgets take a column count rather than a share of a CSS grid, so a
+        // chart can be wide and a row of counters need not be. The component
+        // reflows to fewer columns as the screen narrows, which is the media
+        // query this view used to carry.
+        panels.setMinimumColumnWidth("16rem");
+        panels.setMaximumColumnCount(4);
+        panels.addThemeVariants(DashboardVariant.LUMO_ELEVATED_WIDGETS);
 
         // A question, drawn. The chart is built here rather than in a panel
         // because the panels are rebuilt on every range and language change and
@@ -121,21 +131,30 @@ public class DashboardView extends VerticalLayout {
         var comparisonTo = from.minusDays(1);
         var comparisonFrom = comparisonTo.minusDays(selected.days());
 
+        // The order is the order a baker asks in: what is happening today,
+        // then what is going wrong, then the trends underneath.
         var today = dashboard.today();
-        panels.add(panel(getTranslation(locale, "dashboard.today"),
+        var counters = new Div(
                 counter(getTranslation(locale, "dashboard.today.due"), String.valueOf(today.due())),
                 counter(getTranslation(locale, "dashboard.today.ready"), String.valueOf(today.ready())),
                 counter(getTranslation(locale, "dashboard.today.problems"), String.valueOf(today.problems())),
                 counter(getTranslation(locale, "dashboard.today.next"),
-                        today.nextPickup().isBlank() ? "-" : today.nextPickup())));
+                        today.nextPickup().isBlank() ? "-" : today.nextPickup()));
+        counters.addClassName("dashboard__counters");
+        panels.add(widget(getTranslation(locale, "dashboard.today"), 2, counters));
 
-        panels.add(panel(getTranslation(locale, "dashboard.revenue"),
-                revenueChart(dashboard.revenue(from, to), dashboard.revenue(comparisonFrom, comparisonTo), locale)));
-
-        panels.add(panel(getTranslation(locale, "dashboard.states"),
+        panels.add(widget(getTranslation(locale, "dashboard.states"), 2,
                 statesChart(dashboard.byState(from, to), locale)));
 
-        panels.add(panel(getTranslation(locale, "dashboard.topProducts"),
+        // The widest, because a series over ninety days needs the room and a
+        // number does not.
+        panels.add(widget(getTranslation(locale, "dashboard.revenue"), 4,
+                revenueChart(dashboard.revenue(from, to), dashboard.revenue(comparisonFrom, comparisonTo),
+                        locale)));
+
+        // Ten horizontal bars with a product name on each: also a full row,
+        // for the same reason.
+        panels.add(widget(getTranslation(locale, "dashboard.topProducts"), 4,
                 topProductsChart(dashboard.topProducts(from, to, 10), locale)));
     }
 
@@ -261,11 +280,14 @@ public class DashboardView extends VerticalLayout {
         return ask;
     }
 
-    private Div panel(String title, Component... content) {
-        var panel = new Div();
-        panel.addClassNames("panel", "dashboard__panel");
-        panel.add(new H3(title));
-        panel.add(content);
-        return panel;
+    /**
+     * One widget. The colspan is what the panel could never say: a chart asks
+     * for room and a counter does not, and at a narrow screen the dashboard
+     * takes the room back on its own.
+     */
+    private DashboardWidget widget(String title, int columns, Component content) {
+        var widget = new DashboardWidget(title, content);
+        widget.setColspan(columns);
+        return widget;
     }
 }

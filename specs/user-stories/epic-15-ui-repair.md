@@ -50,10 +50,10 @@ One commit, many views, no new dependency. Everything here is CSS or a formatter
 ### US-15.4: The dashboard reads at a glance
 
 **Tasks:**
-- [ ] `vaadin-dashboard-flow` as an ordinary dependency
-- [ ] The panels as widgets, charts spanning more than one column when there is room
-- [ ] Today and the work in progress before the trends
-- [ ] One column at phone width, nothing scrolling sideways
+- [x] `vaadin-dashboard-flow` as an ordinary dependency
+- [x] The panels as widgets, charts spanning more than one column when there is room
+- [x] Today and the work in progress before the trends
+- [x] One column at phone width, nothing scrolling sideways
 
 **Verified by:** `DashboardLayoutIT`
 

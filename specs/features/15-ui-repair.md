@@ -104,9 +104,9 @@ The header shows a name. It should show the person's picture beside it, and some
 - [ ] The catalogue filters are a header row inside the grid
 
 ### AC3: The dashboard reads at a glance
-- [ ] The panels are `Dashboard` widgets, and a chart widget spans more than one column when there is room
-- [ ] At phone width every widget is one column and nothing scrolls sideways
-- [ ] Today and the work in progress come before the trends
+- [x] The panels are `Dashboard` widgets, and a chart widget spans more than one column when there is room
+- [x] At phone width every widget is one column and nothing scrolls sideways
+- [x] Today and the work in progress come before the trends
 
 ### AC4: The order board's toolbar and grid
 - [ ] The selection column is no wider than its checkbox

@@ -94,6 +94,13 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-charts-flow</artifactId>
         </dependency>
+        <!-- Dashboard, so a chart widget can take the width a chart needs and
+             a counter can take the width a number needs. Reflows to fewer
+             columns on its own, which is a media query nobody has to write. -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-dashboard-flow</artifactId>
+        </dependency>
         <!-- The orchestrator, the provider interface and the policy hooks are
              free. Only the form, grid and chart controllers are not, and they
              check their licence when they are constructed, which is why the
