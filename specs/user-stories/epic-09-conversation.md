@@ -9,9 +9,9 @@
 ### US-9.1: The conversation
 
 **Tasks:**
-- [ ] `MessageList` in the one to one bubble variant on the tracking page and on the staff order detail
-- [ ] Composer with a text area, enter to send, shift enter for a line break
-- [ ] Author naming rules: staff see the customer, customers see the bakery and a first name
+- [x] `MessageList` in the one to one bubble variant on the tracking page and on the staff order detail
+- [x] Composer with a text area, enter to send, shift enter for a line break
+- [x] Author naming rules: staff see the customer, customers see the bakery and a first name
 
 **25.3 APIs:** MessageList bubble and one to one variants.
 **Verified by:** `ConversationBrowserlessTest`
@@ -21,9 +21,9 @@
 ### US-9.2: Attachments
 
 **Tasks:**
-- [ ] Modular upload in the composer, images and PDF, 2 MB cap
+- [x] Modular upload in the composer, images and PDF, 2 MB cap
 - [ ] Image previews inside the bubble, PDFs as named links
-- [ ] Clipboard paste of an image straight into the composer
+- [x] Clipboard paste of an image straight into the composer
 
 **25.3 APIs:** MessageList attachments, Clipboard paste.
 **Verified by:** `AttachmentValidationBrowserlessTest`, `ClipboardPasteIT`
@@ -34,7 +34,7 @@
 
 **Tasks:**
 - [ ] Delivery through the shared signal of epic 08, both directions
-- [ ] Unread badge from a computed signal, cleared when the conversation is opened
+- [x] Unread badge from a computed signal, cleared when the conversation is opened
 - [ ] New message pill instead of scroll jumping when the reader is scrolled up
 
 **Verified by:** `ConversationMultiUserBrowserlessTest`
@@ -44,9 +44,9 @@
 ### US-9.4: Safety and lifecycle
 
 **Tasks:**
-- [ ] Sanitize every message with the shared Safelist, render as text and never as markdown
-- [ ] Disable the composer once the order is picked up, with an explanation
-- [ ] Conversation unreachable without a valid tracking token
+- [x] Sanitize every message with the shared Safelist, render as text and never as markdown
+- [x] Disable the composer once the order is picked up, with an explanation
+- [x] Conversation unreachable without a valid tracking token
 
 **Verified by:** `SanitizationTest`, `ConversationBrowserlessTest`
 

@@ -159,6 +159,10 @@ public class OrderDetailView extends VerticalLayout implements BeforeEnterObserv
 
         add(Translations.bindText(new H2(), "tracking.history"), timeline(order), actions(order, actor));
 
+        // The staff side of the same conversation. Opening it marks it read.
+        add(new ConversationPanel(orders, order.getReference(), true, actor,
+                actor == null ? getTranslation("conversation.bakery") : actor.getFullName(),
+                !order.getState().isOpen()));
     }
 
     private Div timeline(Order order) {

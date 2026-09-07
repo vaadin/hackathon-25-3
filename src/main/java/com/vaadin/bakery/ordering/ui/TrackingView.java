@@ -115,6 +115,9 @@ public class TrackingView extends VerticalLayout implements BeforeEnterObserver 
         actions.add(reorder);
         add(actions);
 
+        // The customer's side of the conversation, with the bakery.
+        add(new ConversationPanel(orders, order.getReference(), false, null,
+                order.getCustomer().getFirstName(), !order.getState().isOpen()));
     }
 
     private String themeFor(OrderState state) {

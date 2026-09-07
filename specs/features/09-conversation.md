@@ -41,16 +41,17 @@ Covers C2, C3, B10.
 
 ### AC3: It is live
 - [ ] A staff reply appears on the customer's open page without a reload
-- [ ] A customer message appears on the staff detail and increments the unread badge
+- [x] A customer message appears on the staff detail and increments the unread badge
 
 ### AC4: It is safe
-- [ ] HTML in a message is rendered as text, never as markup
-- [ ] The composer is disabled once the order is picked up
+- [x] HTML in a message is rendered as text, never as markup
+- [x] The composer is disabled once the order is picked up
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- The bubble and one to one variants are set on the list and no test reads them back, and nothing asserts the author and the time on a message.
+- The uploads are built, the drop zone, the button and the file list, and none of the three attachment criteria has a test. The preview inside a bubble is the part worth proving first.
+- The conversation is not live yet. Messages refresh when the page is opened rather than arriving through the shared signal, so AC3's first criterion is not merely untested, it is not implemented. `ConversationMultiUserBrowserlessTest` is named and unwritten.
 
 ## Test cases
 
