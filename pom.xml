@@ -82,6 +82,10 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-grid-pro-flow</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-charts-flow</artifactId>
+        </dependency>
         <!-- Crud, for the two admin views that are a list and an editor and
              nothing else. Products keeps its own grid, because GridPro's
              inline editing is one of the stories this application exists to
@@ -89,10 +93,6 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-crud-flow</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-charts-flow</artifactId>
         </dependency>
         <!-- Dashboard, so a chart widget can take the width a chart needs and
              a counter can take the width a number needs. Reflows to fewer

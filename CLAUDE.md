@@ -91,6 +91,8 @@ Whenever you cannot do something the obvious way, write it down. This is not opt
 
 Say what you expected, what happened, what you did instead, and where the workaround lives. Never delete an entry when it gets fixed: mark it fixed, because the workaround still has to be removed.
 
+Writing the row is half of it. Each finding becomes an issue in the repository that owns the thing, and the whole file feeds the hackathon report at the end. See **What happens to these** in `specs/FEEDBACK-25.3.md` for which repository, what an issue needs that a row does not, and where the link goes once it exists.
+
 ## Preview APIs
 
 `specs/CHANGELOG-RISK.md` lists every preview, experimental or beta API in use, with its flag and its fallback. Read it before using a 25.3 component that is not in the stable set, and add to it if you introduce another one.
