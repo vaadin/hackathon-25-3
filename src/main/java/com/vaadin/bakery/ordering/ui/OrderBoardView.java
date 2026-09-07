@@ -201,7 +201,13 @@ public class OrderBoardView extends MasterDetailLayout {
         // a button whose only outcome is being refused.
         take.setVisible(currentUser.get().map(user -> user.getRole() != Role.BAKER).orElse(false));
 
-        var toolbar = new Div(take, field, past, confirm, cancel);
+        // Open to a baker too: asking a question reads, it does not change an
+        // order, and "which of these is at risk" is a kitchen question.
+        var question = Translations.bindText(new Button("",
+                event -> getUI().ifPresent(ui -> ui.navigate(
+                        ROUTE + "/" + com.vaadin.bakery.assistant.ui.BoardAskView.SEGMENT))), "board.ask");
+
+        var toolbar = new Div(take, question, field, past, confirm, cancel);
         toolbar.addClassName("order-board__toolbar");
         return toolbar;
     }

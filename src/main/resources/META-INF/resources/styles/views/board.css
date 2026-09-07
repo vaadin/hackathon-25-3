@@ -188,3 +188,70 @@
     grid-column: 1 / -1;
   }
 }
+
+.phone-order__ai-form {
+  display: grid;
+  gap: var(--vaadin-gap-m, 1rem);
+}
+
+/* The marker's popover content: a confidence badge over the words the value
+   was read from. */
+.phone-order__source {
+  display: grid;
+  gap: var(--vaadin-gap-xs, .25rem);
+  max-width: 20rem;
+}
+
+.phone-order__quote {
+  font-style: italic;
+  opacity: .85;
+  quotes: auto;
+}
+
+.phone-order__quote::before {
+  content: open-quote;
+}
+
+.phone-order__quote::after {
+  content: close-quote;
+}
+
+.ask-panel {
+  display: grid;
+  gap: var(--vaadin-gap-s, .5rem);
+  margin-block-start: var(--vaadin-gap-l, 1.5rem);
+}
+
+.ask-panel .dashboard__asked {
+  height: 22rem;
+}
+
+.ask-panel vaadin-grid {
+  min-height: 20rem;
+}
+
+/* The meter is three separate numbers, so it needs to read as three. */
+.turn-meter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vaadin-gap-m, 1rem);
+  font-size: .85em;
+  opacity: .7;
+}
+
+/* The assistant with no model behind it. Red and where the question box would
+   have been, because a panel that quietly says nothing looks like one that
+   works. */
+.assistant-off {
+  border: 1px solid var(--vaadin-input-field-error-color, #b3261e);
+  border-radius: var(--vaadin-radius-m, .35rem);
+  padding: var(--vaadin-padding-m, 1rem);
+  display: grid;
+  gap: var(--vaadin-gap-s, .5rem);
+  justify-items: start;
+}
+
+.assistant-off p {
+  margin: 0;
+  opacity: .85;
+}

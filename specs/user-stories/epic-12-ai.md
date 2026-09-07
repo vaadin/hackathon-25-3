@@ -9,9 +9,9 @@
 ### US-12.1: Provider wiring
 
 **Tasks:**
-- [ ] `SpringAILLMProvider` over the auto configured OpenAI `ChatModel`, built under the `ai` profile when a key is present, one instance per orchestrator
-- [ ] `MockLLMProvider` implementing `LLMProvider`, replaying cassettes keyed by prompt hash
-- [ ] Record the cassettes once from a real run, commit them under `ai/cassettes`
+- [x] `SpringAILLMProvider` over the auto configured OpenAI `ChatModel`, built under the `ai` profile when a key is present, one instance per orchestrator
+- [x] `MockLLMProvider` implementing `LLMProvider`, replaying cassettes keyed by prompt hash
+- [x] Record the cassettes once from a real run, commit them under `ai/cassettes`
 - [ ] Runtime provider selector in the assistant panel
 
 **Verified by:** `MockLLMProviderTest`
@@ -37,9 +37,9 @@
 ### US-12.3: Policy layer and meter
 
 **Tasks:**
-- [ ] `RequestInterceptor` masking card shaped strings, rejecting off topic prompts, postponing over budget ones
+- [x] `RequestInterceptor` masking card shaped strings, rejecting off topic prompts, postponing over budget ones
 - [ ] `ToolException` for tool failures, safe message to the model, stack trace to the log
-- [ ] Turn meter from `ResponseMetadata`: tokens, estimated cost, finish reason, cut off warning
+- [x] Turn meter from `ResponseMetadata`: tokens, estimated cost, finish reason, cut off warning
 - [ ] `setBackgroundExecution(true)` so the form stays usable
 
 **25.3 APIs:** request interception, response metadata, `ToolException`, background execution.
@@ -62,9 +62,9 @@
 ### US-12.5: Free fallback
 
 **Tasks:**
-- [ ] Paste and parse filler using regular expressions and the shared product matcher
+- [x] Paste and parse filler using regular expressions and the shared product matcher
 - [ ] Say on the about page which provider is answering
-- [ ] Every AI test green against the mock with no network
+- [x] Every AI test green against the mock with no network
 
 **Verified by:** `AiFallbackBrowserlessTest`
 
@@ -81,4 +81,4 @@
 ## Definition of Done
 
 - [ ] Every acceptance criterion in `features/12-ai.md` is checked
-- [ ] The demo works with the network unplugged
+- [x] The demo works with the network unplugged

@@ -57,7 +57,11 @@ class DashboardBrowserlessTest extends SpringBrowserlessTest {
     void theThreeSeriesPanelsAreCharts() {
         navigate(DashboardView.class);
 
-        var charts = find(Chart.class).all();
+        // The fourth is the one a question draws into, which starts empty and
+        // belongs to the assistant rather than to a panel.
+        var charts = find(Chart.class).all().stream()
+                .filter(chart -> !chart.getClassNames().contains("dashboard__asked"))
+                .toList();
         assertEquals(3, charts.size(), "revenue, orders by state and top products");
 
         var types = charts.stream()

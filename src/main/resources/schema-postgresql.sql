@@ -41,3 +41,39 @@ alter table if exists product_allergen add constraint FK7r348ixuvt0nuesl9aecvpg3
 alter table if exists product_allergen add constraint FKlkxjtno4ygi08713h7i0aog7a foreign key (product_id) references product;
 alter table if exists product_weekday add constraint FK269gmssns9u5pnu0gyp37ui1t foreign key (product_id) references product;
 alter table if exists product_image add constraint FK6oo0cvcdtb6qmwsga468uuukk foreign key (product_id) references product;
+
+-- Everything the assistant is allowed to see, and nothing else.
+--
+-- The grid and chart controllers hand a model the ability to compose SQL, so
+-- what it can reach is decided here rather than in a prompt. These views leave
+-- out every tracking token, every password hash, the internal notes, the
+-- customer's own words, the addresses, the phone numbers and the blobs. A
+-- query that succeeds completely still cannot read any of them.
+-- See specs/06-ai.md, "What the assistant may query".
+
+create view ai_orders as
+select o.id as order_id, o.reference, o.state, o.channel, o.pickup_date,
+       -- Text, not TIME: the grid controller formats a value by calling
+       -- java.sql.Time.toInstant(), which the JDK always refuses.
+       -- See specs/FEEDBACK-25.3.md.
+       cast(o.pickup_time as varchar) as pickup_time,
+       o.placed_at, o.total_gross_cents, o.total_net_cents,
+       l.name as pickup_location, c.id as customer_id,
+       c.first_name || ' ' || c.last_name as customer_name
+from orders o
+join pickup_location l on l.id = o.pickup_location_id
+join customer c on c.id = o.customer_id;
+
+create view ai_order_lines as
+select i.order_id, o.reference, o.pickup_date, p.name as product, cat.name as category,
+       i.quantity, i.unit_price_cents, i.comment
+from order_item i
+join orders o on o.id = i.order_id
+join product p on p.id = i.product_id
+join category cat on cat.id = p.category_id;
+
+create view ai_products as
+select p.id as product_id, p.name, p.price_cents, p.available, p.lead_time_days,
+       cat.name as category
+from product p
+join category cat on cat.id = p.category_id;

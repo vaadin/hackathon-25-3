@@ -1,5 +1,9 @@
 package com.vaadin.bakery.ordering.ui;
 
+import com.vaadin.bakery.assistant.AssistantConfiguration.AssistantStatus;
+import com.vaadin.bakery.assistant.AssistantPolicy;
+import com.vaadin.bakery.assistant.BakeryDatabase;
+import com.vaadin.bakery.assistant.ui.AskPanel;
 import com.vaadin.bakery.ordering.DashboardService;
 import com.vaadin.bakery.ordering.DashboardService.ProductSales;
 import com.vaadin.bakery.ordering.DashboardService.RevenuePoint;
@@ -8,6 +12,7 @@ import com.vaadin.bakery.people.Role;
 import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.charts.Chart;
+import com.vaadin.flow.component.ai.chart.ChartAIController;
 import com.vaadin.flow.component.charts.model.ChartType;
 import com.vaadin.flow.component.charts.model.DataLabels;
 import com.vaadin.flow.component.charts.model.DataSeries;
@@ -73,8 +78,10 @@ public class DashboardView extends VerticalLayout {
     private final Clock clock;
     private final ValueSignal<Range> range = new ValueSignal<>(Range.WEEK);
     private final Div panels = new Div();
+    private final AskPanel ask;
 
-    public DashboardView(DashboardService dashboard, Clock clock) {
+    public DashboardView(DashboardService dashboard, Clock clock, AssistantStatus assistant,
+            AssistantPolicy policy, BakeryDatabase database) {
         this.dashboard = dashboard;
         this.clock = clock;
         addClassName("dashboard");
@@ -88,7 +95,16 @@ public class DashboardView extends VerticalLayout {
         selector.addValueChangeListener(event -> range.set(event.getValue()));
 
         panels.addClassName("dashboard__panels");
-        add(Translations.bindText(new H2(), "dashboard.title"), selector, panels);
+
+        // A question, drawn. The chart is built here rather than in a panel
+        // because the panels are rebuilt on every range and language change and
+        // the controller holds on to the one it was given.
+        var asked = chart(ChartType.COLUMN);
+        asked.addClassName("dashboard__asked");
+        ask = new AskPanel(assistant, policy, "dashboard.ask", "dashboard", asked,
+                () -> new ChartAIController(asked, database));
+
+        add(Translations.bindText(new H2(), "dashboard.title"), selector, panels, ask);
 
         // One effect over two signals: every panel is rebuilt from the same
         // range, and again when the language changes, because the labels, the
@@ -238,6 +254,11 @@ public class DashboardView extends VerticalLayout {
         var counter = new Div(new Span(value), new Span(label));
         counter.addClassName("dashboard__counter");
         return counter;
+    }
+
+    /** The question box, for the tests that assert on what it is offering. */
+    public AskPanel ask() {
+        return ask;
     }
 
     private Div panel(String title, Component... content) {
