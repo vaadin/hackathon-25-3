@@ -7,9 +7,23 @@ A `Chart` renders with Highcharts' own palette on a hardcoded white plot area, w
 
 The switch is `configuration.getChart().setStyledMode(true)`.
 
+### Reproduction
+
+`09-charts-styled-mode/` is one view with the same chart twice, on a page in the dark colour scheme, and one line of difference between them. Run it with `mvn spring-boot:run` and open port 8110. `default-vs-styled.png` is what it draws.
+
+What the SVG carries:
+
+| | Default | `setStyledMode(true)` |
+| --- | --- | --- |
+| `.highcharts-background` fill | `#ffffff` | no attribute |
+| series fill | `#2caffe` | no attribute |
+| title colour | `rgb(102, 102, 102)` | the theme's, `oklch(1 0.002 260 / 0.65)` |
+
+So the default chart bakes its colours into the SVG, and on a dark page it is a white rectangle with Highcharts' own palette and grey labels beside a chart that reads correctly.
+
 ### Why it matters
 
-On Aura, and in dark mode, this is four white rectangles on a dark page, and nothing says why. The default is also wrong for 25.3, where Aura and its colour schemes are the default theme.
+On Aura, and in dark mode, this is a white rectangle on a dark page and nothing says why. The default is also wrong for 25.3, where Aura and its colour schemes are the default theme.
 
 ### Documentation
 

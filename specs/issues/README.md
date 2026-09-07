@@ -27,7 +27,7 @@ Then put the link at the end of that finding's row in `FEEDBACK-25.3.md` or `FEE
 | `04-signalbinding.md` | flow | A signal bound text cannot be rebound and nothing releases it, so any dialog opened twice throws |
 | `06-query-null-sort.md` | flow | A null sort order list NPEs inside the Spring Data helper rather than at the call |
 | `08-pagetitlegenerator-bean.md` | flow | A generator annotated `@Component` silently renames every page in the application |
-| `09-charts-styled-mode.md` | web-components | A chart ignores the theme until styled mode is on, and the page listing the style properties does not say so |
+| `09-charts-styled-mode.md` | web-components | A chart bakes Highcharts' palette into its SVG until styled mode is on, and the page listing the style properties does not say so |
 
 ## Reproducers
 
@@ -38,6 +38,7 @@ Each issue that needs one has a mini project beside it: `pom.xml`, an `Applicati
 | `01-grid-selectall/` | 8090 | The same grid with a declared theme: the span is hidden and the column is 35 pixels |
 | `01b-test-runtime-theme/` | 8091 | One line different, the theme added at runtime: the span is 140 pixels and the column is 201 |
 | `03-applayout-shift/` | 8093 | Prints its own width every twenty milliseconds and reports each change |
+| `09-charts-styled-mode/` | 8110 | The same chart twice on a dark page, one line apart |
 | `04-signalbinding/` | 8094 | Open the dialog, close it, open it again |
 | `06-query-null-sort/` | 8096 | Two buttons, one with a null sort list and one with an empty one |
 | `08-pagetitlegenerator-bean/` | 8098 | Read the browser tab on a route that declared its own title |
@@ -68,14 +69,14 @@ Each issue that needs one has a mini project beside it: `pom.xml`, an `Applicati
 | `08` PageTitleGenerator bean | Reproduced |
 | `02` login CSRF field | **Withdrawn.** The project got built and killed it: a scripted submit with no token signs in perfectly well, in the bare project and in this application. The empty field is real and harmless in a default setup |
 | `04` a signal bound text cannot be rebound | Real in this application, and the bare project does not demonstrate it after three attempts. **Not ready to open.** What is certain is the fix: reverting it brings the exception back here, with its stack |
-| `09` Charts styled mode | No project: Charts needs a licence to run and the code is four lines |
+| `09` Charts styled mode | Reproduced. Two identical charts on a dark page, one line apart: the default one bakes `#ffffff` and `#2caffe` into its SVG, the styled one carries no fills and takes the theme's colours |
 | `05`, `07` | Withdrawn. See above |
 
-Four of the nine are ready: `01`, `03`, `06`, `08`. Three were wrong and are withdrawn: `02`, `05`, `07`. One is real here and not yet reduced: `04`. One needs a licence rather than a project: `09`.
+Five of the nine are ready: `01`, `03`, `06`, `08`, `09`. Three were wrong and are withdrawn: `02`, `05`, `07`. One is real here and not yet reduced: `04`. 
 
 Three of the nine turned out to be wrong, and every one of the three was found by building the project rather than by rereading the row. `02` is the one worth remembering: it had a stack of circumstantial evidence, a plausible mechanism, and a fix that appeared to work, and the mechanism was not real.
 
-`02-login-csrf` has no project: it needs Spring Security wired up, and the reproduction is three lines of JavaScript against any secured Vaadin application. `09-charts-styled-mode` has none either, because Charts needs a licence to run and the code is four lines.
+`02-login-csrf` has no project: it needs Spring Security wired up, and the reproduction is three lines of JavaScript against any secured Vaadin application. `09-charts-styled-mode` needs a Charts licence to run, which anybody at Vaadin has.
 
 ## What is not drafted yet
 
