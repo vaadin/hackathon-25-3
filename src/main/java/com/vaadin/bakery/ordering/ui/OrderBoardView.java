@@ -1,6 +1,7 @@
 package com.vaadin.bakery.ordering.ui;
 
 import com.vaadin.bakery.base.error.DomainException;
+import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.bakery.base.security.CurrentUser;
 import com.vaadin.bakery.base.ui.ColumnChooser;
 import com.vaadin.bakery.base.ui.MainLayout;
@@ -12,18 +13,21 @@ import com.vaadin.bakery.ordering.OrderSpecifications;
 import com.vaadin.bakery.ordering.OrderState;
 import com.vaadin.bakery.ordering.SlotService;
 import com.vaadin.bakery.people.Role;
-import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridI18n;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.masterdetaillayout.MasterDetailLayout;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -79,6 +83,7 @@ public class OrderBoardView extends MasterDetailLayout {
     private final Grid.Column<Order> summaryColumn;
     private final Grid.Column<Order> channelColumn;
     private final Grid.Column<Order> totalColumn;
+    private final Grid.Column<Order> chooserColumn;
 
     public OrderBoardView(OrderRepository orders, OrderService orderService, OrderQueryCounter counter,
             CurrentUser currentUser, SlotService slots) {
@@ -90,7 +95,14 @@ public class OrderBoardView extends MasterDetailLayout {
         addClassName("order-board");
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        var selection = (GridMultiSelectionModel<Order>) grid.setSelectionMode(Grid.SelectionMode.MULTI);
+        // The board pages its rows from the database, so the grid cannot select
+        // all of them and says so, in a header sentence that is not translated
+        // and that sizes the column: 199 pixels of "Select All unavailable"
+        // above a checkbox. Hiding the checkbox is the honest answer, because
+        // there is no select all to offer.
+        selection.setSelectAllCheckboxVisibility(
+                GridMultiSelectionModel.SelectAllCheckboxVisibility.HIDDEN);
         grid.setSizeFull();
 
         // Accessible names for the checkboxes and the sorters. The grid takes
@@ -99,6 +111,13 @@ public class OrderBoardView extends MasterDetailLayout {
         Translations.onLocale(grid, locale -> {
             var i18n = new GridI18n();
             i18n.setSelectAll(getTranslation(locale, "board.i18n.selectAll"));
+            // Empty on purpose. The grid puts this string in a span it marks
+            // sr-only, and nothing styles that class inside its shadow root, so
+            // the sentence is drawn on screen and sizes the column: that is
+            // where the 199 pixel selection column came from. There is no
+            // checkbox to explain either, since select all is hidden above.
+            // See specs/FEEDBACK-25.3.md.
+            i18n.setSelectAllUnavailable("");
             i18n.setSelectRow(getTranslation(locale, "board.i18n.selectRow"));
             i18n.setSorter(getTranslation(locale, "board.i18n.sorter"));
             grid.setI18n(i18n);
@@ -134,6 +153,13 @@ public class OrderBoardView extends MasterDetailLayout {
         Translations.bind(grid, totalColumn::setHeader, "board.column.total");
         totalColumn.setVisible(false);
 
+        // The chooser lives in the header of a column of its own, frozen to the
+        // end, which is where a table's own settings are looked for. It is not
+        // one of the columns it lists, so it cannot turn itself off.
+        chooserColumn = grid.addColumn(order -> "").setKey("chooser")
+                .setWidth("4.5rem").setFlexGrow(0).setFrozenToEnd(true);
+        chooserColumn.setHeader(columnChooser());
+
         // Details are independent of selection in 25.3, so expanding a row to
         // read its comments does not change what the bulk actions will act on.
         grid.setItemDetailsRenderer(new ComponentRenderer<>(this::details));
@@ -146,7 +172,7 @@ public class OrderBoardView extends MasterDetailLayout {
                 ui.navigate(ROUTE + "/" + event.getItem().getReference())));
 
         setSizeFull();
-        var master = new Div(toolbar(), columnChooser(), grid);
+        var master = new Div(toolbar(), grid);
         master.addClassName("order-board__master");
         setMaster(master);
         setDetailSize("32rem");
@@ -177,6 +203,12 @@ public class OrderBoardView extends MasterDetailLayout {
                 .ifPresentOrElse(BoardPanel::close, () -> ui.navigate(ROUTE)));
     }
 
+    /**
+     * Two groups, because the buttons do two different things. Everything on
+     * the left acts on the board: start an order, ask a question, narrow the
+     * list. The two on the right act on whatever is ticked, and they are dark
+     * until something is, which is the only honest way to say what they need.
+     */
     private Div toolbar() {
         var field = new TextField();
         Translations.bind(field, field::setPlaceholder, "board.search.placeholder");
@@ -187,12 +219,6 @@ public class OrderBoardView extends MasterDetailLayout {
         var past = new Checkbox();
         Translations.bind(past, past::setLabel, "board.showPast");
         past.addValueChangeListener(event -> includePast.set(event.getValue()));
-
-        var confirm = Translations.bindText(new Button("",
-                event -> bulk(OrderState.CONFIRMED, "ordering.history.confirmed")), "board.bulk.confirm");
-        var cancel = Translations.bindText(new Button("",
-                event -> bulk(OrderState.CANCELLED, "ordering.history.cancelled")), "board.bulk.cancel");
-        cancel.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
 
         var take = Translations.bindText(new Button("",
                 event -> getUI().ifPresent(ui -> ui.navigate(ROUTE + "/" + NewOrderView.SEGMENT))), "board.new");
@@ -207,13 +233,46 @@ public class OrderBoardView extends MasterDetailLayout {
                 event -> getUI().ifPresent(ui -> ui.navigate(
                         ROUTE + "/" + com.vaadin.bakery.assistant.ui.BoardAskView.SEGMENT))), "board.ask");
 
-        var toolbar = new Div(take, question, field, past, confirm, cancel);
+        var browse = new Div(take, question, field, past);
+        browse.addClassName("order-board__browse");
+
+        var confirm = bulkAction(VaadinIcon.CHECK, "board.bulk.confirm",
+                () -> bulk(OrderState.CONFIRMED, "ordering.history.confirmed"));
+        var cancel = bulkAction(VaadinIcon.CLOSE_SMALL, "board.bulk.cancel",
+                () -> bulk(OrderState.CANCELLED, "ordering.history.cancelled"));
+        cancel.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+        var selected = new Div(confirm, cancel);
+        selected.addClassName("order-board__selected");
+        grid.addSelectionListener(event -> {
+            var any = !event.getAllSelectedItems().isEmpty();
+            confirm.setEnabled(any);
+            cancel.setEnabled(any);
+        });
+
+        var toolbar = new Div(browse, selected);
         toolbar.addClassName("order-board__toolbar");
         return toolbar;
     }
 
-    private Div columnChooser() {
+    /**
+     * An icon with a name. The two words fitted while the toolbar was one row
+     * of six controls and stopped fitting when it became two groups, and a
+     * verb on a button is worth less than the room the search field gets back.
+     */
+    private Button bulkAction(VaadinIcon icon, String labelKey, Runnable action) {
+        var button = new Button(new Icon(icon), event -> action.run());
+        button.setEnabled(false);
+        Translations.bind(button, text -> {
+            button.setAriaLabel(text);
+            button.setTooltipText(text);
+        }, labelKey);
+        return button;
+    }
+
+    private MenuBar columnChooser() {
         var menu = new MenuBar();
+        menu.addThemeVariants(MenuBarVariant.LUMO_TERTIARY_INLINE);
         ColumnChooser.of(menu, "board.columns", List.of(
                 new ColumnChooser.Entry<>(referenceColumn, "board.column.reference"),
                 new ColumnChooser.Entry<>(customerColumn, "board.column.customer"),
@@ -222,9 +281,7 @@ public class OrderBoardView extends MasterDetailLayout {
                 new ColumnChooser.Entry<>(summaryColumn, "board.column.items"),
                 new ColumnChooser.Entry<>(channelColumn, "board.column.channel"),
                 new ColumnChooser.Entry<>(totalColumn, "board.column.total")));
-        var chooser = new Div(menu);
-        chooser.addClassName("order-board__columns");
-        return chooser;
+        return menu;
     }
 
     private Span stateBadge(Order order) {

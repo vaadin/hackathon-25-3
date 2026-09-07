@@ -109,10 +109,10 @@ The header shows a name. It should show the person's picture beside it, and some
 - [x] Today and the work in progress come before the trends
 
 ### AC4: The order board's toolbar and grid
-- [ ] The selection column is no wider than its checkbox
-- [ ] The header carries a working select all, or no text at all
-- [ ] The column chooser belongs to the grid rather than to the toolbar
-- [ ] Confirm and cancel are icons with tooltips, and the toolbar groups selection actions apart from the rest
+- [x] The selection column is no wider than its checkbox
+- [x] The header carries a working select all, or no text at all
+- [x] The column chooser belongs to the grid rather than to the toolbar
+- [x] Confirm and cancel are icons with tooltips, and the toolbar groups selection actions apart from the rest
 
 ### AC5: The rest of the polish
 - [ ] Diagnostics panels sit side by side when there is room, at a shared height

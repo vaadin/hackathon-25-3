@@ -10,6 +10,7 @@ import com.vaadin.bakery.ordering.Order;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.menubar.MenuBar;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,10 +36,22 @@ class ColumnVisibilityBrowserlessTest extends SpringBrowserlessTest {
         return (Grid<Order>) find(Grid.class).single();
     }
 
+    /**
+     * The toggles are reached through the column that hosts the menu. A
+     * component set as a grid column header is outside the tree the finder
+     * walks, so {@code find(Checkbox.class)} returns nothing since the chooser
+     * moved into the table. See {@code specs/FEEDBACK-25.3.md}.
+     */
     private List<Checkbox> toggles() {
-        return find(Checkbox.class).all().stream()
-                .filter(box -> box.getLabel() != null && !box.getLabel().isBlank())
-                .filter(box -> !"Show past orders".equals(box.getLabel()))
+        var menu = (MenuBar) grid().getColumns().stream()
+                .filter(column -> "chooser".equals(column.getKey()))
+                .findFirst()
+                .orElseThrow()
+                .getHeaderComponent();
+        return menu.getItems().getFirst().getSubMenu().getItems().stream()
+                .flatMap(item -> item.getChildren())
+                .filter(Checkbox.class::isInstance)
+                .map(Checkbox.class::cast)
                 .toList();
     }
 
@@ -78,7 +91,11 @@ class ColumnVisibilityBrowserlessTest extends SpringBrowserlessTest {
         test(last).click();
 
         assertTrue(last.getValue(), "the toggle springs back");
-        assertEquals(1, grid().getColumns().stream().filter(Grid.Column::isVisible).count(),
+        // The chooser lives in a column of its own at the end of the table, and
+        // it is not one of the columns it lists, so it is not counted here.
+        assertEquals(1, grid().getColumns().stream()
+                        .filter(column -> !"chooser".equals(column.getKey()))
+                        .filter(Grid.Column::isVisible).count(),
                 "and the table still has a column");
     }
 }

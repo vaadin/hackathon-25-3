@@ -53,7 +53,7 @@ class BulkActionsBrowserlessTest extends SpringBrowserlessTest {
         assertEquals(3, selectable.size(), "the dataset should offer three new orders");
 
         selectable.forEach(order -> grid().select(order));
-        test(find(Button.class).withText("Confirm selected").single()).click();
+        test(find(Button.class).withAriaLabel("Confirm selected").single()).click();
 
         selectable.forEach(order -> assertEquals(OrderState.CONFIRMED,
                 orders.findById(order.getId()).orElseThrow().getState()));
@@ -73,7 +73,7 @@ class BulkActionsBrowserlessTest extends SpringBrowserlessTest {
 
         grid().select(pickedUp);
         grid().select(newOrder);
-        test(find(Button.class).withText("Confirm selected").single()).click();
+        test(find(Button.class).withAriaLabel("Confirm selected").single()).click();
 
         assertEquals(OrderState.CONFIRMED, orders.findById(newOrder.getId()).orElseThrow().getState(),
                 "the one that could move, moved");
@@ -96,7 +96,7 @@ class BulkActionsBrowserlessTest extends SpringBrowserlessTest {
         int before = orderService.historyLines(order.getReference()).size();
 
         grid().select(order);
-        test(find(Button.class).withText("Confirm selected").single()).click();
+        test(find(Button.class).withAriaLabel("Confirm selected").single()).click();
 
         var history = orderService.historyLines(order.getReference());
         assertEquals(before + 1, history.size());

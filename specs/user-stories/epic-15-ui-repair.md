@@ -62,10 +62,10 @@ One commit, many views, no new dependency. Everything here is CSS or a formatter
 ### US-15.5: The order board's toolbar and grid
 
 **Tasks:**
-- [ ] A selection column no wider than its checkbox
-- [ ] A working select all, or no header text at all
-- [ ] The column chooser inside the grid
-- [ ] Confirm and cancel as icons with tooltips, and a toolbar that groups selection actions apart from the rest
+- [x] A selection column no wider than its checkbox
+- [x] A working select all, or no header text at all
+- [x] The column chooser inside the grid
+- [x] Confirm and cancel as icons with tooltips, and a toolbar that groups selection actions apart from the rest
 
 **Verified by:** `BoardToolbarBrowserlessTest`
 

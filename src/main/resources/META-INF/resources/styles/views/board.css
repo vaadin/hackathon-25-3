@@ -1,15 +1,35 @@
 .order-board {
 }
 
+/*
+ * Two groups with the room between them. Browsing the board is on the left and
+ * acting on the ticked rows is on the right, and when the window is too narrow
+ * for both the second group wraps under rather than shrinking the search field.
+ */
 .order-board__toolbar {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
   gap: var(--vaadin-gap-m, 1rem);
+  align-items: center;
+  margin-block-end: var(--vaadin-gap-s, .5rem);
+}
+
+.order-board__browse,
+.order-board__selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vaadin-gap-s, .5rem);
   align-items: center;
 }
 
-.order-board__columns {
-  margin-block-start: var(--vaadin-gap-xs, .25rem);
+.order-board__browse vaadin-text-field {
+  min-width: 18rem;
+}
+
+/* The chooser is a menu of one icon, so it does not need a button's padding. */
+.order-board__master vaadin-grid vaadin-menu-bar {
+  --vaadin-menu-bar-button-padding: 0 var(--vaadin-gap-xs, .25rem);
 }
 
 .order-detail__timeline > div {
