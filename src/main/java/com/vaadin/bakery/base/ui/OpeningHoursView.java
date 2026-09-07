@@ -30,7 +30,12 @@ import java.util.Locale;
 public class OpeningHoursView extends VerticalLayout {
 
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm");
-    private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("EEEE d MMMM");
+    /**
+     * Short, because this one is a cell in a table rather than a sentence.
+     * "Thursday 8 September" is the right shape for "pick it up at Bakery,
+     * Thursday 8 September at 07:30", and the wrong one for a column.
+     */
+    private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("EEE, d MMM");
 
     public OpeningHoursView(PickupLocationRepository locations, PickupClosureRepository closures, Clock clock) {
         addClassName("hours-view");

@@ -10,6 +10,7 @@ import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.bakery.base.ui.RowActions;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -118,7 +119,7 @@ public class InvoiceListView extends VerticalLayout {
                 + invoice.getOrder().getTrackingToken(), ""), "billing.invoice.print");
         print.setTarget("_blank");
 
-        var actions = new Div(print);
+        var actions = RowActions.of(print);
         if (invoice.getStatus() == InvoiceStatus.ISSUED) {
             var markPaid = Translations.bindText(new Button("", event -> {
                 try {

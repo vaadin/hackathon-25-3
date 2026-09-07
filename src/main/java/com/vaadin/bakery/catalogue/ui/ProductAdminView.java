@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Switch;
 import com.vaadin.flow.component.gridpro.GridPro;
+import com.vaadin.bakery.base.ui.RowActions;
 import com.vaadin.bakery.catalogue.Category;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
@@ -92,7 +93,7 @@ public class ProductAdminView extends VerticalLayout {
             edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
             var delete = Translations.bindText(new Button("", event -> delete(product)), "admin.delete");
             delete.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_ERROR);
-            return new Div(edit, delete);
+            return RowActions.of(edit, delete);
         }).setHeader("");
 
         // The filters belong to the columns they filter, so they live in a

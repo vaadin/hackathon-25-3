@@ -9,6 +9,7 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.theme.aura.Aura;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Span;
@@ -48,6 +49,7 @@ public class MainLayout extends AppLayout {
     private final AuthenticationContext authentication;
     private final Span viewTitle = new Span();
 
+
     public MainLayout(CurrentUser currentUser, CartSignals cart, AppearanceSettings appearance,
             AuthenticationContext authentication) {
         this.currentUser = currentUser;
@@ -55,6 +57,7 @@ public class MainLayout extends AppLayout {
         this.appearance = appearance;
         this.authentication = authentication;
         setPrimarySection(Section.DRAWER);
+        viewTitle.addClassName("view-title");
         addToNavbar(true, new DrawerToggle(), viewTitle, header());
         addToDrawer(brand(), navigation());
 
@@ -168,7 +171,19 @@ public class MainLayout extends AppLayout {
             login.addClickListener(event -> getUI().ifPresent(ui -> ui.navigate("login")));
             return menu;
         }
-        var item = menu.addItem(name);
+        // The person, not just their name. Avatar draws initials when there is
+        // no picture, so a user without one is never a broken image.
+        var avatar = new Avatar(currentUser.get().map(user -> user.getFullName()).orElse(name));
+        currentUser.get()
+                .map(user -> user.getAvatarPath())
+                .filter(path -> path != null && !path.isBlank())
+                .ifPresent(avatar::setImage);
+        avatar.setThemeName("xsmall");
+
+        var who = new com.vaadin.flow.component.html.Span(avatar,
+                new com.vaadin.flow.component.html.Span(name));
+        who.addClassName("app-header__user");
+        var item = menu.addItem(who);
         // Not a navigation to "/logout": Spring Security maps that as a POST, so
         // sending the browser there with a GET answered 403 and left the session
         // open, which is a Log out that logs nobody out. This clears the

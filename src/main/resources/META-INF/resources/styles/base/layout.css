@@ -80,3 +80,58 @@
   padding-inline-end: var(--vaadin-gap-m, 1rem);
   gap: var(--vaadin-gap-xs, .25rem);
 }
+
+/* The two or three controls belonging to one row of a grid. Decided here so
+   that a view growing a second action does not have to remember it. */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--vaadin-gap-s, .5rem);
+}
+
+/* Every plain table in the application reads as data: a header that is not a
+   row, and alternating rows so the eye can follow one across. Written once
+   rather than per view, because they are all the same kind of table. */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table th {
+  text-align: start;
+  font-weight: 600;
+  background: var(--vaadin-background-container, rgba(0, 0, 0, .04));
+  border-bottom: 1px solid var(--vaadin-border-color, rgba(0, 0, 0, .16));
+}
+
+table th,
+table td {
+  padding: var(--vaadin-padding-s, .35rem) var(--vaadin-padding-m, .6rem);
+}
+
+table tbody tr:nth-child(even) {
+  background: var(--vaadin-background-container, rgba(0, 0, 0, .03));
+}
+
+/* The view header sits in the navbar beside the controls, so it stays on one
+   line and elides rather than wrapping to two.
+   The controls next to it ask for the full width, which is what squeezed this
+   to nothing, so they share the row instead. */
+.view-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
+  max-width: 40ch;
+}
+
+.app-header {
+  width: auto;
+  flex: 1;
+}
+
+.app-header__user {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vaadin-gap-s, .5rem);
+}

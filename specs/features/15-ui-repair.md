@@ -99,7 +99,7 @@ The header shows a name. It should show the person's picture beside it, and some
 
 ### AC2: The admin views use `Crud`
 - [ ] Catalogue, people and closures are `Crud`, with its new item button and its editor
-- [ ] No two row actions touch each other in any view
+- [x] No two row actions touch each other in any view
 - [ ] Every catalogue column a person would sort by is sortable
 - [ ] The catalogue filters are a header row inside the grid
 
@@ -116,15 +116,16 @@ The header shows a name. It should show the person's picture beside it, and some
 
 ### AC5: The rest of the polish
 - [ ] Diagnostics panels sit side by side when there is room, at a shared height
-- [ ] Opening hours shows short dates and a one line header
-- [ ] Every plain table in the application has alternating rows and a distinguishable header
+- [x] Opening hours shows short dates and a one line header
+- [x] Every plain table in the application has alternating rows and a distinguishable header
 - [ ] A product opens over the catalogue rather than replacing it
-- [ ] The signed in user has an avatar, with initials when there is no picture
+- [x] The signed in user has an avatar, with initials when there is no picture
 
 ### Still open
 
 - This document is written and nothing in it is built.
 - `vaadin-crud-flow` and `vaadin-dashboard-flow` are not dependencies yet. Both are commercial and this build is licensed for them, so they are ordinary dependencies with no profile and no fallback, exactly like Charts and GridPro. See Licensing in `00-overview.md`.
+- The avatar could not be asserted browserless. It sits inside a `MenuBar` item and `find` cannot see components there, exactly as it cannot see them inside a Grid component column, so a browserless test failed while the header rendered correctly. It moved to the browser tier, and the blind spot is in `FEEDBACK-25.3.md`.
 - AC1 is fixed and all four have tests. Each was checked by reverting the fix and watching its test fail, so none of them passes for the wrong reason.
 - The storefront had no `@PageTitle` at all, so its header read `StorefrontView`. That was not in the original report and was found while fixing the product header.
 - Whether a lazy grid can offer a real select all is a question for the platform rather than for this application. If it cannot, the criterion becomes "no text at all".
@@ -142,5 +143,6 @@ The header shows a name. It should show the person's picture beside it, and some
 | FIX-07 | The dashboard at phone width | Opening it | Every widget is one column and the page does not scroll sideways | testbench | `DashboardLayoutIT` |
 | FIX-08 | The order board | Opening it | The selection header carries no unexplained sentence | browserless | `BoardToolbarBrowserlessTest` |
 | FIX-09 | The diagnostics view at desktop width | Opening it | Panels share a row and a height | testbench | `DiagnosticsLayoutIT` |
-| FIX-10 | A signed in user with no picture | Opening any page | The avatar shows their initials | browserless | `UserAvatarBrowserlessTest` |
+| FIX-10 | A signed in user with no picture | Opening any page | The avatar shows their initials | testbench | `UserAvatarIT` |
+| FIX-12 | Any view with two row actions | Rendering a row | The two do not touch | unit | `RowActionsTest` |
 | FIX-11 | The catalogue | Opening a product | It opens over the list rather than replacing it | browserless | `CatalogueOverlayBrowserlessTest` |

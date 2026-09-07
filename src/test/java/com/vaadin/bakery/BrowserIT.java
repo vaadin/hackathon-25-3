@@ -24,6 +24,14 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  * The application is started once by the {@code it} profile, not per test, so a
  * test must leave the database as it found it or say in its name that it does
  * not.
+ *
+ * <p>Two things to know before writing one. {@code assertEquals} does not mean
+ * what it usually means here: {@code AbstractBrowserTestBase} declares an
+ * {@code assertEquals(WebElement, WebElement)} that shadows the static import
+ * in every subclass, so compare with {@code assertTrue(a.equals(b), ...)} or
+ * qualify the call. And a failure should say where it was, which is what
+ * {@link #whereAmI()} is for: the first three failures in this tier all read
+ * "expected true but was false" until it existed.
  */
 public abstract class BrowserIT extends BrowserTestBase {
 
