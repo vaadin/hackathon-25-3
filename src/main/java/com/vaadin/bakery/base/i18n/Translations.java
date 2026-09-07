@@ -1,6 +1,7 @@
 package com.vaadin.bakery.base.i18n;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableFunction;
@@ -29,14 +30,36 @@ import java.util.Locale;
  */
 public final class Translations {
 
+    /**
+     * Marks a component whose text is already bound.
+     *
+     * A signal binding cannot be released: `HasText.bindText` returns a
+     * `SignalBinding` with no way to undo it, and binding a second time throws
+     * `BindingActiveException`. Attaching twice is not exotic, it is what a
+     * `Dialog` does every time it opens, so without this the second open of the
+     * product editor threw from inside an attach listener. Bind once, and let
+     * the binding outlive the detach the way the component does.
+     */
+    private static final String BOUND = Translations.class.getName() + ".bound";
+
     private Translations() {
+    }
+
+    private static boolean alreadyBound(Component component) {
+        if (ComponentUtil.getData(component, BOUND) != null) {
+            return true;
+        }
+        ComponentUtil.setData(component, BOUND, Boolean.TRUE);
+        return false;
     }
 
     /** Binds a component's own text. */
     public static <C extends Component & HasText> C bindText(C component, String key, Object... params) {
         component.whenAttached(ui -> {
-            component.bindText(ui.localeSignal()
-                    .map(locale -> component.getTranslation(locale, key, params)));
+            if (!alreadyBound(component)) {
+                component.bindText(ui.localeSignal()
+                        .map(locale -> component.getTranslation(locale, key, params)));
+            }
             return () -> {
             };
         });
@@ -52,7 +75,9 @@ public final class Translations {
     public static <C extends Component & HasText> C bindText(C component,
             SerializableFunction<Locale, String> text) {
         component.whenAttached(ui -> {
-            component.bindText(Signal.computed(() -> text.apply(ui.localeSignal().get())));
+            if (!alreadyBound(component)) {
+                component.bindText(Signal.computed(() -> text.apply(ui.localeSignal().get())));
+            }
             return () -> {
             };
         });

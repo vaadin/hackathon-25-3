@@ -17,6 +17,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.bakery.base.SafeHtml;
 import com.vaadin.flow.component.markdown.Markdown;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -45,6 +46,8 @@ public class ProductEditor extends Dialog {
 
     private final BeanValidationBinder<Product> binder = new BeanValidationBinder<>(Product.class);
     private final ValueSignal<String> description = new ValueSignal<>("");
+    private final com.vaadin.flow.component.textfield.TextArea descriptionArea =
+            new com.vaadin.flow.component.textfield.TextArea();
     private final CatalogueService catalogue;
     private Product product;
 
@@ -88,13 +91,17 @@ public class ProductEditor extends Dialog {
         var featured = new Switch();
         Translations.bind(featured, featured::setLabel, "admin.product.featured");
 
-        var markdown = new TextArea();
+        var markdown = descriptionArea;
         Translations.bind(markdown, markdown::setLabel, "admin.product.description");
         markdown.setValueChangeMode(ValueChangeMode.LAZY);
         markdown.setHeight("12rem");
         var preview = new Markdown(description);
         preview.addClassName("product-editor__preview");
-        markdown.addValueChangeListener(event -> description.set(event.getValue()));
+        // Cleaned, because that is what the public page renders. Setting the
+        // raw value here made the preview flatter the author: anything the
+        // safelist strips looked fine while writing it and vanished for
+        // everybody else.
+        markdown.addValueChangeListener(event -> description.set(SafeHtml.clean(event.getValue())));
 
         binder.bind(name, "name");
         binder.bind(price, "priceCents");
@@ -130,6 +137,16 @@ public class ProductEditor extends Dialog {
     }
 
     /** Drop zone, button and file list, all driven by one upload manager. */
+    /** Test seam: the field a description is typed into. */
+    com.vaadin.flow.component.textfield.TextArea descriptionField() {
+        return descriptionArea;
+    }
+
+    /** Test seam: what the preview is showing, which is a signal and not a getter. */
+    String previewContent() {
+        return description.peek();
+    }
+
     private Div imageArea() {
         var image = new Image();
         image.addClassName("product-editor__image");

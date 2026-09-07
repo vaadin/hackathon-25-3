@@ -52,7 +52,7 @@ Capacity is advisory in the picker and authoritative in the service. Between cho
 
 ### AC1: The badge is always right
 - [x] Adding from a card updates the badge without a navigation
-- [ ] Changing a quantity on the cart page updates the badge and the totals
+- [x] Changing a quantity on the cart page updates the badge and the totals
 - [x] Setting a quantity to zero removes the line
 
 ### AC2: The calendar tells the truth

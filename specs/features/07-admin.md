@@ -59,7 +59,7 @@ A `ComboBox` in partial match mode over customers, matching on any part of name,
 ### AC1: Products can be managed
 - [ ] Price and stock are editable inline and persist
 - [x] The availability switch takes effect on the storefront immediately
-- [ ] The markdown preview matches what the public page renders
+- [x] The markdown preview matches what the public page renders
 
 ### AC2: Images work three ways
 - [ ] Drag and drop uploads a photo and it appears on the card
@@ -90,6 +90,7 @@ A `ComboBox` in partial match mode over customers, matching on any part of name,
 ### Still open
 
 - Inline editing is the reason GridPro is in this application and it is untested. The cell editing itself needs a browser, `GridProEditIT`, but that the edited price and stock persist could be asserted browserless today and is not.
+- The preview showed the raw markdown while the public page renders it cleaned, so anything the safelist strips looked fine to whoever wrote it and vanished for everybody else. Both sides clean now, and `MarkdownPreviewBrowserlessTest` compares them.
 - The markdown preview matching what the public page renders has no test.
 - Two of the three upload routes wait on the browser tier: drag and drop, `UploadDropZoneIT`, and clipboard paste, `ClipboardPasteIT`. The validation half is covered browserless, including a file that only claims to be an image.
 - Changing a location's slot length changing the offered times is untested. Closures are covered.
