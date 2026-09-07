@@ -49,16 +49,16 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 ## Acceptance criteria
 
 ### AC1: The board is live
-- [ ] A state change made by one baker appears on another baker's board with no reload
+- [x] A state change made by one baker appears on another baker's board with no reload
 - [ ] The same change appears on the customer's tracking page
 - [ ] The changed ticket is visually flagged for a moment on the observing screens
 
 ### AC2: Claiming is safe
-- [ ] A ticket claimed by one baker shows their name everywhere
-- [ ] A second claim asks for confirmation and names the current owner
+- [x] A ticket claimed by one baker shows their name everywhere
+- [x] A second claim asks for confirmation and names the current owner
 
 ### AC3: The summaries are semantic tables
-- [ ] The slot summary and the production summary render real table markup with headers
+- [x] The slot summary and the production summary render real table markup with headers
 - [ ] Both update when the underlying signal changes
 
 ### AC4: Lifecycle is clean
@@ -72,12 +72,16 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 ### AC6: The summary does not cost the board
 - [ ] Opening the production summary leaves the columns at exactly the width they had, with no card reflowed or clipped
 - [ ] The panel is no wider than the summary it contains
-- [ ] Closing the summary returns the board to what it was before it was opened
+- [x] Closing the summary returns the board to what it was before it was opened
 
 ### Still open
 
-Nothing in this document is built yet.
-
+- The customer's tracking page following a kitchen change waits on `TrackingLiveBrowserlessTest`. Between bakers it is proven; the last hop to the customer is not.
+- The moment's flag on a ticket somebody else moved is not built.
+- Nothing asserts that the summaries update when the signal changes. The columns are covered, the summary tables are not.
+- AC4 has no test at all. `AttachLifecycleTest` proves the codebase uses `whenAttached` rather than overriding `onAttach`, which is a rule about how subscriptions are written, not evidence that this board releases its own or that nothing is delivered to a detached UI.
+- Staleness, AC5, is not built. `StaleTicketBrowserlessTest` is named and unwritten.
+- The two width criteria in AC6 are layout questions and wait on `KitchenSummaryOverlayIT`. The summary rides over the board as an overlay so that the columns keep their width, which is the intent behind them, and no test measures it.
 
 ## Test cases
 

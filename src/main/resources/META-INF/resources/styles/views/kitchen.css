@@ -1,0 +1,196 @@
+/*
+ * A wall display. The three columns fill the height and scroll inside
+ * themselves, so the headings stay where the baker last looked for them and a
+ * busy Saturday does not push the third column off the bottom of the screen.
+ *
+ * Every ancestor of a scroll container needs min-height: 0, or flex refuses to
+ * let a child be shorter than its content and the whole page scrolls instead.
+ */
+.kitchen-board,
+.kitchen-board__layout {
+  height: 100%;
+  min-height: 0;
+}
+
+.kitchen-board__master {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: var(--vaadin-gap-m, 1rem);
+  box-sizing: border-box;
+}
+
+.kitchen-board__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--vaadin-gap-m, 1rem);
+  flex: 0 0 auto;
+}
+
+.kitchen-board__header h2 {
+  margin: 0;
+}
+
+.kitchen-board__columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--vaadin-gap-m, 1rem);
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-block-start: var(--vaadin-gap-m, 1rem);
+}
+
+.kitchen-board__column {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--vaadin-background-container, rgba(0, 0, 0, .04));
+  border-radius: var(--vaadin-radius-l, 14px);
+  overflow: hidden;
+}
+
+.kitchen-board__column-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--vaadin-gap-s, .5rem);
+  padding: var(--vaadin-gap-s, .5rem) var(--vaadin-gap-m, 1rem);
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+}
+
+.kitchen-board__column-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* The count, so a full column reads as full before you count the cards. */
+.kitchen-board__column-header span {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  opacity: .6;
+}
+
+.kitchen-board__scroller {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--vaadin-gap-s, .5rem);
+  display: grid;
+  gap: var(--vaadin-gap-s, .5rem);
+  align-content: start;
+}
+
+.kitchen-board__ticket {
+  background: var(--bakery-raised, var(--vaadin-background-color, #fff));
+  border: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+  border-radius: var(--vaadin-radius-m, 8px);
+  padding: var(--vaadin-gap-s, .5rem) var(--vaadin-gap-m, 1rem);
+}
+
+.kitchen-board__ticket-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--vaadin-gap-s, .5rem);
+}
+
+.kitchen-board__ticket-time {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.kitchen-board__ticket-who {
+  font-weight: 600;
+}
+
+.kitchen-board__ticket-reference {
+  margin-inline-start: auto;
+  opacity: .5;
+  font-size: .8em;
+}
+
+.kitchen-board__ticket-lines {
+  margin-block: var(--vaadin-gap-xs, .25rem);
+  font-size: .95em;
+}
+
+/* Flour on the tablet, so nothing smaller than a finger. */
+.kitchen-board__ticket-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vaadin-gap-s, .5rem);
+  margin-block-start: var(--vaadin-gap-s, .5rem);
+}
+
+.kitchen-board__ticket-actions vaadin-button {
+  min-height: 44px;
+}
+
+.kitchen-board__empty {
+  opacity: .5;
+  font-style: italic;
+  padding: var(--vaadin-gap-s, .5rem);
+}
+
+.kitchen-board__summary {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: var(--vaadin-gap-m, 1rem);
+  box-sizing: border-box;
+  border-inline-start: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+}
+
+.kitchen-board__summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+}
+
+.kitchen-board__summary-header h3 {
+  margin: 0;
+}
+
+.kitchen-board__summary-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin-block-start: var(--vaadin-gap-s, .5rem);
+}
+
+.kitchen-board__summary table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.kitchen-board__summary th,
+.kitchen-board__summary td {
+  text-align: start;
+  white-space: nowrap;
+  padding: .3rem .5rem;
+  border-bottom: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .08));
+}
+
+/* Two columns on a tablet, one on a phone, still full height and scrolling. */
+@media (max-width: 1100px) {
+  .kitchen-board__columns {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .kitchen-board__columns {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .kitchen-board__column {
+    min-height: 14rem;
+  }
+}
