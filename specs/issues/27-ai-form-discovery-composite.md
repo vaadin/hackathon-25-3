@@ -48,7 +48,7 @@ Stronger than the row that started this: the nested field was passed to `describ
 
 ### Getting the project
 
-[`ai-live.zip`](https://github.com/vaadin/hackathon-25-3/raw/ea604a95b7f10720590dcd71c0e6955068f1d223/specs/issues/projects/ai-live.zip), 10 KB, sources only: four routes, one per finding, and the feature flag file the AI components need.
+[`ai-live.zip`](https://github.com/vaadin/hackathon-25-3/raw/f36086c0050c7fc2fc175ed169a155c3ba418413/specs/issues/projects/ai-live.zip), 10 KB, sources only: four routes, one per finding, and the feature flag file the AI components need.
 
 ```
 export OPENAI_API_KEY=...

@@ -39,4 +39,14 @@ The `@Timeout` is the assertion: without it the test hangs and the build never e
 
 One detail worth keeping if this is fixed: the form has to be attached first. `fill_form` on a detached form answers `Error: fill failed.` and logs `fill_form invoked on a controller whose form is not attached to a UI`, which is a good message and the reason this reproduction has an `UI.getCurrent().add(form)` in it.
 
+### Getting the project
+
+[`ai-live.zip`](https://github.com/vaadin/hackathon-25-3/raw/f36086c0050c7fc2fc175ed169a155c3ba418413/specs/issues/projects/ai-live.zip), 12 KB, sources only.
+
+```
+mvn test -Dtest=FillOnTheUiThreadTest
+```
+
+No key and no network: the provider in that test is the model.
+
 Found on 25.3.0-beta1, `vaadin-ai-extensions-flow`, no network and no key needed.
