@@ -1,6 +1,7 @@
 package com.vaadin.bakery.diagnostics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.vaadin.bakery.Application;
@@ -36,6 +37,9 @@ class DiagnosticsBrowserlessTest extends SpringBrowserlessTest {
 
     @Autowired
     private PlatformEventRecorder recorder;
+
+    @Autowired
+    private ObservabilityStatus kit;
 
     @Test
     void theViewRendersItsPanelsWithoutAnyLicence() {
@@ -85,6 +89,43 @@ class DiagnosticsBrowserlessTest extends SpringBrowserlessTest {
         assertTrue(recorder.fetchesByCaller().keySet().stream()
                 .noneMatch(caller -> caller.contains("Recorder")),
                 "and not the listener that recorded it, got " + recorder.fetchesByCaller());
+    }
+
+    /**
+     * The kit half is not in the default build, so the panel that would link to
+     * it explains how to start it instead.
+     *
+     * This is the one screen where saying so is useful: it is the free half of
+     * observability, it works in every build, and its reader is the person
+     * looking for the other half. Naming the switch matters as much as the
+     * commands: "it does not work" sends somebody to the wrong one of three.
+     */
+    @Test
+    void theKitPanelExplainsHowToStartWhatIsNotRunning() {
+        navigate(OrderBoardView.class);
+        navigate(DiagnosticsView.class);
+
+        assertFalse(kit.isActive(), "the default build carries no kit");
+        assertEquals(ObservabilityStatus.Reason.NOT_IN_BUILD, kit.reason(),
+                "and the reason is the build rather than a property");
+
+        var panel = find(com.vaadin.flow.component.html.Div.class).all().stream()
+                .filter(div -> div.getClassNames().contains("diagnostics__kit"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("the view has a kit panel"));
+        var text = panel.getChildren()
+                .flatMap(child -> child.getChildren().count() == 0
+                        ? java.util.stream.Stream.of(child)
+                        : java.util.stream.Stream.concat(java.util.stream.Stream.of(child), child.getChildren()))
+                .map(child -> child.getElement().getText())
+                .reduce("", (all, part) -> all + " " + part);
+
+        assertTrue(text.contains("observability profile"), "it names the switch that is off: " + text);
+        assertTrue(text.contains("-Pobservability"), "and the development command: " + text);
+        assertTrue(text.contains("--spring.profiles.active=observability"),
+                "and the production one, which is the Spring profile rather than the Maven one: " + text);
+        assertTrue(panel.getChildren().noneMatch(child -> child instanceof com.vaadin.flow.component.html.Anchor),
+                "and it links to nothing, because there is nothing to link to");
     }
 
     @Test

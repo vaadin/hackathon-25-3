@@ -3,6 +3,7 @@ package com.vaadin.bakery.base.security;
 import com.vaadin.bakery.base.ui.LoginView;
 import com.vaadin.bakery.people.Role;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -12,10 +13,18 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration {
+
+    /** The realm a browser shows in its prompt, and the reason it prompts. */
+    private static BasicAuthenticationEntryPoint entryPoint() {
+        var basic = new BasicAuthenticationEntryPoint();
+        basic.setRealmName("Bakery metrics");
+        return basic;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -44,8 +53,16 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .anyRequest().hasRole(Role.ADMIN.name()))
-                .httpBasic(basic -> {
-                })
+                // Basic, and its own entry point, so an unauthenticated
+                // request is answered 401 with a challenge rather than 302 to
+                // the login view. Both readers need that. A scraper is
+                // configured with credentials and sends them anyway; a person
+                // following the link from the diagnostics screen gets the
+                // browser's own password prompt, which is the only way in,
+                // because this chain is stateless and the screen's session
+                // does not reach it.
+                .httpBasic(basic -> basic.authenticationEntryPoint(entryPoint()))
+                .exceptionHandling(handling -> handling.authenticationEntryPoint(entryPoint()))
                 // No session for a scraper, and no CSRF token it could not
                 // obtain: every request carries its own credentials.
                 .csrf(csrf -> csrf.disable())
@@ -59,6 +76,13 @@ public class SecurityConfiguration {
     public SecurityFilterChain bakerySecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
+                        // The container's error dispatch goes through the chain
+                        // again, and this chain matches everything, so a 401
+                        // raised by the actuator chain came back here and was
+                        // turned into a 302 to the login view: the browser
+                        // followed the redirect instead of asking for the
+                        // credentials, and a scraper read a login form.
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers("/robots.txt", "/icons/**", "/images/**", "/styles.css", "/styles/**",
                                 "/offline.html", "/manifest.webmanifest", "/sw.js", "/attachments/**")
                         .permitAll()

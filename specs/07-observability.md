@@ -13,11 +13,30 @@ This epic is scheduled last, after the polish passes. It instruments screens rat
 - `/actuator/vaadin/observability` answers `{"schemaVersion":1,"instrumentation":"active","insights":[]}`. Instrumentation is live and the insight list is empty, because an insight is a slow interaction and nothing in a walk through a local application is slow. Demonstrating Interaction Insights therefore needs a deliberately slow interaction rather than ordinary use, which the demo script has to stage.
 - No licence complaint anywhere, and no telemetry backend was needed to read either endpoint.
 
+### The panel that joins the two halves
+
+The diagnostics view is the free half and it works in every build, which makes it the one screen whose reader is looking for the other half. So it carries an **Observability Kit** panel.
+
+Running, it is three links: the metrics, the insights, and health. They open in a new tab and the browser asks for a password, because the actuator chain is stateless and this screen's session does not reach it, which the panel says in as many words.
+
+Not running, it names which of the three switches is off, because "it does not work" sends a reader to the wrong one: the dependency is not in the build, or `vaadin.observability.enabled` is not true, or the actuator is not publishing the endpoint. `ObservabilityStatus` answers that, and it looks the kit up by class name rather than importing it, because the default build does not have it. Then the two commands:
+
+```
+./mvnw spring-boot:run -Pobservability -Dspring-boot.run.profiles=observability
+
+./mvnw package -Pobservability -Pproduction
+java -jar target/bakery-*.jar --spring.profiles.active=observability
+```
+
+Both halves are needed in both cases, and that is the mistake worth preventing: the Maven profile adds the dependencies and the Spring profile switches the properties on. The commands are constants in the view rather than bundle entries, because a shell command is the same in every language and a bundle is the one place where somebody would helpfully translate a flag. Every sentence around them is translated.
+
 ### The one fix it needed
 
 The endpoints were not reachable. There was a single security chain and the Vaadin one accepts everything, so `/actuator/prometheus` answered a scrape with a 302 to the login page: the committed Prometheus job would have collected a login form every five seconds, and the Grafana dashboard would have been empty with nothing saying why.
 
-The actuator now has a chain of its own, ordered first, matching `/actuator/**`, with HTTP Basic, no session and no CSRF, still requiring the admin role, and health still public. Measured after the change: health 200 with no credentials, prometheus and insights 200 with an admin's Basic header, 403 with a barista's, 302 without any. `ops/prometheus.yml` carries the credentials, which is what a scraper does.
+The actuator now has a chain of its own, ordered first, matching `/actuator/**`, with HTTP Basic, no session and no CSRF, still requiring the admin role, and health still public. `ops/prometheus.yml` carries the credentials, which is what a scraper does.
+
+It took one more fix to be usable by a person as well. An unauthenticated request was answered 302 to the login view, with the `WWW-Authenticate` header on it, which is the worst of both: a browser follows the redirect instead of asking for a password, and a scraper reads a login form. The redirect came from the container's error dispatch, which goes through the chain again and hits the chain that matches everything, so that chain now permits the error dispatch explicitly and the actuator chain carries its own Basic entry point. Measured after that: **401 with `WWW-Authenticate: Basic realm="Bakery metrics"`** and no credentials, 200 with an admin's, 403 with a barista's, and health 200 for anyone. That 401 is what makes the browser prompt, and therefore what makes the links on the diagnostics screen work.
 
 ## Observability Kit 5
 
@@ -82,6 +101,7 @@ A dashboard that nobody reads is decoration. Each of these is a question the bak
 | RPC traffic | RPC invocation events | Chatty views, and synchronised property updates |
 | Data provider queries | Count and fetch query events | The headline: toggle a hidden column in the order board and watch the query count not move |
 | Stale UI detector | `UI.getLastUpdateSentTimestamp` plus undelivered JavaScript invocation warnings | A background job that finished while nobody was listening |
+| Observability Kit | `ObservabilityStatus`, which looks the kit up by name rather than importing it | Where the other half is, or how to start it. Three links when it is running, and when it is not, the switch that is off and the command for development and for production |
 
 The hidden column demonstration is written as an acceptance test, not just as a panel: open the order board, record the query count, hide the expensive column, reload the same page of data, and assert the count did not grow.
 

@@ -66,6 +66,34 @@ class ObservabilityEndpointTest {
     }
 
     /**
+     * A challenge, not a redirect, and the difference is what makes both
+     * readers work.
+     *
+     * A 302 to the login view sends a browser to a form it can use and a
+     * scraper to a form it cannot, and it hides the fact that credentials were
+     * wanted at all. A 401 with `WWW-Authenticate` makes the browser ask for a
+     * password, which is how the links on the diagnostics screen are opened,
+     * and tells anything else exactly what to send.
+     *
+     * It was a 302 for a while, with the challenge header on it, because the
+     * container's error dispatch went through the chain that matches
+     * everything and that chain redirects. Hence the explicit permit for the
+     * error dispatch, and hence this test.
+     */
+    @Test
+    void anUnauthenticatedRequestIsChallengedRatherThanRedirected() throws Exception {
+        try (var client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()) {
+            var request = HttpRequest.newBuilder(
+                    URI.create("http://localhost:" + port + "/actuator/prometheus")).GET().build();
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(401, response.statusCode(), "a challenge rather than a redirect");
+            assertTrue(response.headers().firstValue("WWW-Authenticate").orElse("").startsWith("Basic"),
+                    "and it says how to authenticate");
+        }
+    }
+
+    /**
      * A scraper authenticates with HTTP Basic, because it cannot use a login
      * form. That is what the actuator's own security chain is for, and it is
      * testable here whether or not the kit is on the classpath: authorization

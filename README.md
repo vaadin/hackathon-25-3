@@ -49,6 +49,8 @@ Two halves, and the first one needs nothing at all.
 
 **The diagnostics view is always there.** Sign in as the admin, open `/admin/diagnostics`, press **Reset the counters**, then go and use the application: open the order board, scroll the grid, filter the customer lookup on `/orders/new`, come back and press **Refresh**. Session locks, RPC traffic and data provider queries all move, and the per caller table names the component that fetched, `Grid` or `ComboBox (filtered)`. It is built on the 25.3 service event bus, so it costs no licence, no agent and no backend. The demonstration worth showing: hide the expensive column on the order board, fetch the same page again, and watch the query count not move.
 
+The same view carries an **Observability Kit** panel, which is the other half's front door. With the kit running it is three links, the metrics, the insights and health, and they open in a new tab where the browser asks for a password. With the kit not running, which is the default build, it names which of the three switches is off and gives the command below, so nobody has to come back here to find it.
+
 **The kit half needs the profile and, for the dashboard, Docker.**
 
 ```

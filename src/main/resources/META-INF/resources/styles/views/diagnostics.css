@@ -35,3 +35,35 @@
   padding: .2rem .5rem;
   border-bottom: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
 }
+
+/*
+ * The kit panel is prose and two shell commands rather than four numbers, so
+ * it takes the whole row: in one grid cell the commands wrapped at every
+ * second word, and the point of putting a command on a screen is that somebody
+ * can read it and copy it in one piece.
+ */
+.diagnostics__kit {
+  grid-column: 1 / -1;
+}
+
+.diagnostics__kit pre {
+  margin-block: var(--vaadin-gap-xs, .25rem) var(--vaadin-gap-m, 1rem);
+  padding: var(--vaadin-gap-s, .5rem) var(--vaadin-gap-m, 1rem);
+  border-radius: var(--vaadin-radius-m, .5rem);
+  background: var(--vaadin-background-container);
+  font-size: var(--vaadin-font-size-s, .875rem);
+  /* Scrolls rather than wraps: a wrapped command is a command somebody pastes
+     with a line break in the middle of it. */
+  overflow-x: auto;
+  user-select: all;
+}
+
+.diagnostics__kit-link {
+  margin-inline-end: var(--vaadin-gap-m, 1rem);
+}
+
+.diagnostics__kit-note {
+  color: var(--vaadin-text-color-secondary);
+  font-size: var(--vaadin-font-size-s, .875rem);
+  max-width: 60ch;
+}

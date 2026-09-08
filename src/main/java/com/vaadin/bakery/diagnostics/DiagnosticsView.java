@@ -4,10 +4,12 @@ import com.vaadin.bakery.ordering.OrderQueryCounter;
 import com.vaadin.bakery.people.Role;
 import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.Table;
 import com.vaadin.flow.component.notification.Notification;
@@ -34,13 +36,29 @@ import java.time.Instant;
 @RolesAllowed(Role.ADMIN_NAME)
 public class DiagnosticsView extends VerticalLayout {
 
+    /**
+     * How to start the kit half, in both places somebody would start it.
+     *
+     * Commands rather than prose, so they are constants rather than bundle
+     * entries: a shell command is the same in every language, and a bundle is
+     * the one place where somebody would helpfully translate a flag and break
+     * it. The sentences around them are translated, as everything a person
+     * reads should be.
+     */
+    private static final String DEV_COMMAND = "./mvnw spring-boot:run -Pobservability -Dspring-boot.run.profiles=observability";
+    private static final String PROD_COMMAND = "./mvnw package -Pobservability -Pproduction\n"
+            + "java -jar target/bakery-*.jar --spring.profiles.active=observability";
+
     private final PlatformEventRecorder recorder;
     private final OrderQueryCounter orderCounter;
+    private final ObservabilityStatus kit;
     private final Div panels = new Div();
 
-    public DiagnosticsView(PlatformEventRecorder recorder, OrderQueryCounter orderCounter) {
+    public DiagnosticsView(PlatformEventRecorder recorder, OrderQueryCounter orderCounter,
+            ObservabilityStatus kit) {
         this.recorder = recorder;
         this.orderCounter = orderCounter;
+        this.kit = kit;
         addClassName("diagnostics");
 
         panels.addClassName("diagnostics__panels");
@@ -114,6 +132,55 @@ public class DiagnosticsView extends VerticalLayout {
         var callerPanel = new Div(byCaller);
         callerPanel.addClassNames("panel", "diagnostics__panel");
         panels.add(callerPanel);
+
+        panels.add(kitPanel(locale));
+    }
+
+    /**
+     * The kit half: where its endpoints are, or how to start it.
+     *
+     * This view is the free half and it works in every build, so the reader is
+     * standing in the one place where the other half's absence is worth
+     * explaining. When the kit is running these are three links; when it is not
+     * they are the two commands that start it, and the switch that is off.
+     *
+     * The links open in a new tab and ask for credentials. The actuator has a
+     * security chain of its own with HTTP Basic, because a scraper cannot use a
+     * login form, and a browser asked for Basic shows its own prompt: this
+     * screen's session does not carry into it.
+     */
+    private Div kitPanel(java.util.Locale locale) {
+        var panel = new Div();
+        panel.addClassNames("panel", "diagnostics__panel", "diagnostics__kit");
+        panel.add(new H3(getTranslation(locale, "diagnostics.kit")));
+
+        if (kit.isActive()) {
+            panel.add(new Paragraph(getTranslation(locale, "diagnostics.kit.on")));
+            panel.add(link(ObservabilityStatus.METRICS_PATH, getTranslation(locale, "diagnostics.kit.metrics")),
+                    link(ObservabilityStatus.INSIGHTS_PATH, getTranslation(locale, "diagnostics.kit.insights")),
+                    link(ObservabilityStatus.HEALTH_PATH, getTranslation(locale, "diagnostics.kit.health")));
+            var note = new Paragraph(getTranslation(locale, "diagnostics.kit.credentials"));
+            note.addClassName("diagnostics__kit-note");
+            panel.add(note);
+            return panel;
+        }
+
+        panel.add(new Paragraph(getTranslation(locale, "diagnostics.kit.off",
+                getTranslation(locale, kit.reason().translationKey()))));
+        panel.add(new Span(getTranslation(locale, "diagnostics.kit.dev")), new Pre(DEV_COMMAND),
+                new Span(getTranslation(locale, "diagnostics.kit.prod")), new Pre(PROD_COMMAND));
+        var note = new Paragraph(getTranslation(locale, "diagnostics.kit.profileNote"));
+        note.addClassName("diagnostics__kit-note");
+        panel.add(note);
+        return panel;
+    }
+
+    /** A link out of the application, so it opens beside it rather than over it. */
+    private static Anchor link(String href, String text) {
+        var anchor = new Anchor(href, text);
+        anchor.setTarget("_blank");
+        anchor.addClassName("diagnostics__kit-link");
+        return anchor;
     }
 
     private static String shorten(String className) {

@@ -33,6 +33,8 @@ Both are written as assertions, not as screenshots.
 - [x] `/actuator/vaadin/observability` answers with active instrumentation. It returns no insights, because an insight is a slow interaction and ordinary use of a local application has none
 - [x] A scraper reaches the metrics with HTTP Basic and only as an admin, health stays public, and a barista is refused by the rule rather than by the endpoint
 - [x] `docker compose up -d prometheus grafana` provisions the datasource and the dashboard, Prometheus scrapes the application, and all four rows draw from it
+- [x] The diagnostics view links to the three endpoints when the kit is running, and when it is not, names the switch that is off and gives the command for development and for production
+- [x] An unauthenticated request to the metrics is challenged with `WWW-Authenticate` rather than redirected to the login view, so a browser can open the links
 
 ### AC2: The diagnostics view needs no backend
 - [x] Session lock, RPC and data provider panels populate under normal use with the default profile
