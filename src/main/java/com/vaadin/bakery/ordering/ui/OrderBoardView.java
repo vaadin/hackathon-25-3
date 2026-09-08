@@ -76,6 +76,9 @@ public class OrderBoardView extends MasterDetailLayout {
     private final SlotService slots;
 
     private final Grid<Order> grid = new Grid<>();
+
+    /** The chooser in the table's own header, so a test can reach the toggles. */
+    private com.vaadin.flow.component.grid.contextmenu.GridContextMenu<Order> columnChooser;
     private final ValueSignal<String> search = new ValueSignal<>("");
     private final ValueSignal<Boolean> includePast = new ValueSignal<>(false);
     private final Grid.Column<Order> editColumn;
@@ -360,7 +363,7 @@ public class OrderBoardView extends MasterDetailLayout {
     }
 
     private void columnChooser() {
-        ColumnChooser.onHeaderOf(grid, List.of(
+        columnChooser = ColumnChooser.onHeaderOf(grid, List.of(
                 new ColumnChooser.Entry<>(referenceColumn, "board.column.reference"),
                 new ColumnChooser.Entry<>(customerColumn, "board.column.customer"),
                 new ColumnChooser.Entry<>(slotColumn, "board.column.slot"),
@@ -531,5 +534,10 @@ public class OrderBoardView extends MasterDetailLayout {
 
     Grid<Order> grid() {
         return grid;
+    }
+
+    /** The column chooser, for the tests that assert on what it offers. */
+    com.vaadin.flow.component.grid.contextmenu.GridContextMenu<Order> chooserMenu() {
+        return columnChooser;
     }
 }

@@ -325,13 +325,27 @@ public class OrderService {
         // Mutated in place rather than replaced: the collection has orphan
         // removal, and Hibernate only tracks removals against the very
         // instance it manages, not a new list handed to the setter.
-        // What the change cost, before it is applied, so the history can say
-        // what moved rather than only that something did.
+        // What the change cost, and what it was, before it is applied, so the
+        // history can say what moved rather than only that something did.
         var wasCents = current.getTotalGrossCents();
+        var was = current.getItems().stream()
+                .map(item -> new CartLine(item.getProduct().getId(), item.getQuantity(), item.getComment()))
+                .toList();
 
         current.getItems().clear();
         current.getItems().addAll(items);
         current.recalculateTotals();
+
+        // Saving is one button for the whole panel, so this runs whenever
+        // anything on it was saved: a state moved, a note typed, the lines left
+        // exactly as they were. An order whose history says its lines changed
+        // when they did not is an order nobody can read the history of, and the
+        // total is compared as well because the same lines reprice when a
+        // product's price has moved since the order was taken.
+        if (was.equals(lines) && wasCents == current.getTotalGrossCents()) {
+            return current;
+        }
+
         var detail = wasCents == current.getTotalGrossCents() ? null
                 : wasCents + ">" + current.getTotalGrossCents();
         current.addHistory(new OrderHistoryItem(current.getState(), "ordering.history.linesChanged",

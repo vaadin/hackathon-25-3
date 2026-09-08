@@ -100,6 +100,13 @@ public final class ColumnChooser {
 
     private static <T> Checkbox toggleFor(List<Entry<T>> entries, Entry<T> entry) {
         var toggle = new Checkbox();
+        // Twice over, and both are needed. The binding follows the language and
+        // runs when the component attaches, and a menu item's content attaches
+        // only when the client opens the menu, so a chooser nobody has opened
+        // had a row of unlabelled checkboxes in it: invisible to a reader,
+        // because opening the menu attaches them, and plainly wrong to anything
+        // that reads the menu without opening it.
+        toggle.setLabel(toggle.getTranslation(entry.labelKey()));
         Translations.bind(toggle, toggle::setLabel, entry.labelKey());
         toggle.setValue(entry.column().isVisible());
         toggle.addValueChangeListener(event -> {
