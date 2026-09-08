@@ -39,7 +39,6 @@ Each of these has a reproduction somebody else can run in a few minutes.
 | `18-downloadhandler-no-session-lock.md` | docs | A snippet, and the note that is easy to miss |
 | `19-shared-signal-operation-never-completes.md` | flow | `19-shared-signal-env/`, then `mvn test` |
 | `20-grid-select-all-lazy.md` | flow-components | Four lines, and a table of the six doors that are closed |
-| `21-bindchildren-documented-and-absent.md` | docs | It does not compile |
 | `22-browserless-differences.md` | flow | Four differences, two or three lines each |
 | `23-addstylesheet-order-and-readd.md` | flow | Four lines: remove a sheet and add the same URL back |
 | `24-push-reconnect-logged-as-error.md` | flow | Any `@Push` application, one page open, one restart |
@@ -75,7 +74,7 @@ Each of these has a reproduction somebody else can run in a few minutes.
 
 ## Withdrawn
 
-Five findings died when somebody tried to reproduce them. Every one of the five was killed by building the project or repeating the steps, not by rereading the row.
+Six findings died when somebody tried to reproduce them. Every one was killed by building the project or repeating the steps, not by rereading the row.
 
 | Finding | What happened |
 | --- | --- |
@@ -84,6 +83,7 @@ Five findings died when somebody tried to reproduce them. Every one of the five 
 | `07` `LazyDataView.getItems()` divides by zero | Not in a bare project, not on an unrendered grid, and not on the bakery's board, which counts 265 |
 | A `@Menu` order change reports `Stable` and is not live | **Wrong, and it was the headline for a day.** The bare project applies the new order after a page reload, and so does the bakery. What is true is much smaller and the loop already prints it: an already rendered page keeps its old output until it renders again |
 | `LicenseChecker` answers the same for a product that does not exist | Kept as a note in `FEEDBACK-25.3.md`, not as an issue: nothing in it is a defect |
+| `bindChildren` is documented and does not exist | **Wrong, and it cost this application a workaround it carried for the whole build.** `container.bindChildren(list, item -> component)` compiles and runs on 25.3.0-beta1. The original conclusion came from a compile error that was really about the mapper's argument, a `ValueSignal<T>` and not a `T`. The forty line adapter is deleted and three views now call the platform |
 
 ## The reproducer projects
 
@@ -101,7 +101,10 @@ Each is a `pom.xml`, an `Application`, and one or two classes that do nothing el
 | `09-charts-styled-mode/` | 8110 | The same chart twice on a dark page |
 | `10-devloop/` | 8100 | Two views with `@Menu`, and a view waiting for a bean that does not exist yet |
 | `14-browserless-find/` | 8104 | Five checkboxes on screen, one in the tree. `mvn test` |
+| `16-emailfield-message/` | 8116 | The same property in two fields. `mvn test` |
 | `19-shared-signal-env/` | 8106 | A shared signal in a singleton, and one test that writes to it. `mvn test` |
+| `22-browserless-differences/` | 8112 | Two of the four differences, one passing test and one failing. `mvn test` |
+| `45-older-behaviours/` | 8145 | Two tests, and a view whose CSS grid collapses to one column |
 
 Build output is ignored, so a project is sources only. `10-devloop` needs `mvn flow:install-dev-cli` first, and the `flow-maven-plugin` declaration that makes that prefix work is already in its pom.
 
@@ -111,10 +114,10 @@ Both feedback files were read row by row and each row now has one of four destin
 
 | Destination | How many | Where it went |
 | --- | --- | --- |
-| Drafted as an issue | 41 drafts covering most of the rows, several of them bundling a family | This directory |
+| Drafted as an issue | 40 drafts covering most of the rows, several of them bundling a family | This directory |
 | Real, not yet reduced | 3 | The table above, each with what it needs |
 | Not a report, it was our own rule | 9 | The specifications: `08-testing.md`, `10-dev-loop.md`, `03-architecture.md` |
-| Withdrawn or not reproducible | 5 | Deleted, with the lesson from each in the table above |
+| Withdrawn or not reproducible | 6 | Deleted, with the lesson from each in the table above |
 | Positive, worth saying anyway | 10 | `REPORT.md`, under what worked exactly as advertised |
 
 Some drafts deliberately carry several rows, because the rows shared one root: `22` is four browserless differences, `30` is seven documentation gaps, `34` is four dev loop notes, `35` is three AI API requests, `45` is four behaviours older than this release.

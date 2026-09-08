@@ -28,4 +28,8 @@ The string form is what everybody writes first, because it is the URL they alrea
 
 Either accept a query string in the string form and split it, or name the overload in the exception message.
 
+### Reproduce
+
+`specs/issues/22-browserless-differences/`, then `mvn test`. `navigationCannotCarryAQueryString` passes, and what it asserts is this refusal.
+
 Found on 25.3.0-beta1.

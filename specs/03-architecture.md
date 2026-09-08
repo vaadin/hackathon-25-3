@@ -55,7 +55,7 @@ The rules:
 | Cross view state lives in a `@VaadinSessionScope` bean holding signals | The cart is the canonical case: header badge, cart page and checkout all read the same source |
 | Derived values are `Signal.computed`, never a listener that writes a field | One source of truth, and no ordering bugs |
 | `bindText`, `bindValue`, `bindEnabled`, `bindVisible`, `bindClassName` and `getStyle().bind` are preferred over manual updates | Less code and no stale UI |
-| A list of components comes from `bindChildren` over a `ListSignal` | Handles insert, remove and reorder without rebuilding everything |
+| A list of components comes from `bindChildren` over a `ListSignal` | Handles insert, remove and reorder without rebuilding everything. It does exist, contrary to what this repository believed for most of the build: `container.bindChildren(list, item -> component)` compiles and works on 25.3.0-beta1, and the forty line adapter that stood in for it is gone |
 | A field feeding a signal sets `ValueChangeMode.EAGER` | Otherwise the signal lags a keystroke behind |
 | Grid has no `bindItems`. Use `Signal.effect(grid, () -> grid.setItems(...))` | The documented idiom |
 | Anything shared across sessions is a shared signal, subscribed in `whenAttached` and released by the returned registration | Leaks otherwise, and `whenAttached` is the 25.3 way to avoid overriding `onAttach` |
@@ -77,7 +77,7 @@ Counted over `src/main/java` and `src/main/kotlin`, so it can be recounted rathe
 | `Signal.untracked` | Reading inside an effect without subscribing to it, which is what stops a write from re-triggering its own effect |
 | `bindVisible`, `bindEnabled` | State that decides whether a control is there or usable |
 | `bindValue` on a field | Used by the four storefront filters, and adopting it fixed a bug rather than tidying code. The filters are mirrored into the URL and read back out of it, and with a listener that only writes, `/shop?q=croissant` narrowed the catalogue and left the search box empty: the filter was applied and invisible. Two of the four convert on the way through, because the signal says "no category" with an empty string where the field says it with null, and the allergen signal holds translation keys where the field holds allergens |
-| `bindChildren` | Impossible. It is documented and absent from 25.3.0-beta1, and `base/signals/Children.java` does the same job over a `ListSignal` with `Signal.effect`. Recorded in `FEEDBACK-25.3.md` |
+| `bindChildren` | Used, in three views. It was believed absent for most of the build, on a wrong reading of a compile error, and the adapter written to stand in for it has been deleted |
 | `Grid.bindItems` | Does not exist. See the rule above |
 | `bindClassName`, `bindThemeName`, `bindReadOnly`, `bindPlaceholder`, `bindHelperText`, `bindWidth` | Not used. They exist and nothing in this application has needed one yet, which is worth saying rather than leaving as an implied claim of coverage |
 | `MapSignal`, `NumberSignal` | Not used. Nothing here is keyed state or a counter that several writers increment, and forcing one in to tick a box is the opposite of what this application is for |

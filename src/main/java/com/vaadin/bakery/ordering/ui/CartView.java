@@ -1,6 +1,5 @@
 package com.vaadin.bakery.ordering.ui;
 
-import com.vaadin.bakery.base.signals.Children;
 import com.vaadin.bakery.catalogue.Product;
 import com.vaadin.bakery.catalogue.ProductRepository;
 import com.vaadin.bakery.ordering.CartLine;
@@ -45,7 +44,7 @@ public class CartView extends VerticalLayout {
 
         var lines = new Div();
         lines.addClassName("cart-view__lines");
-        Children.bind(this, lines, cart.lines(), this::row);
+        lines.bindChildren(cart.lines(), this::row);
 
         var empty = Translations.bindText(new Paragraph(), "cart.empty");
         empty.bindVisible(Signal.computed(() -> cart.itemCount().get() == 0));

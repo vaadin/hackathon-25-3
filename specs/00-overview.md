@@ -238,7 +238,6 @@ What of that list did not land, as of this pass:
 
 | Feature | State |
 | --- | --- |
-| `bindChildren` | Does not exist in 25.3.0-beta1, whatever the documentation says. `base/signals/Children.java` does the same job with `Signal.effect`. See `FEEDBACK-25.3.md` |
 | Charts with a free fallback | Built the other way round to the plan. `vaadin-charts-flow` is a dependency and the dashboard draws with it, so the free fallback is what is now unused. One Charts bug is reproduced in `specs/issues/` |
 | Form AI controller, field marker, source tracking, confidence | Built. The controller fills the counter order form and the marker carries our own popover content. Two of the four do not work and neither is our doing: no model has ever reported a source, and the marker's badge does not open its popover. Both are rows in `FEEDBACK-25.3.md` and both criteria are left unticked |
 | Grid AI controller | Built. The board assistant fills a grid of its own from a query over the three guarded views |

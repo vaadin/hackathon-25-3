@@ -1,6 +1,5 @@
 package com.vaadin.bakery.catalogue.ui;
 
-import com.vaadin.bakery.base.signals.Children;
 import com.vaadin.bakery.catalogue.Allergen;
 import com.vaadin.bakery.catalogue.CatalogueService;
 import com.vaadin.bakery.catalogue.ProductCard;
@@ -107,7 +106,7 @@ public class StorefrontView extends MasterDetailLayout implements HasUrlParamete
         addBackdropClickListener(event -> closeProduct());
         addDetailEscapePressListener(event -> closeProduct());
 
-        Children.bind(this, grid, visible, cardSignal -> {
+        grid.bindChildren(visible, cardSignal -> {
             var card = cardSignal.peek();
             return new ProductCardComponent(card, this::addToCart);
         });

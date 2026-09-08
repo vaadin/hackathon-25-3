@@ -25,4 +25,8 @@ Keep the message the binder produced when the field has no message of its own.
 
 Build the field through a factory that sets an error message explicitly.
 
+### Reproduce
+
+`specs/issues/16-emailfield-message/`, then `mvn test`. One test, and it passes: the text field reads `must be a well-formed email address` and the email field reads the empty string.
+
 Found on 25.3.0-beta1.

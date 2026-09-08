@@ -18,4 +18,10 @@ None of these is new in 25.3. All four were hit while building one application, 
 
 For the first: rebuild, or document that it does not. For the second: `bindItems` taking a `Signal<List<T>>`. For the third: a note in `VerticalLayout`'s documentation that children do not stretch, or stretch them. For the fourth: a line in the binder documentation saying where a constraint message comes from, and that `ValidationMessages.properties` is where to override it.
 
+### Reproduce
+
+`specs/issues/45-older-behaviours/`, then `mvn test`. Two tests, both passing, and both passing is the finding: navigating twice builds the view once, and the constraint message is English.
+
+Open `/stretch` in a browser for the third one: four panels in one column however wide the window is, with the one line fix commented out.
+
 Found while building on 25.3.0-beta1, but none of them is specific to it.

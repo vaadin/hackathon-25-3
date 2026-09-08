@@ -1,7 +1,6 @@
 package com.vaadin.bakery.base.ui;
 
 import com.vaadin.bakery.base.i18n.Translations;
-import com.vaadin.bakery.base.signals.Children;
 import com.vaadin.bakery.catalogue.CatalogueService;
 import com.vaadin.bakery.catalogue.ProductCard;
 import com.vaadin.bakery.catalogue.ProductImageRepository;
@@ -63,7 +62,7 @@ public class HomeView extends VerticalLayout {
 
         var grid = new Div();
         grid.addClassName("home-view__featured");
-        Children.bind(this, grid, featured, cardSignal ->
+        grid.bindChildren(featured, cardSignal ->
                 new ProductCardComponent(cardSignal.peek(), this::addToCart));
 
         var featuredTitle = Translations.bindText(new H2(), "home.featured");

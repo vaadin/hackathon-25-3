@@ -12,7 +12,7 @@ All four cost an afternoon each, and each one is silent: the test passes, or fin
 
 **3. The security context does not reach the view.** `@WithMockUser` on the class is not enough, and the navigation the test sees is the anonymous one whoever it signed in as. A helper that signs in **after** the browserless environment is up is what works.
 
-**4. A `PageTitleGenerator` bean is invisible.** The tier never calls it, so a test cannot assert the title an application computes.
+**4. A `PageTitleGenerator` registered only as a bean is never applied.** The title stays empty, so a test cannot assert what an application computes. With `@DynamicPageTitle(Generator.class)` on the view the tier does call it, so this is specifically the bean only path, which is the path an application falls into by accident: a generator annotated `@Component` becomes the whole application's title in a browser, and nothing at all in a test.
 
 ### Why it matters
 
@@ -26,6 +26,11 @@ A "how the browserless environment differs" page would cover all four.
 
 ### Reproduce
 
-Each is two or three lines in a browserless test. The bakery's own tests carry the workaround for each, named in `specs/FEEDBACK-25.3.md`.
+`specs/issues/22-browserless-differences/`, then `mvn test`. Two tests, and they say different things:
+
+- `navigationCannotCarryAQueryString` **passes**: it documents the refusal, and that the tier wraps what the router throws, so the message is on the cause.
+- `aPageTitleGeneratorBeanReachesTheTitle` **fails**, `expected: <computed by the generator> but was: <>`. That failure is the finding.
+
+Differences 2 and 3 are not in the project: the first needs a session scoped bean and the second needs security wiring, and both are described above with what worked instead.
 
 Found on 25.3.0-beta1 with browserless-test 1.2.0-alpha2.
