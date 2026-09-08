@@ -37,6 +37,7 @@ Each of these has a reproduction somebody else can run in a few minutes.
 | `16-emailfield-validation-message.md` | flow-components | Two lines: the same property bound to each field |
 | `17-navigate-rejects-query-string.md` | flow | One line |
 | `18-downloadhandler-no-session-lock.md` | docs | A snippet, and the note that is easy to miss |
+| `19-shared-signal-operation-never-completes.md` | flow | `19-shared-signal-env/`, then `mvn test`: two passing tests that say the write landed and the operation did not |
 
 ## Not ready
 
@@ -72,6 +73,7 @@ Each is a `pom.xml`, an `Application`, and one or two classes that do nothing el
 | `09-charts-styled-mode/` | 8110 | The same chart twice on a dark page |
 | `10-devloop/` | 8100 | Two views with `@Menu`, and a view waiting for a bean that does not exist yet |
 | `14-browserless-find/` | 8104 | Five checkboxes on screen, one in the tree. `mvn test` |
+| `19-shared-signal-env/` | 8106 | A shared signal in a singleton, and one test that writes to it. `mvn test` |
 
 Build output is ignored, so a project is sources only. `10-devloop` needs `mvn flow:install-dev-cli` first, and the `flow-maven-plugin` declaration that makes that prefix work is already in its pom.
 
@@ -79,8 +81,9 @@ Build output is ignored, so a project is sources only. `10-devloop` needs `mvn f
 
 `FEEDBACK-25.3.md` holds the rest. A row is drafted here once its reproduction fits in a project or a snippet. A row whose reproduction is "this application, on this branch, on this screen" is not ready, and cutting it down is the work.
 
-Three rows are worth cutting down next, in this order:
+Two rows are worth cutting down next:
 
-1. A shared signal held by an application bean stops accepting writes once the browserless signal environment is replaced. It cost a day and three wrong diagnoses, and the reproduction is two test classes.
-2. A tool call on the UI thread deadlocks `FormAIController` for ever, with no error and no timeout.
-3. The AI field marker's badge does not open its popover, which makes source tracking unreachable by a person.
+1. A tool call on the UI thread deadlocks `FormAIController` for ever, with no error and no timeout. A project needs an `LLMProvider` of its own that calls the fill tool on the thread it was given, and a test with a preemptive timeout so the reproduction ends instead of hanging.
+2. The AI field marker's badge does not open its popover, which is what makes source tracking unreachable by a person. A project needs a licence and a filled field, so the reproduction is a browser one.
+
+The shared signal row was cut down and answered something else. Reducing it showed the write always lands and the operation's future never completes, which is what had been read as a dropped write. One cause, one wrong diagnosis, and a day spent on the wrong one.
