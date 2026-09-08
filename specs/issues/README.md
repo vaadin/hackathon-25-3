@@ -61,7 +61,6 @@ Each of these has a reproduction somebody else can run in a few minutes.
 | `39-imported-css-blocked-by-security.md` | flow | `39-imported-css/`, two curl commands and one heading that stays black |
 | `40-upload-file-arrived-event.md` | flow-components | An `Upload` whose handler belongs to the orchestrator |
 | `41-gridaicontroller-time-column.md` | flow | `ai-live.zip`, route `/grid`, one TIME column. Needs a key |
-| `42-ai-marker-badge-does-not-open.md` | web-components | Fill a field, click the badge. Needs a licence and a key |
 | `46-ai-form-tool-call-loop.md` | flow | `ai-live.zip`, route `/form`, and `grep -c` on the log: 150 rounds |
 | `47-ai-response-listener-without-session-lock.md` | flow | `ai-live.zip`, route `/grid`, a listener that cannot touch a component |
 | `48-ai-fill-on-the-calling-thread-hangs.md` | flow | `ai-live.zip`, `mvn test`, a timeout that fires |
