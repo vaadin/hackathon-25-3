@@ -1,6 +1,0 @@
-/* The entry point, the file the application declares. */
-@import url("parts.css");
-
-body {
-    font-family: sans-serif;
-}

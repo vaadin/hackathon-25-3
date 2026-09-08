@@ -29,4 +29,10 @@ And a callback that throws has no screen to fail on. The browser gets whatever t
 
 One sentence on the `DownloadHandler` page, next to the code somebody is about to copy: the callback runs without the session lock, so copy what you need into a snapshot, and catch inside it so a failure becomes `DownloadResponse.error(500, message)`.
 
+### What makes it worth a sentence in the documentation
+
+The callback is handed the session. `DownloadEvent` declares `getSession()` beside `getRequest()`, `getResponse()` and `getOwningComponent()`, so the session is right there in the parameter, and nothing on the page says the lock is not held with it. Reading a signal or a component's value through that session, which is the natural thing to do when the file has to reflect what is on screen, is the unsafe case.
+
+What we do instead is take a snapshot on the UI thread, in fields the callback reads, which is in `InvoiceListView`.
+
 Found on 25.3.0-beta1.

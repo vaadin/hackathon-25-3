@@ -59,7 +59,8 @@ Rules that keep light and dark honest:
 
 - Customise with the `-light` and `-dark` suffixed properties. Apply with the unsuffixed one.
 - Any colour that is not an Aura property uses `light-dark()`, never a hard coded pair.
-- Dark mode goes through `Page.setColorScheme`, not a theme attribute. Both themes follow the CSS colour scheme, and so does every `light-dark()` value in our own stylesheets: setting `theme="dark"` on the body, which is what the Lumo era examples show, changes nothing at all and fails silently.
+- Dark mode goes through `Page.setColorScheme`, not a theme attribute. Aura follows the CSS colour scheme, and so does every `light-dark()` value in our own stylesheets, which is why one call is enough here: setting `theme="dark"` on the body, which is what the Lumo era examples show, changes nothing under Aura and fails silently.
+- Plain Lumo is the other way round, measured rather than assumed: `theme="dark"` darkens it, background `rgb(35, 51, 72)`, and the colour scheme alone moves the text colour and leaves the background where it was. Our Lumo variants look right because our own stylesheets paint the page from `light-dark()` values, not because Lumo followed the scheme. An application that ships plain Lumo and only sets the scheme gets light text on a white page. Both mechanisms exist, they are not equivalent, and that is `specs/issues/38-dark-mode-two-mechanisms.md`.
 - Prefer built in component variants before writing CSS. Aura ships more of them than Lumo did, including the theme neutral `ERROR` and `SUCCESS` variants on ProgressBar and the reverse variant on Checkbox.
 
 The palette is a bakery: warm off white paper, a burnt caramel accent, deep brown ink. Dark mode is not a colour inversion, it is a night bakery: near black background, warmer accent, lower contrast on large surfaces.

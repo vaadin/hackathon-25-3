@@ -101,24 +101,20 @@ public class OrderBoardView extends MasterDetailLayout {
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         var selection = (GridMultiSelectionModel<Order>) grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        // Left at its own default the grid puts a header sentence above the
-        // checkbox that is not translated and that sizes the column: 199 pixels
-        // of "Select All unavailable". Hidden is the honest answer for this
-        // board.
-        selection.setSelectAllCheckboxVisibility(
-                GridMultiSelectionModel.SelectAllCheckboxVisibility.HIDDEN);
-        // Hidden by choice, not by limitation. VISIBLE does work on a lazy
-        // grid, measured in specs/issues/20-grid-selectall-lazy/ on both lazy
-        // paths, and the enum's "if in-memory data is used" is what made this
-        // look impossible for a while. What it costs is the point: select all
-        // on this board means fetching every order the current filter matches
-        // into the session, and the toolbar's actions are meant for the handful
-        // of rows somebody picked. Turn it on the day a bulk action wants the
-        // whole filter.
+        // Visible, and that is not a preference either: HIDDEN is not
+        // honoured. The board ran with HIDDEN for a while and the checkbox was
+        // in the header the whole time, 26 by 26 pixels, ticking when clicked
+        // and selecting nothing. Measured on this screen and reduced in
+        // specs/issues/20-grid-select-all-lazy.md.
         //
-        // What is a platform bug is the opposite case, and it is why the
-        // default is not used here: a lazy grid at the default visibility
-        // renders the checkbox and ignores the click.
+        // VISIBLE is what makes the control tell the truth: it works on a lazy
+        // grid, including through setItemsPageable, and selects every row the
+        // count callback reports. Which is also what it costs, and the reason
+        // this line deserves a second thought before it is copied: select all
+        // here means every order the current filter matches, fetched into the
+        // session in one go.
+        selection.setSelectAllCheckboxVisibility(
+                GridMultiSelectionModel.SelectAllCheckboxVisibility.VISIBLE);
         grid.setSizeFull();
 
         // Accessible names for the checkboxes and the sorters. The grid takes
@@ -127,19 +123,17 @@ public class OrderBoardView extends MasterDetailLayout {
         Translations.onLocale(grid, locale -> {
             var i18n = new GridI18n();
             i18n.setSelectAll(getTranslation(locale, "board.i18n.selectAll"));
-            // Empty on purpose, and not for the reason it first looked like.
-            // The grid hides this string properly: it is in a span marked
-            // sr-only, and a declared theme makes that span one pixel square.
-            // This application declares no theme, because it chooses one at
-            // runtime, and a theme added with addStyleSheet never reaches a
-            // component's shadow root: the span comes out 140 pixels wide and
-            // takes the column with it. A bare reproducer showed that, in
-            // specs/issues/01-runtime-theme-shadow-dom.md.
-            //
-            // So this line buys a 59 pixel column and costs a screen reader
-            // the announcement. That is the wrong trade and it is the one this
-            // application's runtime theme switching leaves available.
-            i18n.setSelectAllUnavailable("");
+            // Translated, and never shown while select all is offered: the
+            // grid writes this sentence into the header instead of the
+            // checkbox, and there is a checkbox. It was empty for a while, for
+            // a reason worth remembering: the sentence lives in a span marked
+            // sr-only, a declared theme makes that span one pixel square, and
+            // a theme added with addStyleSheet never reaches a component's
+            // shadow root, so the span came out 140 pixels wide and took the
+            // column with it. That is specs/issues/01-runtime-theme-shadow-dom.md
+            // and it is still true. Emptying the string is no longer the price
+            // of a narrow column, so the string is a string again.
+            i18n.setSelectAllUnavailable(getTranslation(locale, "board.i18n.selectAllUnavailable"));
             i18n.setSelectRow(getTranslation(locale, "board.i18n.selectRow"));
             i18n.setSorter(getTranslation(locale, "board.i18n.sorter"));
             grid.setI18n(i18n);
@@ -444,12 +438,34 @@ public class OrderBoardView extends MasterDetailLayout {
         return new OrderDetailsBand(orderService, order.getReference());
     }
 
+    /** How many rows a bulk action changes before it asks first. */
+    private static final int ASK_ABOVE = 25;
+
     private void bulk(OrderState target, String message) {
         var selected = new ArrayList<>(grid.getSelectedItems());
         if (selected.isEmpty()) {
             Notification.show(getTranslation("board.bulk.nothingSelected"));
             return;
         }
+        // Select all reaches every order the filter matches, which on this
+        // dataset is a four figure number, and each one is a transaction and a
+        // history line. A handful goes straight through, the whole board says
+        // how many first.
+        if (selected.size() > ASK_ABOVE) {
+            var dialog = new com.vaadin.flow.component.confirmdialog.ConfirmDialog();
+            dialog.setHeader(getTranslation("board.bulk.many.title"));
+            dialog.setText(getTranslation("board.bulk.many.body", selected.size()));
+            dialog.setCancelable(true);
+            dialog.setCancelText(getTranslation("board.bulk.many.cancel"));
+            dialog.setConfirmText(getTranslation("board.bulk.many.confirm"));
+            dialog.addConfirmListener(event -> apply(target, message, selected));
+            dialog.open();
+            return;
+        }
+        apply(target, message, selected);
+    }
+
+    private void apply(OrderState target, String message, java.util.List<Order> selected) {
         var actor = currentUser.get().orElse(null);
         int done = 0;
         var refused = new ArrayList<String>();

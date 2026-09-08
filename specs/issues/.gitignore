@@ -1,15 +1,7 @@
-# Reproducer build output. The projects are sources, not builds.
-*/target/
-*/node_modules/
-*/src/main/frontend/generated/
-*/src/main/bundles/
-*/package.json
-*/package-lock.json
-*/tsconfig.json
-*/types.d.ts
-*/vite.config.ts
-*/vite.generated.ts
-*/src/main/frontend/
-*/.vaadin/
-*/.agents/
-*/.claude/
+# The reproducer projects ship as zips under projects/. An unzipped working
+# copy is scratch: it must not come back into the repository, because a reader
+# who opens an issue wants one file to download, not a tree to browse.
+*/
+!projects/
+projects/*
+!projects/*.zip

@@ -53,19 +53,43 @@ class BoardToolbarBrowserlessTest extends SpringBrowserlessTest {
     }
 
     /**
-     * Nothing to explain, so nothing to say. The grid only writes the sentence
-     * when this is left at its default, and it writes it into the table.
+     * The select all checkbox is offered, and it works.
+     *
+     * This test used to assert the opposite, that the checkbox was not offered
+     * and the sentence explaining its absence was emptied. Both halves were
+     * wrong: the component renders the checkbox whatever the visibility says,
+     * so hiding it only made it inert, and the sentence is never written while
+     * a checkbox is there. Reduced in
+     * specs/issues/20-grid-select-all-lazy.md.
      */
     @Test
-    void theSelectionHeaderCarriesNoUnexplainedSentence() {
+    void theSelectionHeaderOffersSelectAllAndSaysSoInTheReadersLanguage() {
         navigate(OrderBoardView.class);
 
         var i18n = grid().getI18n();
+        var selection = (GridMultiSelectionModel<Order>) grid().getSelectionModel();
 
-        assertEquals("", i18n.getSelectAllUnavailable(),
-                "the header says nothing, because there is no select all to explain");
-        assertFalse(((GridMultiSelectionModel<Order>) grid().getSelectionModel()).isSelectAllCheckboxVisible(),
-                "and the checkbox that cannot work is not offered");
+        assertTrue(selection.isSelectAllCheckboxVisible(), "the checkbox is offered");
+        assertEquals("Select all is not available here", i18n.getSelectAllUnavailable(),
+                "and the sentence that replaces it is translated, for the day it is used");
+    }
+
+    /** Select all means every order the filter matches, not the rows on screen. */
+    @Test
+    void selectAllReachesTheWholeFilterAndNotJustTheLoadedRows() {
+        navigate(OrderBoardView.class);
+        var selection = (GridMultiSelectionModel<Order>) grid().getSelectionModel();
+
+        selection.selectAll();
+
+        // Against the board's own count rather than a query written twice: the
+        // filter is "not in the past" and duplicating it here would be a test
+        // that agrees with itself.
+        var listed = grid().getLazyDataView().getItems().count();
+        assertTrue(selection.getSelectedItems().size() > 40,
+                "more than one page, it selected " + selection.getSelectedItems().size());
+        assertEquals(listed, (long) selection.getSelectedItems().size(),
+                "every order the board lists");
     }
 
     /** A verb nobody can read is not a label, so the label is the accessible name. */

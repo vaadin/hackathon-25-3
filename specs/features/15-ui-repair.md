@@ -36,7 +36,7 @@ What the page should answer at a glance, in this order: what has been done today
 ### Order board
 
 - The selection column is far wider than a checkbox needs.
-- There is no select all. The header reads "Select All unavailable" because the grid is fed by `setItemsPageable`, and a lazy grid cannot know how many rows exist to select. Either the header shows the three state checkbox and select all means the loaded page, or the column carries no header text at all: a sentence explaining an absence is worse than a blank.
+- There is no select all. The header reads "Select All unavailable" because the grid is fed by `setItemsPageable`. Either the header shows the checkbox and it works, or the column carries no header text at all: a sentence explaining an absence is worse than a blank.
 - The column chooser is a button next to the toolbar. It belongs to the grid, as an icon in a header corner or in the grid's own context menu.
 - The toolbar is six full width text buttons in one row: New order, Ask about the orders, a search field, a checkbox, Confirm selected, Cancel selected. Confirm and Cancel should be icons with tooltips, a check and a cross. New order and Ask want an icon each as well, and the row wants an order that groups what acts on a selection apart from what does not.
 
@@ -93,7 +93,7 @@ The header shows a name. It should show the person's picture beside it, and some
 
 ### AC3: The order board's toolbar and grid
 - [x] The selection column is no wider than its checkbox
-- [x] The header carries a working select all, or no text at all
+- [x] The header carries a working select all, which is what it now carries: `VISIBLE` selects every order the filter matches
 - [x] The column chooser belongs to the grid rather than to the toolbar
 - [x] Confirm and cancel are icons with tooltips, and the toolbar groups selection actions apart from the rest
 
@@ -110,7 +110,7 @@ The header shows a name. It should show the person's picture beside it, and some
 - Every criterion in this document is now built and has a test in the tier its row names.
 - The admin views' move to `Crud` is not in this document: `07-admin.md` specifies it, and Epic 07 builds it. What is here is only what looking at the running application found.
 - The avatar could not be asserted browserless. It sits inside a `MenuBar` item and `find` cannot see components there, exactly as it cannot see them inside a Grid component column, so a browserless test failed while the header rendered correctly. It moved to the browser tier, and the blind spot is in `FEEDBACK-25.3.md`. The column chooser hit the same wall when it moved into the grid's header, and it is reached through the column instead.
-- A lazy grid cannot offer a real select all, so the criterion became "no text at all". The grid says so itself, in a span it marks screen reader only and then paints, which is a bug and is filed as one.
+- The select all was closed as "no text at all" on the belief that a lazy grid cannot offer one. That belief was wrong, and a minimal project showed it: `setSelectAllCheckboxVisibility(VISIBLE)` works through `setItemsPageable` and selects the whole filter, 265 orders on this dataset. Worse, `HIDDEN` was never honoured, so the board carried a 26 pixel checkbox that ticked and selected nothing for as long as that line was there. The board now offers select all, a bulk action over more than 25 rows asks first, and the untranslated sentence is translated again because it is never shown while the checkbox is there. The platform bug that remains is the inert checkbox, filed as `specs/issues/20-grid-select-all-lazy.md`.
 - The product page moved from `/products/{slug}` to `/shop/product/{slug}`. A child route lives under its parent's path, and the parent is the catalogue the panel opens over. `03-storefront.md` and `04-security.md` were updated with it.
 - The storefront keeps its category path parameter, so `/shop/drinks` still preselects a category: the product route is three segments and does not collide with it.
 - The first four fixes were checked by reverting each one and watching its test fail. The four layout stories were checked the other way round: the broken layout was measured in a browser first, so the numbers each test asserts on are the numbers the defect produced. The diagnostics panels were four cells of 270 pixels stacked down the left of a 1400 pixel page, and the selection column was 199 pixels of a sentence.

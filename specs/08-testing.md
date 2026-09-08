@@ -35,7 +35,7 @@ TestBench owns, and this list is closed at about ten classes:
 | `ClipboardPasteIT` | Real clipboard paste of an image |
 | `GridProEditIT` | Cell editing behaviour |
 | `DatePickerMetadataIT` | Rendering of disabled days and custom part names in the calendar overlay |
-| `InvoicePrintIT` | Print stylesheet, checked with an emulated print media |
+| `InvoicePrintIT` | Print stylesheet, checked with an emulated print media. Print media is a CDP call, and `getDriver()` answers a TestBench proxy that implements neither `ChromeDriver` nor any CDP interface. Unwrap it: `while (driver instanceof WrapsDriver w) driver = w.getWrappedDriver();` and then `executeCdpCommand`. Nothing in the TestBench documentation says so, which is `specs/issues/37-testbench-cdp-blocked.md` |
 | `PwaInstallIT` | Service worker registration and the offline page |
 | `ChartsRenderIT` | Charts actually draw |
 | `AuraDarkModeIT` | Both colour schemes render and contrast holds |

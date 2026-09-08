@@ -18,7 +18,9 @@ gh issue create --repo <REPO> --title "<TITLE>" --body-file specs/issues/<file>
 
 Then put the link at the end of that finding's row in `FEEDBACK-25.3.md`. A finding with no link is a finding nobody outside this repository has seen.
 
-A GitHub issue cannot carry a file attachment through the API, so a draft that has a project links it instead, by full commit SHA under `github.com/vaadin/hackathon-25-3`. A SHA rather than a branch, so the link keeps working when the branch moves, and each of those drafts ends with the three lines that clone just that project. Repoint them if this work ever lands on the default branch.
+A GitHub issue cannot carry a file attachment through the API, so the projects ship as zips under `projects/` and each draft links its own by full commit SHA. A zip rather than a directory listing, because a reader wants one file and one command, and a SHA rather than a branch, so the link keeps working when the branch moves. Repoint them if this work ever lands on the default branch.
+
+Nothing here keeps an unzipped copy: `.gitignore` refuses one. Unzip somewhere else, and if a project changes, zip it back over the file in `projects/`.
 
 ## Ready to post
 
@@ -75,7 +77,7 @@ Each of these has a reproduction somebody else can run in a few minutes.
 
 ## Withdrawn
 
-Seven findings died when somebody tried to reproduce them. Every one was killed by building the project or repeating the steps, not by rereading the row.
+Eight findings died when somebody tried to reproduce them. Every one was killed by building the project or repeating the steps, not by rereading the row.
 
 | Finding | What happened |
 | --- | --- |
@@ -87,33 +89,44 @@ Seven findings died when somebody tried to reproduce them. Every one was killed 
 | An exception inside `Signal.effect` is close to invisible | **Wrong.** A test that collects everything logged while an effect throws finds it: `ERROR com.vaadin.flow.server.DefaultErrorHandler: Unexpected error: ...`, with the exception attached to the event. It is logged, at error level, with its stack. Whatever we were reading when we concluded otherwise, it was not the log |
 | `bindChildren` is documented and does not exist | **Wrong, and it cost this application a workaround it carried for the whole build.** `container.bindChildren(list, item -> component)` compiles and runs on 25.3.0-beta1. The original conclusion came from a compile error that was really about the mapper's argument, a `ValueSignal<T>` and not a `T`. The forty line adapter is deleted and three views now call the platform |
 
+## Corrected by their own reproduction
+
+Not withdrawn: still real, and saying something different from what the row said.
+
+| Draft | What changed |
+| --- | --- |
+| `20-grid-select-all-lazy.md` | Was "a lazy Grid cannot have a select all checkbox and cannot be given one", with six closed doors. `VISIBLE` works on both lazy paths and selects the whole count. What is broken is `HIDDEN` and the default: the checkbox is rendered anyway and ticks without selecting. The board carried that inert control until this was measured |
+| `37-testbench-cdp-blocked.md` | Was "TestBench blocks CDP, no workaround". Unwrapping the proxy through `WrapsDriver` reaches the real driver, `InvoicePrintIT` proves it in a real Chrome, and the request is now one paragraph of documentation |
+| `40-upload-file-arrived-event.md` | Was "only the negative events survive". Three listeners are not deprecated, `addFileRejectedListener` is, and `ProgressUpdateEvent` carries enough to know a file arrived |
+| `38-dark-mode-two-mechanisms.md` | The Lumo half was measured rather than assumed: the theme attribute is what darkens Lumo, and the colour scheme moves the text and not the background |
+
 ## The reproducer projects
 
-Each is a `pom.xml`, an `Application`, and one or two classes that do nothing else. Run with `mvn spring-boot:run`, or `mvn test` where the reproduction is a test.
+Each is a `pom.xml`, an `Application`, and one or two classes that do nothing else, zipped under `projects/`. Unzip and run with `mvn spring-boot:run`, or `mvn test` where the reproduction is a test.
 
 | Project | Port | What it shows |
 | --- | --- | --- |
-| `01-grid-selectall/` | 8090 | A declared theme: the screen reader span is one pixel and the column is 35 |
-| `01b-test-runtime-theme/` | 8091 | One line different, the theme added at runtime: the span is 140 and the column is 201 |
-| `02-login-csrf/` | 8092 | A secured application whose scripted login succeeds with no token |
-| `03-applayout-shift/` | 8093 | Prints its own width every twenty milliseconds |
-| `04-signalbinding/` | 8094 | Open the dialog, close it, open it again |
-| `06-query-null-sort/` | 8096 | Two buttons, one null sort list and one empty one |
-| `08-pagetitlegenerator-bean/` | 8098 | A route with its own `@PageTitle`, renamed by a bean, and a navbar header that disagrees with the tab |
-| `09-charts-styled-mode/` | 8110 | The same chart twice on a dark page |
-| `10-devloop/` | 8100 | Two views with `@Menu`, a view waiting for a bean that does not exist yet, a stylesheet for the `hmr:` line, and a repository query that needs parameter names |
-| `15-formlayout-colspan/` | 8115 | A colspan of three at 4, 2 and 1 columns, and `--_max-columns` computing to 1 |
-| `14-browserless-find/` | 8104 | Five checkboxes on screen, one in the tree. `mvn test` |
-| `16-emailfield-message/` | 8116 | The same property in two fields. `mvn test` |
-| `20-grid-selectall-lazy/` | 8120 | Three grids and their selection counts, and one inert checkbox on its own page |
-| `38-dark-mode/` | 8138 | Both dark mechanisms under both themes, and a stylesheet lost when it is re-added |
-| `39-imported-css/` | 8139 | A secured application where the declared sheet loads and its import redirects to the login |
-| `25-featureflags/` | 8125 | One test: the call writes a file into the project |
-| `19-shared-signal-env/` | 8106 | A shared signal in a singleton, and one test that writes to it. `mvn test` |
-| `22-browserless-differences/` | 8112 | Two of the four differences, one passing test and one failing. `mvn test` |
-| `45-older-behaviours/` | 8145 | Two tests, and a view whose CSS grid collapses to one column |
+| [`01-grid-selectall.zip`](projects/01-grid-selectall.zip) | 8090 | A declared theme: the screen reader span is one pixel and the column is 35 |
+| [`01b-test-runtime-theme.zip`](projects/01b-test-runtime-theme.zip) | 8091 | One line different, the theme added at runtime: the span is 140 and the column is 201 |
+| [`02-login-csrf.zip`](projects/02-login-csrf.zip) | 8092 | A secured application whose scripted login succeeds with no token |
+| [`03-applayout-shift.zip`](projects/03-applayout-shift.zip) | 8093 | Prints its own width every twenty milliseconds |
+| [`04-signalbinding.zip`](projects/04-signalbinding.zip) | 8094 | Open the dialog, close it, open it again |
+| [`06-query-null-sort.zip`](projects/06-query-null-sort.zip) | 8096 | Two buttons, one null sort list and one empty one |
+| [`08-pagetitlegenerator-bean.zip`](projects/08-pagetitlegenerator-bean.zip) | 8098 | A route with its own `@PageTitle`, renamed by a bean, and a navbar header that disagrees with the tab |
+| [`09-charts-styled-mode.zip`](projects/09-charts-styled-mode.zip) | 8110 | The same chart twice on a dark page |
+| [`10-devloop.zip`](projects/10-devloop.zip) | 8100 | Two views with `@Menu`, a view waiting for a bean that does not exist yet, a stylesheet for the `hmr:` line, and a repository query that needs parameter names |
+| [`15-formlayout-colspan.zip`](projects/15-formlayout-colspan.zip) | 8115 | A colspan of three at 4, 2 and 1 columns, and `--_max-columns` computing to 1 |
+| [`14-browserless-find.zip`](projects/14-browserless-find.zip) | 8104 | Five checkboxes on screen, one in the tree. `mvn test` |
+| [`16-emailfield-message.zip`](projects/16-emailfield-message.zip) | 8116 | The same property in two fields. `mvn test` |
+| [`20-grid-selectall-lazy.zip`](projects/20-grid-selectall-lazy.zip) | 8120 | Three grids and their selection counts, and one inert checkbox on its own page |
+| [`38-dark-mode.zip`](projects/38-dark-mode.zip) | 8138 | Both dark mechanisms under both themes, and a stylesheet lost when it is re-added |
+| [`39-imported-css.zip`](projects/39-imported-css.zip) | 8139 | A secured application where the declared sheet loads and its import redirects to the login |
+| [`25-featureflags.zip`](projects/25-featureflags.zip) | 8125 | One test: the call writes a file into the project |
+| [`19-shared-signal-env.zip`](projects/19-shared-signal-env.zip) | 8106 | A shared signal in a singleton, and one test that writes to it. `mvn test` |
+| [`22-browserless-differences.zip`](projects/22-browserless-differences.zip) | 8112 | Two of the four differences, one passing test and one failing. `mvn test` |
+| [`45-older-behaviours.zip`](projects/45-older-behaviours.zip) | 8145 | Two tests, and a view whose CSS grid collapses to one column |
 
-Build output is ignored, so a project is sources only. `10-devloop` needs `mvn flow:install-dev-cli` first, and the `flow-maven-plugin` declaration that makes that prefix work is already in its pom.
+Every zip is sources only, between three and seven kilobytes. `10-devloop` needs `mvn flow:install-dev-cli` first, and the `flow-maven-plugin` declaration that makes that prefix work is already in its pom.
 
 ## Every row accounted for
 

@@ -87,12 +87,16 @@ All of them, with the workaround and the file it lives in, are in `specs/FEEDBAC
 
 | Problem | Impact |
 | --- | --- |
-| `bindChildren` is documented for 25.3 and absent from the artifact | Every list rendering goes through an adapter written for the purpose |
+| A lazy Grid renders a select all checkbox that selects nothing | The board carried a control that ticked and did nothing, for as long as it asked for the checkbox to be hidden |
 | `peek()` on a computed signal throws | Reading a computed value outside a reactive context needs `Signal.untracked` at every call site |
-| `LazyDataView.getItems()` divides by zero on a pageable backed grid | The documented way to read a lazy grid in a test does not work with the documented way to fill one from Spring Data |
 | Static CSS imported from a stylesheet is redirected to the login view | The application renders completely unstyled and nothing appears in the log |
-| An exception inside `Signal.effect` is one line on stderr with no stack | A broken view looks merely wrong rather than broken |
+| The dev loop daemon compiles without the project's compiler flags | Parameter names are lost, and a Spring Data query fails naming a helper nobody called. Recovery is a clean build |
+| A new Spring bean hot swaps as `Stable` and is not registered | The first injection throws, and the loop said the change was live |
+| `MenuConfiguration.getPageHeader` is called with no route parameters | The browser tab and the page header come from one generator and disagree |
+| Dark mode has two mechanisms and they are not equivalent | An application has to set both, and nothing says so |
 | `mvn vaadin:install-dev-cli` does not exist | Declare `flow-maven-plugin` and use `mvn flow:install-dev-cli` |
+
+Three problems this table used to name are gone, because somebody built a project to reproduce them and they did not survive it: `bindChildren` exists and this application now calls it, `LazyDataView.getItems()` counts correctly, and an exception inside `Signal.effect` is logged at error level with its stack. Every finding, the corrections included, is in `specs/issues/`, one file per report with the project that reproduces it attached.
 
 `specs/FEEDBACK-25.3.md` also lists what worked exactly as advertised, which is most of it.
 
@@ -117,7 +121,7 @@ The browser tier, twelve `IT` classes, is specified and not implemented. Those a
 | --- | --- |
 | Wall clock | 2 hours 6 minutes for the application, plus 45 minutes of specifications, plus a second day |
 | Model | Claude Opus 5, one session per day, no parallel agents |
-| Tests | 218, all green, about 90 seconds for a full run |
+| Tests | 339 browserless plus 24 in the browser tier, all green |
 | External services | Wikimedia Commons for 48 photos, and OpenAI on the second day, from one tagged test and by hand in the browser. The default build still calls nothing |
 
 Token usage for the session is in the client's own ledger rather than here, because nothing inside the build measures it. What the build itself cost is above.

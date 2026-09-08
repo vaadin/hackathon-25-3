@@ -123,6 +123,7 @@ The detail panel is a fixed 26rem, the width of a phone, with the master expande
 
 ### AC8: Accessibility
 - [x] The select all box, the row boxes and every sorter are named
+- [x] Select all selects every order the filter matches, and a bulk action over more than 25 of them says how many before it runs
 - [ ] The column menu, the order panel and the line editor are reachable and operable from the keyboard
 
 ### AC9: Bulk actions are honest
@@ -152,6 +153,7 @@ The detail panel is a fixed 26rem, the width of a phone, with the master expande
 | BOARD-06 | Three selected orders, one already picked up | Bulk cancelling | Two cancelled, one named as refused | browserless | `BulkActionsBrowserlessTest` |
 | BOARD-07 | An order open in two sessions | Saving in both | The second is refused with a reload offer | browserless | `ConcurrentEditBrowserlessTest` |
 | BOARD-08 | A narrow viewport | Opening the board | Cards render instead of a table | browserless | `ResponsiveBoardBrowserlessTest` |
+| BOARD-10 | The board, filtered to what is not past | Clicking select all | Every listed order is selected, not just the loaded page | browserless | `BoardToolbarBrowserlessTest` |
 | BOARD-09 | An order panel | Confirming the order | The history gains an entry naming the barista | browserless | `OrderDetailBrowserlessTest` |
 | BOARD-10 | The column menu | Opening it | Every column is listed with its current state, and toggling one changes the table | browserless | `ColumnVisibilityBrowserlessTest` |
 | BOARD-11 | A table showing one column | Turning that column off | Refused, the table keeps a column | browserless | `ColumnVisibilityBrowserlessTest` |

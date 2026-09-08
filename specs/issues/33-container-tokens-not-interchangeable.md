@@ -20,4 +20,16 @@ Say which tokens are safe across themes and which are not, on the page that list
 
 Style any container with a container background token, then switch the theme at runtime between Lumo and Aura and look at it.
 
+### How this was checked
+
+Reading the shipped stylesheet rather than guessing, `/aura/aura.css` as the running application serves it:
+
+```
+--vaadin-background-color: var(--aura-surface-color-solid)
+--vaadin-background-container: color-mix(in srgb, var(--_color-base) ...)
+--vaadin-background-container-strong: color-mix(in srgb, var(--_color-base) ...)
+```
+
+That is the difference in one line: the plain background token is a colour, and the container tokens are a mix computed from a private base that the surrounding context sets. Substituting one for the other looks like a rename and is not one.
+
 Found on 25.3.0-beta1.
