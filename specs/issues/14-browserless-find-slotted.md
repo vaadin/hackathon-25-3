@@ -38,6 +38,15 @@ Any of these would help, in order of usefulness:
 
 ### Reproduce
 
-`specs/issues/14-browserless-find/`, then `mvn test`. Two tests, both failing, one per case.
+[`14-browserless-find/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/14-browserless-find), then `mvn test`. Two tests, both failing, one per case.
 
 Found on 25.3.0-beta1 with browserless-test 1.2.0-alpha2.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/14-browserless-find
+mvn test
+```
+

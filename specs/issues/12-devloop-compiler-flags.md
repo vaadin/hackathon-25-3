@@ -31,7 +31,7 @@ Until then, a warning when a pom edit triggers a full recompile would help.
 
 ### Reproduce
 
-`10-devloop/` in this directory carries it: a `Ticket` entity, a `Tickets` repository with the query above, and a `/ticket` view that calls it. H2 in memory, no configuration.
+[`10-devloop/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/10-devloop) carries it: a `Ticket` entity, a `Tickets` repository with the query above, and a `/ticket` view that calls it. H2 in memory, no configuration.
 
 1. `mvn flow:install-dev-cli`, then `.vaadin/vaadin-dev start`
 2. `.vaadin/vaadin-dev apply` after any edit to those classes. The outcome is green: `compiling -> runtime -> Stable`
@@ -63,5 +63,13 @@ The pom in that project inherits `-parameters` from `spring-boot-starter-parent`
 One correction to the paragraph above, from running this: editing a pom property alone prints `no changes (pom.xml changed; nothing to recompile or restart)`. It takes a change that moves the classpath, adding a dependency for instance, to make the daemon recompile the whole module. The single file path is enough on its own, and it is the one most people will hit.
 
 Recovery: `stop`, `mvn clean compile`, `start`.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/10-devloop
+mvn spring-boot:run
+```
 
 Found on 25.3.0-beta1.

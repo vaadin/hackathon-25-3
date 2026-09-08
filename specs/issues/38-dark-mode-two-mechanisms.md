@@ -20,7 +20,7 @@ One mechanism, or a page that says there are two and which theme reads which. If
 
 ### Reproduce
 
-`38-dark-mode/` in this directory. `mvn spring-boot:run`, then `http://localhost:8138/`: a button per mechanism and a button per theme, with no theme declared on the app shell so neither leaks into the other.
+[`38-dark-mode/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/38-dark-mode). `mvn spring-boot:run`, then `http://localhost:8138/`: a button per mechanism and a button per theme, with no theme declared on the app shell so neither leaks into the other.
 
 Load a theme, press a dark button, and read the computed style of the body. Measured:
 
@@ -32,5 +32,13 @@ Load a theme, press a dark button, and read the computed style of the body. Meas
 The attribute is set either way, and under Aura it changes nothing on the page.
 
 The bottom right cell is worth a second look on its own: under Lumo the colour scheme moves the text and not the background, so an application that sets only the modern mechanism gets light text on a white page.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/38-dark-mode
+mvn spring-boot:run
+```
 
 Found on 25.3.0-beta1.

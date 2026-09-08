@@ -28,7 +28,7 @@ Win on specificity instead of order: `html:root` beats the plain `html` both the
 
 ### Reproduce
 
-The re-add half is in `38-dark-mode/`, route `/swap`. `mvn spring-boot:run`, then `http://localhost:8138/swap` and press the buttons in order, listing `link[rel=stylesheet]` after each one:
+The re-add half is in [`38-dark-mode/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/38-dark-mode), route `/swap`. `mvn spring-boot:run`, then `http://localhost:8138/swap` and press the buttons in order, listing `link[rel=stylesheet]` after each one:
 
 | After | Sheets on the page |
 | --- | --- |
@@ -45,5 +45,13 @@ sheet = page.addStyleSheet(Lumo.STYLESHEET);   // dropped as a duplicate
 ```
 
 The order half is not reduced. It is real in an application that swaps two sheets, and it depends on which sheet happens to land last, so there is nothing here that reproduces it on demand. Treat it as the observation that the API says nothing about order.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/38-dark-mode
+mvn spring-boot:run
+```
 
 Found on 25.3.0-beta1.

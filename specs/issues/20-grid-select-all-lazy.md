@@ -20,7 +20,7 @@ Either do not render the checkbox when the visibility rule says select all is no
 
 ### Reproduce
 
-`20-grid-selectall-lazy/` in this directory. `mvn spring-boot:run`, then two routes.
+[`20-grid-selectall-lazy/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/20-grid-selectall-lazy). `mvn spring-boot:run`, then two routes.
 
 `http://localhost:8120/only-default` is the bug on its own page: one lazy grid, multi select, nothing else. The measurement, clicking the header checkbox once on a freshly loaded page:
 
@@ -45,5 +45,13 @@ rows ticked            0
 This was first written up as "a lazy Grid cannot offer a select all checkbox, and cannot be given one", with a table of six ways to force it. That was wrong, and the project is what showed it: `setSelectAllCheckboxVisibility(VISIBLE)` is honoured for a lazy provider and selects the whole set, five hundred rows through the count callback. It works through `setItemsPageable` too, which is the path the original investigation used. Only the default case is broken, and it is broken in the other direction: the checkbox is there and inert.
 
 The enum's own documentation is part of why nobody tried: `VISIBLE` says it shows the checkbox "if in-memory data is used". It shows it either way, and that sentence is worth correcting whatever happens to the rest.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/20-grid-selectall-lazy
+mvn spring-boot:run
+```
 
 Found on 25.3.0-beta1.

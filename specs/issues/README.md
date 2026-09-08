@@ -18,6 +18,8 @@ gh issue create --repo <REPO> --title "<TITLE>" --body-file specs/issues/<file>
 
 Then put the link at the end of that finding's row in `FEEDBACK-25.3.md`. A finding with no link is a finding nobody outside this repository has seen.
 
+A GitHub issue cannot carry a file attachment through the API, so a draft that has a project links it instead, by full commit SHA under `github.com/vaadin/hackathon-25-3`. A SHA rather than a branch, so the link keeps working when the branch moves, and each of those drafts ends with the three lines that clone just that project. Repoint them if this work ever lands on the default branch.
+
 ## Ready to post
 
 Each of these has a reproduction somebody else can run in a few minutes.

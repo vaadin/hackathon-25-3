@@ -35,7 +35,7 @@ Treat a new bean definition like a changed one: escalate to a restart and name t
 
 ### Reproduce
 
-`specs/issues/10-devloop/`, port 8100. Reproduced there, in four steps, from a project with three views and nothing else.
+[`10-devloop/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/10-devloop), port 8100. Reproduced there, in four steps, from a project with three views and nothing else.
 
 1. `mvn flow:install-dev-cli`, then `.vaadin/vaadin-dev start`
 2. Create `Extra.java` as the comment in `BeanView` describes
@@ -53,3 +53,12 @@ No qualifying bean of type 'com.example.Extra' available'
 `.vaadin/vaadin-dev restart`, and `/bean` answers 200.
 
 Found on 25.3.0-beta1 with `flow-devloop-daemon` 25.3.0-beta1.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/10-devloop
+mvn spring-boot:run
+```
+

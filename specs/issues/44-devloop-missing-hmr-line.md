@@ -29,7 +29,7 @@ Report both halves of a mixed change set.
 
 ### Reproduce
 
-`specs/issues/10-devloop/`, which has one stylesheet and three views. With a page open at `/first`, so that there is a browser to push to:
+[`10-devloop/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/10-devloop), which has one stylesheet and three views. With a page open at `/first`, so that there is a browser to push to:
 
 Edit only the colour in `src/main/resources/META-INF/resources/styles/app.css`, then apply:
 
@@ -52,3 +52,12 @@ hot-reload: redefineClasses(1); onHotswap completed=true
 The push happened both times. Reading the open page after the second one gives the new colour, `rgb(173, 20, 87)`, with no reload. Only the reporting is missing.
 
 Found on 25.3.0-beta1 with `flow-devloop-daemon` 25.3.0-beta1.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/10-devloop
+mvn spring-boot:run
+```
+

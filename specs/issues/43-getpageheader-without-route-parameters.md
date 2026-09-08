@@ -22,7 +22,7 @@ Fall back to the parameter in `UI.getCurrent().getInternals().getActiveViewLocat
 
 ### Reproduce
 
-`08-pagetitlegenerator-bean/` in this directory carries it: a `product/:slug` route with `@DynamicPageTitle`, a generator that reads the slug, and a `Shell` whose navbar prints `MenuConfiguration.getPageHeader(getContent())` after every navigation.
+[`08-pagetitlegenerator-bean/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/08-pagetitlegenerator-bean) carries it: a `product/:slug` route with `@DynamicPageTitle`, a generator that reads the slug, and a `Shell` whose navbar prints `MenuConfiguration.getPageHeader(getContent())` after every navigation.
 
 `mvn spring-boot:run`, then open `http://localhost:8098/product/sourdough`:
 
@@ -34,5 +34,13 @@ Fall back to the parameter in `UI.getCurrent().getInternals().getActiveViewLocat
 One generator, one page, two answers. The second one is the generator's fallback for a slug it did not receive.
 
 That project also carries finding `08`, the generator being applied to every route because it is a `@Component`. The two are independent: this one shows on the product route, that one on `/`.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/08-pagetitlegenerator-bean
+mvn spring-boot:run
+```
 
 Found on 25.3.0-beta1.

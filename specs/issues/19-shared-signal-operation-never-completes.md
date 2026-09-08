@@ -30,8 +30,17 @@ If it cannot complete outside a real client, say so where `result()` is document
 
 ### Reproduce
 
-`specs/issues/19-shared-signal-env/`, then `mvn test`. Two tests, both passing, and the second one is the finding: it asserts that the list grew and that the operation has still reported nothing.
+[`19-shared-signal-env/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/19-shared-signal-env), then `mvn test`. Two tests, both passing, and the second one is the finding: it asserts that the list grew and that the operation has still reported nothing.
 
 Measured in a browserless test. Not measured in a running application, where the same signals work.
 
 Found on 25.3.0-beta1 with browserless-test 1.2.0-alpha2.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/19-shared-signal-env
+mvn test
+```
+

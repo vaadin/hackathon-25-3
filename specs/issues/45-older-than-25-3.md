@@ -20,8 +20,17 @@ For the first: rebuild, or document that it does not. For the second: `bindItems
 
 ### Reproduce
 
-`specs/issues/45-older-behaviours/`, then `mvn test`. Two tests, both passing, and both passing is the finding: navigating twice builds the view once, and the constraint message is English.
+[`45-older-behaviours/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/45-older-behaviours), then `mvn test`. Two tests, both passing, and both passing is the finding: navigating twice builds the view once, and the constraint message is English.
 
 Open `/stretch` in a browser for the third one: four panels in one column however wide the window is, with the one line fix commented out.
 
 Found while building on 25.3.0-beta1, but none of them is specific to it.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/45-older-behaviours
+mvn test
+```
+

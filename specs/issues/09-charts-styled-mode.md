@@ -9,7 +9,7 @@ The switch is `configuration.getChart().setStyledMode(true)`.
 
 ### Reproduction
 
-`09-charts-styled-mode/` is one view with the same chart twice, on a page in the dark colour scheme, and one line of difference between them. Run it with `mvn spring-boot:run` and open port 8110. `default-vs-styled.png` is what it draws.
+[`09-charts-styled-mode/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/09-charts-styled-mode) is one view with the same chart twice, on a page in the dark colour scheme, and one line of difference between them. Run it with `mvn spring-boot:run` and open port 8110. `default-vs-styled.png` is what it draws.
 
 What the SVG carries:
 
@@ -32,5 +32,13 @@ It is documented only on the Charts styling sub page. "Basic Use", which is what
 ### Expected
 
 Styled mode on by default, or a note where the properties are listed saying none of them do anything until it is on.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/09-charts-styled-mode
+mvn spring-boot:run
+```
 
 Found on 25.3.0-beta1.

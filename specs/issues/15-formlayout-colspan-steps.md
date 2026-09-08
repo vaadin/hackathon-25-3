@@ -26,7 +26,7 @@ For the auto responsive half: say in the `setMaxColumns` documentation that the 
 
 ### Reproduce
 
-`15-formlayout-colspan/` in this directory. `mvn spring-boot:run`, then two routes.
+[`15-formlayout-colspan/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/15-formlayout-colspan). `mvn spring-boot:run`, then two routes.
 
 `/steps` is the form above: four fields, steps at 1, 2 and 4 columns, and `setColspan(search, 3)`. The component lays it out with inline percentage widths, so the spans are readable as widths. Measured at three container widths:
 
@@ -39,5 +39,13 @@ For the auto responsive half: say in the `setMaxColumns` documentation that the 
 The middle row is the one to look at. Three columns clamps to two, which is the whole row, so Search takes the full width and the other three drop below it. There is no way to ask for one column there.
 
 `/auto` is the auto responsive half: the same four fields, `setMaxColumns(4)`, twice, differing in one line. With `setAutoRows(false)` the computed `--_max-columns` is **1** and the fields land on four rows. With `setAutoRows(true)` it is **4** and they land on one. Nothing in the call says the content will cap it.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/15-formlayout-colspan
+mvn spring-boot:run
+```
 
 Found on 25.3.0-beta1.

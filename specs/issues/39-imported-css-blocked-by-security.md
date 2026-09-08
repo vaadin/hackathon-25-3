@@ -32,7 +32,7 @@ Permit the directory explicitly:
 
 ### Reproduce
 
-`39-imported-css/` in this directory: a secured application with one user in memory, `@StyleSheet("styles/main.css")` on an anonymous view, and `main.css` importing `parts.css`. The security setup permits `/styles/main.css` and nothing else, which is the state an application reaches after somebody notices the declared sheet redirecting and adds a matcher for it.
+[`39-imported-css/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/39-imported-css): a secured application with one user in memory, `@StyleSheet("styles/main.css")` on an anonymous view, and `main.css` importing `parts.css`. The security setup permits `/styles/main.css` and nothing else, which is the state an application reaches after somebody notices the declared sheet redirecting and adds a matcher for it.
 
 `mvn spring-boot:run`, then ask the server:
 
@@ -54,5 +54,13 @@ Error loading http://localhost:8139/styles/main.css
 ```
 
 Comment the matcher out and the declared sheet fails the same way, which is the general form: with the default `VaadinSecurityConfigurer` no static CSS under `META-INF/resources` is permitted, entry point included.
+
+### Getting the project
+
+```
+git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
+cd hackathon-25-3/specs/issues/39-imported-css
+mvn spring-boot:run
+```
 
 Found on 25.3.0-beta1.
