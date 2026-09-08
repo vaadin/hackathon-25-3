@@ -1,0 +1,12 @@
+# Provisioned rather than clicked. The container name is the host, because
+# Grafana and Prometheus share the compose network.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false

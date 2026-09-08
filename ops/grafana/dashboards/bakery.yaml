@@ -1,0 +1,12 @@
+# The dashboard is a file in this same directory, so a change to it lands
+# within ten seconds without touching Grafana.
+apiVersion: 1
+
+providers:
+  - name: bakery
+    type: file
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

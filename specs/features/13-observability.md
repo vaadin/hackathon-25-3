@@ -32,6 +32,7 @@ Both are written as assertions, not as screenshots.
 - [x] With the profile on, `/actuator/prometheus` returns Vaadin metrics including navigation timing and fetched rows by route. Verified by hand, once, and written up in `07-observability.md`: 22 `vaadin_*` families, every one labelled by route. Not UI state size, which is not among them
 - [x] `/actuator/vaadin/observability` answers with active instrumentation. It returns no insights, because an insight is a slow interaction and ordinary use of a local application has none
 - [x] A scraper reaches the metrics with HTTP Basic and only as an admin, health stays public, and a barista is refused by the rule rather than by the endpoint
+- [x] `docker compose up -d prometheus grafana` provisions the datasource and the dashboard, Prometheus scrapes the application, and all four rows draw from it
 
 ### AC2: The diagnostics view needs no backend
 - [x] Session lock, RPC and data provider panels populate under normal use with the default profile

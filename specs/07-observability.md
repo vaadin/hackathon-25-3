@@ -38,14 +38,25 @@ vaadin.observability.traces=true
 
 No agent JAR, no `-javaagent`, no `agent.properties`. Metrics at `/actuator/prometheus`, insights at `/actuator/vaadin/observability`.
 
-`docker compose up -d` starts Prometheus and Grafana. **Not built, and the compose file promises it anyway:** it mounts `./ops/grafana` as Grafana's provisioning directory and that directory does not exist, so the dashboard below is a description of what to build and not of what is there. `ops/prometheus.yml` is real and now carries the credentials the scrape needs.
+`docker compose up -d prometheus grafana` starts both, provisioned from `ops/`, and it is built and was run: Prometheus scraped the application at `host.docker.internal:8080` with the credentials in `ops/prometheus.yml`, Grafana came up with the datasource and the dashboard already there, and every panel drew from the running application. Grafana is on 3000 with anonymous access, Prometheus on 9090.
 
-| Row | Panels | State |
+```
+ops/prometheus.yml                            the scrape job, with the admin credentials
+ops/grafana/datasources/prometheus.yaml       the datasource, uid prometheus
+ops/grafana/dashboards/bakery.yaml            the file provider, reloads within ten seconds
+ops/grafana/dashboards/bakery-dashboard.json  the dashboard, uid bakery-vaadin
+```
+
+Four rows and twenty three panels. Every panel is built from a metric this application was measured serving, which is the rule that shaped the rows: the third row is locks and chatter rather than memory, because no UI state size metric exists to put in a memory row.
+
+| Row | Panels | Reads |
 | --- | --- | --- |
-| Traffic | Sessions, UIs, navigations per minute, navigation timing by route | Every metric exists, measured. No dashboard |
-| Health | Errors by route and component, connection state, Web Vitals | Web Vitals exist, FCP and LCP by route. No error or connection metric was seen in the 22 families |
-| Memory | UI state size gauges by route, node counts, sessions over time | Sessions exist. **No UI state size metric exists**, so this row is a claim the kit does not support, or supports under a name that did not appear |
-| Data | Data provider queries per view, JDBC spans and fetch sizes by view | Query durations, fetched rows and requested pages exist by route. No JDBC span was seen |
+| Traffic | Sessions now, UIs now, navigations per minute, slowest navigation, navigation time by route, requests per second by kind | Sessions 4, UIs 7, and `uidl`, `static`, `other` and `heartbeat` separated, which is how a chatty view is spotted before anybody complains |
+| Health | Uncaught client errors, failed navigations in the last hour, failed navigations by route, largest contentful paint by route, first contentful paint by route, client bootstrap by route | Two uncaught client errors, which are real and worth chasing, and Web Vitals per route measured in the browser rather than on the server |
+| Locks and chatter | Session lock wait by context, session lock held worst case, RPC per second by type, `ui.access` time, sessions started and ended per minute | The lock panels separate `request` from `access`, so a background job holding the lock is not confused with a browser waiting its turn. RPC splits into `event`, `mSync` and `publishedEventHandler` |
+| Data | Rows per fetch, fetch queries per minute, rows fetched per second by route, pages requested per second by route, query time filtered against unfiltered, queries per second count against fetch | Rows per fetch 56 and every data panel labelled by route, which is the half a generic APM cannot tell you. Filtered and unfiltered are separated because a combo box searching and a grid turning a page are not the same cost |
+
+Two details the queries had to get right, and both are the kind of thing that makes a dashboard look broken. A Micrometer summary arrives as `_count`, `_sum` and `_max`, so an average is `rate(sum) / rate(count)` and the worst case is the `_max` gauge, never an average of averages. And every route grouped query excludes `route=""`, which is the series for requests belonging to no view: left in, it draws a line labelled "Value" in the legend of every panel and means nothing.
 
 Without a licence the kit degrades to no telemetry rather than a startup failure, and the about view says so.
 
