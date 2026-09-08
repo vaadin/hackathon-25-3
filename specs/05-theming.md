@@ -2,6 +2,14 @@
 
 The old app used `@Theme("bakery")`, a `themes/` folder, eight per component CSS files and a `shared-styles.js` imported by every Lit element. None of that survives.
 
+## Prose inside a panel
+
+Help text in a panel runs in one column and each paragraph takes the panel's width. No reading measure, and no columns.
+
+The measure is the right instinct in a document and the wrong one here: a `max-width` of 60 characters in a panel that spans the row wraps every line at half of it, which reads as text that was truncated rather than text that was set. Flowing the same paragraphs into two columns uses the width and reads as a magazine, which is worse in the middle of a panel of numbers. Both were tried on the diagnostics screen, in that order, before landing on the plain answer.
+
+Commands are the exception. They sit in a `pre` that scrolls rather than wraps and selects whole on one click, because a command with a line break pasted into the middle of it is a broken command.
+
 ## Four variants, chosen at runtime
 
 The theme selector in the header offers each theme twice:
