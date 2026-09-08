@@ -116,3 +116,9 @@ Counted over `src/main/java` and `src/main/kotlin`, so it can be recounted rathe
 - The language selector lives in the shell. Changing the language retranslates what is already on screen, where it stands: nothing navigates, nothing reloads, and nothing already started is lost, the cart included. What counts as visible, and the two kinds of text that deliberately do not follow the change, are specified in `features/01-foundation.md`.
 - A screen that is correct only when it is built after the language changed is not correct. The behaviour to hold is the one a reader sees when they switch while looking at it.
 - Dates, times and money are formatted in the active language. The one document that does not follow it is the invoice, which keeps the language it was issued in, see `features/10-invoicing.md`.
+
+## Entities outside a transaction
+
+Reading a lazy collection outside a transaction throws `LazyInitializationException`, so a view has to know which repository method fetches which graph. Named entity graphs on the aggregate solve it: `Order.brief` fetches the customer and the pickup location, `Order.full` adds items, products and history. The failure mode is a runtime exception in a view rather than something the type system prevents, which is why the graphs are named after what a screen needs.
+
+Session scoped beans follow the servlet lifecycle, not the Vaadin one: they exist once there is a session, so they cannot be injected into anything built before one, and a test reaches them through the context rather than by autowiring.

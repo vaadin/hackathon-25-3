@@ -107,3 +107,9 @@ JaCoCo holds a floor rather than a vanity number: 70 percent of lines, failing t
 | `./mvnw verify -Pit` | Not available yet, the profile is not written |
 | CI on push | The first command only. The licence free path is the one CI protects |
 | CI nightly | Not written yet. It was to run the first command against the newest 25.3 prerelease, to catch API drift |
+
+## A test that cannot be rolled back
+
+A browserless test that places a real order cannot be undone by a test transaction, because the work happens in the application's own transactions. Those classes carry `@DirtiesContext`, which rebuilds the context and the in memory database, and that only works because the schema is idempotent: `schema-h2.sql` creates and `data-h2.sql` inserts, both from scratch, every time.
+
+Two consequences worth knowing. `spring.jpa.defer-datasource-initialization=true` and `ddl-auto=validate` are silently incompatible, because validation runs before the scripts, so the schema has to exist before Hibernate looks. And a class that rebuilds the context makes every later class pay for a fresh one, which is why only the classes that really write carry the annotation.

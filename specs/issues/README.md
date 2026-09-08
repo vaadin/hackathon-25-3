@@ -31,19 +31,47 @@ Each of these has a reproduction somebody else can run in a few minutes.
 | `09-charts-styled-mode.md` | web-components | `09-charts-styled-mode/`, the same chart twice. Needs a Charts licence |
 | `11-devloop-new-bean.md` | flow | `10-devloop/`, four steps, confirmed there |
 | `12-devloop-compiler-flags.md` | flow | Any project with a `@Query` using a named parameter |
-| `13-ai-tool-schema-dropped.md` | flow | A `ToolSpec` with an unescaped quote in its schema. Needs an OpenAI key |
+| `13-ai-tool-schema-dropped.md` | flow | A `ToolSpec` with an unescaped quote in its schema. Needs a key |
 | `14-browserless-find-slotted.md` | flow | `14-browserless-find/`, then `mvn test`: two failures with exact numbers |
 | `15-formlayout-colspan-steps.md` | web-components | Six lines of `FormLayout` |
 | `16-emailfield-validation-message.md` | flow-components | Two lines: the same property bound to each field |
 | `17-navigate-rejects-query-string.md` | flow | One line |
 | `18-downloadhandler-no-session-lock.md` | docs | A snippet, and the note that is easy to miss |
-| `19-shared-signal-operation-never-completes.md` | flow | `19-shared-signal-env/`, then `mvn test`: two passing tests that say the write landed and the operation did not |
+| `19-shared-signal-operation-never-completes.md` | flow | `19-shared-signal-env/`, then `mvn test` |
+| `20-grid-select-all-lazy.md` | flow-components | Four lines, and a table of the six doors that are closed |
+| `21-bindchildren-documented-and-absent.md` | docs | It does not compile |
+| `22-browserless-differences.md` | flow | Four differences, two or three lines each |
+| `23-addstylesheet-order-and-readd.md` | flow | Four lines: remove a sheet and add the same URL back |
+| `24-push-reconnect-logged-as-error.md` | flow | Any `@Push` application, one page open, one restart |
+| `25-featureflags-rewrites-source.md` | flow | One call, then `git status` |
+| `26-signal-effect-exception-invisible.md` | flow | Three lines |
+| `27-ai-form-discovery-composite.md` | flow | A field inside a `Composite`, and the form state the model reads |
+| `28-ai-turn-with-no-trace.md` | flow | A failing query and one question. Needs a key |
+| `29-ai-source-tracking-never-arrives.md` | flow | Source tracking on, one live turn, `getFieldSource`. Needs a key |
+| `30-docs-gaps.md` | docs | Seven pages that exist and do not say the thing |
+| `31-observability-docs.md` | docs | Three curl commands |
+| `32-deprecations-without-replacement.md` | flow | Three deprecation messages |
+| `33-container-tokens-not-interchangeable.md` | docs | Style a panel, switch the theme, look at it |
+| `34-devloop-tooling-notes.md` | flow | Four small things, one of which blocks installation |
+| `35-ai-api-requests.md` | flow | Three things the API cannot do |
+| `36-server-side-gaps.md` | flow | An absolute URL, and asking what is licensed |
+| `37-testbench-cdp-blocked.md` | testbench | The cast to `HasCdp` fails against the proxy |
+| `38-dark-mode-two-mechanisms.md` | flow | Two lines: one theme goes dark, the other does not |
+| `39-imported-css-blocked-by-security.md` | flow | An `@import` in a stylesheet, in a secured application |
+| `40-upload-file-arrived-event.md` | flow-components | An `Upload` whose handler belongs to the orchestrator |
+| `41-gridaicontroller-time-column.md` | flow | One question selecting a SQL `TIME`. Needs a licence and a key |
+| `42-ai-marker-badge-does-not-open.md` | web-components | Fill a field, click the badge. Needs a licence and a key |
+| `43-getpageheader-without-route-parameters.md` | flow | Compare the header with the browser tab |
+| `44-devloop-missing-hmr-line.md` | flow | One Java file and one CSS file in the same change set |
+| `45-older-than-25-3.md` | flow | Four older behaviours, from `FEEDBACK-PLATFORM.md` |
 
 ## Not ready
 
-| Draft | Why |
+| Finding | Why, and what it needs |
 | --- | --- |
-| `04-signalbinding.md` | Real in the bakery, and `04-signalbinding/` does not demonstrate it after three attempts. The fix is certain: reverting it brings the exception back, with its stack |
+| `04-signalbinding.md`, a signal bound text cannot be rebound | Real in the bakery, and its project does not demonstrate it after three attempts. The fix is certain: reverting it brings the exception back, with its stack |
+| A tool call on the UI thread deadlocks `FormAIController` for ever | Needs an `LLMProvider` of its own that calls the fill tool on the thread it was handed, and a test with a preemptive timeout so the reproduction ends instead of hanging |
+| A GridPro cell does not enter edit mode from a synthesised double click | Needs a browser, a licence, and a decision about whether it is a bug or the point |
 
 ## Withdrawn
 
@@ -77,13 +105,18 @@ Each is a `pom.xml`, an `Application`, and one or two classes that do nothing el
 
 Build output is ignored, so a project is sources only. `10-devloop` needs `mvn flow:install-dev-cli` first, and the `flow-maven-plugin` declaration that makes that prefix work is already in its pom.
 
-## What is not drafted, and why
+## Every row accounted for
 
-`FEEDBACK-25.3.md` holds the rest. A row is drafted here once its reproduction fits in a project or a snippet. A row whose reproduction is "this application, on this branch, on this screen" is not ready, and cutting it down is the work.
+Both feedback files were read row by row and each row now has one of four destinations. Nothing is left unexamined.
 
-Two rows are worth cutting down next:
+| Destination | How many | Where it went |
+| --- | --- | --- |
+| Drafted as an issue | 41 drafts covering most of the rows, several of them bundling a family | This directory |
+| Real, not yet reduced | 3 | The table above, each with what it needs |
+| Not a report, it was our own rule | 9 | The specifications: `08-testing.md`, `10-dev-loop.md`, `03-architecture.md` |
+| Withdrawn or not reproducible | 5 | Deleted, with the lesson from each in the table above |
+| Positive, worth saying anyway | 10 | `REPORT.md`, under what worked exactly as advertised |
 
-1. A tool call on the UI thread deadlocks `FormAIController` for ever, with no error and no timeout. A project needs an `LLMProvider` of its own that calls the fill tool on the thread it was given, and a test with a preemptive timeout so the reproduction ends instead of hanging.
-2. The AI field marker's badge does not open its popover, which is what makes source tracking unreachable by a person. A project needs a licence and a filled field, so the reproduction is a browser one.
+Some drafts deliberately carry several rows, because the rows shared one root: `22` is four browserless differences, `30` is seven documentation gaps, `34` is four dev loop notes, `35` is three AI API requests, `45` is four behaviours older than this release.
 
-The shared signal row was cut down and answered something else. Reducing it showed the write always lands and the operation's future never completes, which is what had been read as a dropped write. One cause, one wrong diagnosis, and a day spent on the wrong one.
+Three drafts need something the reader may not have, and each says so at the bottom: a Charts licence for `09`, an OpenAI key for `13`, `28`, `29` and `41`, and both for `42`.
