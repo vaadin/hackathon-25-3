@@ -55,3 +55,7 @@ The trap is the fourth. Batching a Java edit with a translation edit turns a 0.8
 ## Diagnostics
 
 `status --json` and `apply --json` return the full picture: state, the modules in the loop, the last transaction with its classification, its change set, its escalation reason and its timings split into detect, compile and runtime. That is what a script or an agent should read rather than parsing the human output.
+
+## The instructions are a file, not a setting
+
+The loop's guidance for agents lives in `.agents/skills/vaadin-devloop/SKILL.md`, committed in the repository, rather than in a tool configuration. That means it is reviewed, versioned and diffed like anything else, and it means an agent that never reads files never sees it.

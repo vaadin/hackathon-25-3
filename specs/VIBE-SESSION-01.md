@@ -102,7 +102,7 @@ Each of these is a row or a section in `specs/FEEDBACK-25.3.md`, with its reprod
 
 | Finding | Why it matters |
 | --- | --- |
-| A `@Menu` change reports `Stable` and is not live | The headline finding. The tool's promise is that it never over claims and escalates to a restart instead, and here it hot swapped, reported success, and the drawer kept the old order until a restart |
+| ~~A `@Menu` change reports `Stable` and is not live~~ | **Withdrawn, and it was the headline for a day.** Building the minimal project killed it: the new order appears after a page reload, in the bare project and in this application. What is true is smaller, and the loop already prints it: an already rendered page keeps its old output until it renders again. The mistake was mine and it was cheap to make, because I read the drawer in a page that was already open |
 | The dev loop's compiler does not use the project's compiler flags | Recorded earlier as three failing tests after a session without `clean`. Upgraded this session, because a `pom.xml` edit made the daemon recompile the whole module and the running application started answering `/orders/new` with a Spring Data failure about `-parameters`. `./mvnw compile` does not fix it, since the daemon's classes are newer than the sources: it takes `clean` |
 | A tool with an invalid parameter schema is dropped and the turn carries on | Nothing reaches the UI or the response listener, and the model narrates the work it could not do |
 | An `hmr:` line goes missing when a change set mixes Java with a stylesheet | The push happened, verified in the page, and the output never said so |
@@ -110,7 +110,7 @@ Each of these is a row or a section in `specs/FEEDBACK-25.3.md`, with its reprod
 | A push reconnect during a restart is logged as an application error | Existing row, softened from "every restart" to "often", with a clean restart as the counter example |
 | A lazy grid cannot have a select all checkbox, and cannot be given one | A section rather than a row, written door by door, and corrected in place once `GridContextMenu` proved the wider claim wrong |
 | A `MessageList` handed to the orchestrator renders markdown as text | Every documented example passes a bare `new MessageList()`, and every model writes markdown |
-| A brand new Spring bean hot swaps as `Stable` and is not registered | Same shape as the `@Menu` finding and worse in its effect: the view throws `NoSuchBeanDefinitionException`, and the exception names Spring rather than the loop. The loop already escalates when an existing bean changes shape, and says so in as many words |
+| A brand new Spring bean hot swaps as `Stable` and is not registered | A green `Stable` that is not live, and this one no reload can fix: the view throws `NoSuchBeanDefinitionException`, and the exception names Spring rather than the loop. The loop already escalates when an existing bean changes shape, and says so in as many words |
 | Knowing that a file reached an `Upload` needs the handler a library owns | The non deprecated path is a `TransferProgressListener` on the handler you construct, so a component whose handler belongs to the orchestrator has no supported way to say a file arrived |
 | `FormLayout` colspan and `setMaxColumns` | Recorded while building the storefront filter row |
 | A documentation gap and a suggestion about the loop's output vocabulary | Both from the sessions above |

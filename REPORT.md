@@ -64,6 +64,23 @@ Every test runs with no commercial licence, no OpenAI key, no browser and no net
 | The dark mode toggle set a theme attribute Aura does not read | The button did nothing, and the test asserting the attribute passed. Found by clicking it in a browser, fixed with `Page.setColorScheme`, and the test now asserts the scheme |
 | The card grid did not fill its container | A `VerticalLayout` aligns children to the start, so the grid shrank to its content and showed two columns on a 1600 pixel screen instead of six |
 
+## What worked exactly as advertised
+
+Worth saying, because a list of only problems is misleading. Each of these did what its documentation said, first time.
+
+| API | Note |
+| --- | --- |
+| `setPartialMatchMode` on ComboBox | Did what it says, no surprises |
+| DatePicker disabled dates and weekdays, and the date metadata provider | The provider is a single functional interface and `refreshDateMetadata` does the right thing. This was the easiest of the headline features to adopt |
+| Grid hidden columns skipping data | True, and measurable. Our test asserts the value provider is never invoked and the query count does not move |
+| Shared signals with a Jackson `TypeReference` | A record round tripped without a single serialisation problem, and one signal replaced what would have been a push plumbing epic |
+| The service event bus | Adding a listener for session lock, RPC and data provider events took ten lines and needed no licence |
+| `MissingSignalUsageException` | A computed signal that reads nothing throws with a clear message. Strict, and right: it caught a real mistake in our own code |
+| Observability Kit 5 with no agent | One starter, three properties, no `-javaagent`, no `agent.properties`, no collector needed to read anything. First run produced 22 `vaadin_*` metric families labelled by route, client side Web Vitals included, and no licence complaint. The page says exactly this and it is true |
+| Modular upload | `UploadManager` plus the three components composed exactly as documented, including the clipboard paste handler |
+| A new route in the dev loop | A brand new `@Route` class registers without a restart, which the reference table says needs one |
+| A failed compile in the dev loop | The application stays up and keeps serving the last good bytes, and the error is reported |
+
 ## Problems in 25.3.0-beta1
 
 All of them, with the workaround and the file it lives in, are in `specs/FEEDBACK-25.3.md`. The ones worth naming here:

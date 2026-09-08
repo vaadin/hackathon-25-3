@@ -15,6 +15,14 @@ One pass is exempt, by design rather than by drift. During a vibe coding step no
 
 Browserless testing is free since 25.1 and needs neither a browser nor a servlet container, which is why it carries the bulk of the suite. `browserless-test` is versioned independently of the platform and is never hand pinned.
 
+## What an assertion has to prove
+
+A test that passes for the wrong reason is worse than no test. Two rules, both learnt the hard way here.
+
+A grid assertion on columns alone proves nothing. `grid.getColumns()` answers after `addColumn`, whether or not any data was ever fetched, so a test that counts columns passes against a grid that renders nothing. Assert through the data view: the item count, and the value of a cell.
+
+A component that another component holds is not in the tree the finder walks, so an empty `find()` is not evidence that the component is missing. Check `specs/issues/14-browserless-find/` before believing one.
+
 ## The boundary
 
 Browserless owns routing, security annotations, form validation, signal propagation, service and data logic, grid contents through the data view, dialogs, and multi user or multi window state.

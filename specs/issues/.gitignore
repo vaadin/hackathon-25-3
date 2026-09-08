@@ -10,3 +10,6 @@
 */vite.config.ts
 */vite.generated.ts
 */src/main/frontend/
+*/.vaadin/
+*/.agents/
+*/.claude/
