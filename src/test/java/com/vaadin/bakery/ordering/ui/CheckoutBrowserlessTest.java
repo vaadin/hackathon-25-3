@@ -149,16 +149,57 @@ class CheckoutBrowserlessTest extends SpringBrowserlessTest {
                 "and it says what is wrong with it");
     }
 
+    /**
+     * The step refuses where the missing thing can be typed.
+     *
+     * This used to assert the opposite, that an unfinished step was allowed
+     * through, on the grounds that completeness was the review step's question.
+     * It is a worse deal than it sounds: an empty form walked through two more
+     * steps and ended at a Place button that would not light up, with no field
+     * to look at and nothing saying why. Incomplete is still not the same as
+     * malformed, and the difference is which group is asked when: the shape
+     * while typing, the whole thing on the way out.
+     */
     @Test
-    void continueLetsAnUnfinishedStepThrough() {
+    void continueRefusesAnUnfinishedStep() {
         navigate(CheckoutContactView.class);
         test(find(TextField.class).withLabel("First name").single()).setValue("Ana");
-        // No surname, no email, no phone: incomplete is not the same as wrong,
-        // and the review step is where completeness is decided.
+        // No surname, no email, no phone.
 
         test(find(Button.class).withText("Continue").single()).click();
 
-        assertTrue(showing(CheckoutSlotView.class), "an unfinished step is allowed to move on");
+        assertTrue(showing(CheckoutContactView.class), "an unfinished step does not move on");
+        assertFalse(showing(CheckoutSlotView.class));
+        assertTrue(find(EmailField.class).single().isInvalid(), "and the missing email is flagged");
+        assertFalse(find(EmailField.class).single().getErrorMessage().isBlank(),
+                "with a message of ours rather than Hibernate Validator's English default");
+        assertTrue(find(TextField.class).withLabel("Phone").single().isInvalid(),
+                "and so is the telephone number the bakery would have to ring");
+    }
+
+    /**
+     * Stepping back and forward keeps the slot.
+     *
+     * The view is built again every time, from a picker that starts at its own
+     * defaults, and it used to write those defaults into the session: choosing
+     * a Saturday, going on to the review and coming back emptied both fields,
+     * and the review step lost the slot with them. The session is the truth and
+     * the picker is seeded from it.
+     */
+    @Test
+    void theChosenSlotSurvivesSteppingBack() {
+        var slot = chooseSlot();
+        navigate(CheckoutSlotView.class);
+
+        var picker = find(SlotPicker.class).single();
+        assertEquals(slot.date(), picker.getDate(), "the day comes back");
+        assertEquals(slot.time(), picker.getTime(), "and the time with it");
+        assertEquals(slot.location(), picker.getLocation());
+
+        // And the session still holds what the picker holds, so the review step
+        // and the order both see the same slot.
+        assertEquals(slot.date(), state().date().peek());
+        assertEquals(slot.time(), state().time().peek());
     }
 
     @Test

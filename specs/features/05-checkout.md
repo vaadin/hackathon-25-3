@@ -12,7 +12,7 @@ Covers V12, V13, C1, C4, C5.
 
 Checkout is a step view, not one long form and not a wizard that throws away what it was told. Three routes under one parent, declared with `@RouteParent`, so the breadcrumb trail is router driven and nobody writes a trail by hand.
 
-Every step carries Back and Continue. Continue validates the step it is leaving and moves on. **Back never validates anything**: leaving a step half filled is what a person does when they need to go and check something, and refusing to let them is how a form makes an enemy.
+Every step carries Back and Continue. Continue validates the step it is leaving, with everything that step owes the order, and moves on only when that holds: a step refuses at the point where the missing thing can be typed, and it puts the message on the field and the cursor in the first one. **Back never validates anything**: leaving a step half filled is what a person does when they need to go and check something, and refusing to let them is how a form makes an enemy.
 
 Nothing typed is ever lost. Going back to a step shows exactly what was in it, however many times the visitor moves in either direction, and a browser refresh reopens the step they were on with their values in place. That is a property of where the state lives, the session signal bean, rather than of each step remembering to save on the way out.
 
@@ -31,8 +31,10 @@ The breadcrumb shows the route hierarchy: Bakery, Cart, the steps already passed
 
 This is the direct demonstration of the new `BeanValidationBinder` group support, and it is what makes the two paragraphs above possible.
 
-- Every step validates with `OnDraft`, which allows an incomplete order and lets the visitor move back and forth without being scolded.
-- Each step validates its own fields when it is left going forward. What it does not do is complain about a step nobody has reached yet.
+- While somebody types, validation is the draft question: `Default`, which is the shape of what is written and says nothing about what is still empty. Nobody is scolded for an email half typed, and moving **back** asks nothing at all.
+- Going forward asks the whole question for that step's own fields, `Default` plus `OnSubmit`, which is what the order actually needs from it: a name, an email and a telephone number. What it still does not do is complain about a step nobody has reached yet.
+- The rule this replaces was that a step let an unfinished form through and the review step decided completeness. In practice an empty form walked through two more steps and stopped at a Place button that would not light up, with no field to look at and no sentence saying why.
+- The messages come from our own `ValidationMessages` bundles rather than from Hibernate Validator's English defaults, in both languages, and the telephone constraint carries its own so that a wrong number says what to type instead of "that is not a valid value".
 - The review step validates the whole order with `OnSubmit`, which additionally requires contact details, a non empty cart, a date that respects lead time, and a slot with capacity. A form that only ever checks each step in isolation is how an order reaches the kitchen with a pickup time in the past.
 - The place order button binds its enabled state to a computed signal over the per step validity signals, so it stays disabled until every step is submit valid.
 
@@ -75,6 +77,8 @@ The page is not a checkout step: it has no breadcrumb and no way back into a che
 ### AC2: Validation happens per step and again at the end
 - [x] An incomplete contact step can be left without an error
 - [x] Leaving a step forward validates that step's own fields, and no other step's
+- [x] A step that owes the order something refuses to be left forward, flags the fields and focuses the first
+- [x] The slot chosen on the pickup step is still there after stepping forward and back
 - [x] The review step refuses to place an order that fails `OnSubmit`, whatever each step said on its own
 - [x] The place order button is disabled until every step is submit valid
 
@@ -91,7 +95,7 @@ The page is not a checkout step: it has no breadcrumb and no way back into a che
 - [x] Reordering fills the cart with the same lines
 - [ ] Unavailable products are skipped and named
 
-The draft group is what makes the forward check possible. `OnDraft` was declared in epic 02 and never used: the shape rules, `@Email`, `@Pattern` and the sizes, now carry it alongside `Default`, while `@NotBlank` stays in `Default` alone. So a draft validation asks whether what is written is well formed without asking whether it is finished, and persistence keeps the guarantee it always had.
+The groups are what make the two questions expressible. The shape rules, `@Email`, `@Pattern` and the sizes, carry `Default` and `OnDraft`, `@NotBlank` on the name stays in `Default` alone, and `@NotBlank` on the email and the telephone carries `OnSubmit`. So while somebody types, `Default` asks whether what is written is well formed without asking whether it is finished, and Continue asks `Default` plus `OnSubmit`, which is the whole of what the step owes. `OnDraft` itself is now what the shape rules are tagged with rather than a group any screen validates on its own, and persistence keeps the guarantee it always had.
 
 ### Still open
 
@@ -106,6 +110,8 @@ The draft group is what makes the forward check possible. `OnDraft` was declared
 | CHK-01 | A cart with two lines | Walking the three steps and placing | The order exists with the right totals and state new | browserless | `CheckoutBrowserlessTest` |
 | CHK-02 | A half filled contact step | Navigating to the slot step and back | The values are still there | browserless | `CheckoutBrowserlessTest` |
 | CHK-12 | Any step, half filled | Pressing Back | It moves, validating nothing, and the values are still there on return | browserless | `CheckoutBrowserlessTest` |
+| CHK-13 | A contact step with only a first name | Pressing Continue | It stays on the step, the email and the phone are flagged with a message, and the slot step is not reached | browserless | `CheckoutBrowserlessTest` |
+| CHK-14 | A chosen location, day and time | Stepping forward to review and back | The picker shows the same three, and the session still agrees with it | browserless | `CheckoutBrowserlessTest` |
 | CHK-13 | A just placed order | Landing on the confirmation | The reference is shown and the link it prints opens the order | browserless | `CheckoutBrowserlessTest` |
 | CHK-03 | A contact step missing the phone | Reaching review | Place order is disabled and the phone is flagged | browserless | `CheckoutBrowserlessTest` |
 | CHK-04 | The same form | Saving as a draft at the counter | No validation error is raised | browserless | `CheckoutBrowserlessTest` |

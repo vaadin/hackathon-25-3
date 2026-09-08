@@ -42,7 +42,10 @@ public class Customer extends AbstractEntity {
     private String email;
 
     @NotBlank(groups = OnSubmit.class)
+    // Its own message, because "that is not a valid value" on a telephone
+    // number tells somebody nothing about what to type instead.
     @Pattern(regexp = "^$|^(\\+\\d{1,3})?[ -]?(\\d[ -]?){6,14}$",
+            message = "{bakery.phone.shape}",
             groups = { Default.class, OnDraft.class })
     @Size(max = 32, groups = { Default.class, OnDraft.class })
     @Column(length = 32)

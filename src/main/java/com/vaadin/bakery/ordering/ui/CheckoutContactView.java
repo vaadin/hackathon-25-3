@@ -1,11 +1,11 @@
 package com.vaadin.bakery.ordering.ui;
 
 import com.vaadin.bakery.base.ui.Fields;
-import com.vaadin.bakery.base.validation.OnDraft;
 import com.vaadin.bakery.base.validation.OnSubmit;
 import com.vaadin.bakery.ordering.CheckoutState;
 import com.vaadin.bakery.people.Customer;
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.InputMode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,6 +17,7 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -25,10 +26,21 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.validation.groups.Default;
 
 /**
- * Step one. The binder validates with the default group only, so the visitor
- * can wander off to look at the calendar with half a form filled in. The submit
- * group is what decides whether the order can actually be placed, and that
- * difference is the whole point of validation groups.
+ * Step one, and the step that decides whether there is a way to reach the
+ * customer.
+ *
+ * Two groups, two moments, which is the whole point of validation groups. While
+ * somebody types, the default group checks the shape of what they have written
+ * and says nothing about what is still empty: an email half typed is not an
+ * error yet. Moving on asks the other question, with the submit group, which is
+ * whether this is a customer the bakery can actually call: a name, an email and
+ * a telephone number.
+ *
+ * It used to ask only the draft question here and the submit question at the
+ * very end, on the review step, where the answer was a Place button that would
+ * not light up. So an empty form walked through two more steps and then stopped
+ * with nothing to click and no field to look at. The rule now is that a step
+ * refuses at the point where the missing thing can be typed.
  */
 @Route("checkout/contact")
 @RouteParent(CartView.class)
@@ -76,14 +88,22 @@ public class CheckoutContactView extends VerticalLayout {
         var form = new FormLayout(firstName, lastName, email, phone, note);
         form.setColspan(note, 2);
 
-        // Forward validates what this step owns, and only that: the draft group
-        // carries the shape rules, so a field left empty is fine and a field
-        // filled in wrongly is not. Whether the order is complete is the review
-        // step's question, asked with OnSubmit, and it is not asked here.
+        // Forward asks for everything this step owes the order. The binder puts
+        // the message on each field that is not right; this also focuses the
+        // first of them, because a form of five fields where one is red is a
+        // form somebody has to hunt through.
         var next = Translations.bindText(new Button("", event -> {
-            if (binder.validate(OnDraft.class).isOk()) {
+            var outcome = binder.validate(Default.class, OnSubmit.class);
+            if (outcome.isOk()) {
                 getUI().ifPresent(ui -> ui.navigate("checkout/slot"));
+                return;
             }
+            outcome.getFieldValidationErrors().stream()
+                    .map(BindingValidationStatus::getField)
+                    .filter(Focusable.class::isInstance)
+                    .map(field -> (Focusable<?>) field)
+                    .findFirst()
+                    .ifPresent(Focusable::focus);
         }), "checkout.next");
         next.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
