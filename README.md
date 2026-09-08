@@ -90,11 +90,13 @@ Prometheus does the asking, so the application has to be running first. Docker o
 
 **Does it have to authenticate?** Yes. The metrics need an administrator, so the same file carries the credentials and Prometheus sends them with every request.
 
+Both commands run **from the project root**, the directory holding `compose.yaml`. Compose walks up from wherever you are looking for that file, so a subdirectory works too and the paths inside it stay correct: they resolve against the file rather than against your shell. From anywhere outside the project it fails with `no configuration file provided: not found`. What it needs there is `compose.yaml` and the two mounts it names, `ops/prometheus.yml` and `ops/grafana/`, and nothing else: Docker itself needs no state in the project.
+
 ```
 # 1. the application, with the kit switched on
 ./mvnw spring-boot:run -Pobservability -Dspring-boot.run.profiles=observability
 
-# 2. the two graphing programs, in another terminal
+# 2. the two graphing programs, in another terminal, from the project root
 docker compose up -d prometheus grafana
 
 # 3. the dashboard, provisioned from ops, so nothing to click

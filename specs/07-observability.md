@@ -59,7 +59,7 @@ vaadin.observability.traces=true
 
 No agent JAR, no `-javaagent`, no `agent.properties`. Metrics at `/actuator/prometheus`, insights at `/actuator/vaadin/observability`.
 
-`docker compose up -d prometheus grafana` starts both, provisioned from `ops/`, and it is built and was run: Prometheus scraped the application at `host.docker.internal:8080` with the credentials in `ops/prometheus.yml`, Grafana came up with the datasource and the dashboard already there, and every panel drew from the running application. Grafana is on 3000 with anonymous access, Prometheus on 9090.
+`docker compose up -d prometheus grafana`, from the project root or any directory under it, because Compose walks up looking for `compose.yaml` and resolves the mounts against that file rather than against the shell. It starts both, provisioned from `ops/`, and it is built and was run: Prometheus scraped the application at `host.docker.internal:8080` with the credentials in `ops/prometheus.yml`, Grafana came up with the datasource and the dashboard already there, and every panel drew from the running application. Grafana is on 3000 with anonymous access, Prometheus on 9090.
 
 ```
 ops/prometheus.yml                            the scrape job, with the admin credentials
