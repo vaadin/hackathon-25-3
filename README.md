@@ -25,7 +25,7 @@ The default build needs no commercial licence and no OpenAI key. Open `/about` t
 | Profile | What it adds |
 | --- | --- |
 | none | Everything above. The commercial components are part of this build, see `specs/00-overview.md` |
-| `ai` | Spring AI and a real model, needs `OPENAI_API_KEY`. Without it the assistant replays recorded answers |
+| `ai` | Spring AI and a real model. It activates on its own when `OPENAI_API_KEY` is in the environment, so a machine with a key gets the assistant without asking for it. Without a key the assistant is off and says so: nothing replays a recording, there is no second implementation to fall back to |
 | `observability` | Observability Kit 5, Prometheus and Grafana behind `docker compose up -d` |
 | `postgres` | PostgreSQL instead of H2 |
 | `production` | The production frontend bundle |
@@ -37,11 +37,44 @@ export OPENAI_API_KEY=...
 ./mvnw -Pai
 ```
 
-The about page and the badge over the assistant panel both name the provider that is answering, so a demo never has to guess whether it is talking to OpenAI or replaying a cassette. The one test that really calls OpenAI is excluded by default:
+The about page names the provider that is answering, so a demo never has to guess what it is talking to. The one test that really calls OpenAI is excluded by default:
 
 ```
 ./mvnw test -Pai -Dtest=LiveAssistantTest -Dsurefire.excludedGroups=
 ```
+
+## Observability, end to end
+
+Two halves, and the first one needs nothing at all.
+
+**The diagnostics view is always there.** Sign in as the admin, open `/admin/diagnostics`, press **Reset the counters**, then go and use the application: open the order board, scroll the grid, filter the customer lookup on `/orders/new`, come back and press **Refresh**. Session locks, RPC traffic and data provider queries all move, and the per caller table names the component that fetched, `Grid` or `ComboBox (filtered)`. It is built on the 25.3 service event bus, so it costs no licence, no agent and no backend. The demonstration worth showing: hide the expensive column on the order board, fetch the same page again, and watch the query count not move.
+
+**The kit half needs the profile and, for the dashboard, Docker.**
+
+```
+./mvnw spring-boot:run -Pobservability -Dspring-boot.run.profiles=observability
+```
+
+The `-Dspring-boot.run.profiles` part matters: the Maven profile adds the dependencies and the Spring profile switches the properties on. Then, with the admin's credentials, because a scraper is not a person and the actuator has a security chain of its own:
+
+```
+curl -s -u admin@bakery.test:admin localhost:8080/actuator/prometheus | grep '^vaadin' | head
+curl -s -u admin@bakery.test:admin localhost:8080/actuator/vaadin/observability
+curl -s localhost:8080/actuator/health          # this one is public
+```
+
+The first is 22 `vaadin_*` metric families, every one labelled by route. The second is Interaction Insights, which answers `"instrumentation":"active"` and an empty list until an interaction is slow enough to earn an entry, so a demo of it has to stage a slow one. Metrics only exist once something has happened: a freshly started application publishes seven series and nothing per route until somebody navigates.
+
+For the dashboard, with the application running:
+
+```
+docker compose up -d prometheus grafana
+open http://localhost:3000/d/bakery-vaadin
+```
+
+Grafana is provisioned from `ops/`, so the datasource and the dashboard are there on first start and no clicking is needed. Four rows: traffic, health, locks and chatter, data. Prometheus is on 9090 and scrapes the application every five seconds through `host.docker.internal`, which is how a container reaches an application running outside Docker. Editing `ops/grafana/dashboards/bakery-dashboard.json` lands within ten seconds without restarting anything. `docker compose stop prometheus grafana` when you are done.
+
+What each row answers, and where the metric names came from, is in `specs/07-observability.md`.
 
 ## What to look at
 
@@ -51,8 +84,8 @@ The about page and the badge over the assistant panel both name the provider tha
 | `/checkout/slot` | Closed weekdays, closures, lead time and capacity, all in the calendar, with remaining places per day |
 | `/orders` | Hidden columns that genuinely cost nothing, row details independent of selection, translated grid i18n |
 | `/kitchen` | One shared signal, every screen in the kitchen |
-| `/orders/new` | The assistant filling a phone order, and the parser that works with no key and no network |
-| `/admin/diagnostics` | Session locks, RPC traffic and data provider queries, from the service event bus |
+| `/orders/new` | A counter order filled from what the customer said, or from a photograph of a scribbled note. With no key the form is still a form and an order taken by hand still lands |
+| `/admin/diagnostics` | Session locks, RPC traffic and data provider queries, from the service event bus. No licence and no backend needed |
 | `/about` | Version, profiles, flags, and which assistant is answering |
 
 ## The specifications
