@@ -67,14 +67,56 @@ curl -s localhost:8080/actuator/health          # this one is public
 
 The first is 22 `vaadin_*` metric families, every one labelled by route. The second is Interaction Insights, which answers `"instrumentation":"active"` and an empty list until an interaction is slow enough to earn an entry, so a demo of it has to stage a slow one. Metrics only exist once something has happened: a freshly started application publishes seven series and nothing per route until somebody navigates.
 
-For the dashboard, with the application running:
+### The graphs: three programs, and only one of them is this application
+
+This is the part worth reading before running anything, because a command whose pieces you cannot name is a command you cannot debug.
+
+| Piece | What it does | Where it runs |
+| --- | --- | --- |
+| The application | Publishes its numbers as a text page at `/actuator/prometheus`. A snapshot of this instant: no history, no graphs | Your machine, port 8080, started with Maven as always |
+| Prometheus | Asks for that page every five seconds and **remembers** it. That is the history | In Docker, port 9090 |
+| Grafana | **Draws** what Prometheus remembers | In Docker, port 3000 |
+
+Docker has nothing to do with the application. It is only how those two programs are run without installing them, and it is not needed to read the numbers: `curl` or the links on the diagnostics screen are enough for that.
 
 ```
+Grafana (3000)   ->   Prometheus (9090)   ->   application (8080)
+    draws              asks every 5s            /actuator/prometheus
+```
+
+The arrows are the direction of asking, which is the opposite of the direction most people assume: the application sends nothing anywhere, Prometheus comes and takes it. So the application has to be running **first**, or Prometheus spends its time asking a closed door.
+
+What the repository contributes:
+
+```
+compose.yaml                                  which images to start and which of our files to put inside them
+ops/prometheus.yml                            who Prometheus asks, how often, and with which credentials
+ops/grafana/datasources/prometheus.yaml       where Grafana reads from
+ops/grafana/dashboards/bakery.yaml            which dashboards Grafana loads, and it reloads them every ten seconds
+ops/grafana/dashboards/bakery-dashboard.json  the dashboard itself, four rows and twenty three panels
+```
+
+One detail that catches everybody: the target in `ops/prometheus.yml` is `host.docker.internal:8080` and not `localhost:8080`. Inside a container `localhost` is the container, so reaching an application running on the machine outside needs that special name.
+
+In order, then:
+
+```
+# 1. the application, with the kit switched on
+./mvnw spring-boot:run -Pobservability -Dspring-boot.run.profiles=observability
+
+# 2. the two graphing programs, in another terminal
 docker compose up -d prometheus grafana
+
+# 3. the dashboard
 open http://localhost:3000/d/bakery-vaadin
+
+# 4. when you are done
+docker compose stop prometheus grafana
 ```
 
-Grafana is provisioned from `ops/`, so the datasource and the dashboard are there on first start and no clicking is needed. Four rows: traffic, health, locks and chatter, data. Prometheus is on 9090 and scrapes the application every five seconds through `host.docker.internal`, which is how a container reaches an application running outside Docker. Editing `ops/grafana/dashboards/bakery-dashboard.json` lands within ten seconds without restarting anything. `docker compose stop prometheus grafana` when you are done.
+Grafana needs no clicking on first start: the datasource and the dashboard are provisioned from `ops/`. Four rows: traffic, health, locks and chatter, data.
+
+If something is empty, check it in the order the data flows. That the application publishes: `curl -s -u admin@bakery.test:admin localhost:8080/actuator/prometheus | head`. That Prometheus arrives: `http://localhost:9090/targets`, where the target has to be green. Only then Grafana. And panels stay flat until somebody uses the application, because a metric does not exist until something has happened.
 
 What each row answers, and where the metric names came from, is in `specs/07-observability.md`.
 

@@ -48,6 +48,8 @@ public class DiagnosticsView extends VerticalLayout {
     private static final String DEV_COMMAND = "./mvnw spring-boot:run -Pobservability -Dspring-boot.run.profiles=observability";
     private static final String PROD_COMMAND = "./mvnw package -Pobservability -Pproduction\n"
             + "java -jar target/bakery-*.jar --spring.profiles.active=observability";
+    private static final String DASHBOARD_COMMAND = "docker compose up -d prometheus grafana\n"
+            + "open http://localhost:3000/d/bakery-vaadin";
 
     private final PlatformEventRecorder recorder;
     private final OrderQueryCounter orderCounter;
@@ -159,20 +161,33 @@ public class DiagnosticsView extends VerticalLayout {
             panel.add(link(ObservabilityStatus.METRICS_PATH, getTranslation(locale, "diagnostics.kit.metrics")),
                     link(ObservabilityStatus.INSIGHTS_PATH, getTranslation(locale, "diagnostics.kit.insights")),
                     link(ObservabilityStatus.HEALTH_PATH, getTranslation(locale, "diagnostics.kit.health")));
-            var note = new Paragraph(getTranslation(locale, "diagnostics.kit.credentials"));
-            note.addClassName("diagnostics__kit-note");
-            panel.add(note);
-            return panel;
+            panel.add(note(getTranslation(locale, "diagnostics.kit.credentials")));
+        } else {
+            panel.add(new Paragraph(getTranslation(locale, "diagnostics.kit.off",
+                    getTranslation(locale, kit.reason().translationKey()))));
+            panel.add(new Span(getTranslation(locale, "diagnostics.kit.dev")), new Pre(DEV_COMMAND),
+                    new Span(getTranslation(locale, "diagnostics.kit.prod")), new Pre(PROD_COMMAND));
+            panel.add(note(getTranslation(locale, "diagnostics.kit.profileNote")));
         }
 
-        panel.add(new Paragraph(getTranslation(locale, "diagnostics.kit.off",
-                getTranslation(locale, kit.reason().translationKey()))));
-        panel.add(new Span(getTranslation(locale, "diagnostics.kit.dev")), new Pre(DEV_COMMAND),
-                new Span(getTranslation(locale, "diagnostics.kit.prod")), new Pre(PROD_COMMAND));
-        var note = new Paragraph(getTranslation(locale, "diagnostics.kit.profileNote"));
-        note.addClassName("diagnostics__kit-note");
-        panel.add(note);
+        // The graphs, in both states, because the endpoints being reachable is
+        // not the same as anybody having drawn them, and this is the screen
+        // where somebody is looking for that.
+        panel.add(new H3(getTranslation(locale, "diagnostics.kit.dashboard")), new Pre(DASHBOARD_COMMAND),
+                note(getTranslation(locale, "diagnostics.kit.dashboardNote")));
+
+        // And what the three programs are, which is the part that was missing:
+        // the commands were here and nothing said which of them was the
+        // application, which was remembering the numbers and which was drawing
+        // them. Somebody reading a command without that has to guess.
+        panel.add(note(getTranslation(locale, "diagnostics.kit.pieces")));
         return panel;
+    }
+
+    private static Paragraph note(String text) {
+        var note = new Paragraph(text);
+        note.addClassName("diagnostics__kit-note");
+        return note;
     }
 
     /** A link out of the application, so it opens beside it rather than over it. */

@@ -19,6 +19,8 @@ The diagnostics view is the free half and it works in every build, which makes i
 
 Running, it is three links: the metrics, the insights, and health. They open in a new tab and the browser asks for a password, because the actuator chain is stateless and this screen's session does not reach it, which the panel says in as many words.
 
+In both states it also carries the dashboard command and, at the bottom, the sentence that was missing: which of the three programs is the application, which one remembers the numbers and which one draws them. The commands were on the screen and nothing said that, so a reader had to guess. Docker is only how the other two are run, and it is not needed to read the numbers at all.
+
 Not running, it names which of the three switches is off, because "it does not work" sends a reader to the wrong one: the dependency is not in the build, or `vaadin.observability.enabled` is not true, or the actuator is not publishing the endpoint. `ObservabilityStatus` answers that, and it looks the kit up by class name rather than importing it, because the default build does not have it. Then the two commands:
 
 ```
