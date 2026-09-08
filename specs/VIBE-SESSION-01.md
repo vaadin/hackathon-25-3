@@ -70,6 +70,20 @@ Then, with the tool alive, the model called it before adding the lines, and the 
 
 Both AI transcripts also render markdown now, because every model writes it whether or not it was asked to, and a message list shows text.
 
+### What the brief's own list turned up
+
+The prompt asks for signals with as much of their API as possible, for commercial components wherever they fit, and for all of 25.3. Reading the specifications against that produced a short list of arrivals no epic had claimed, and four of them were worth building rather than recording.
+
+`bindValue` was the largest gap in the signals layer, and closing it fixed a bug. The storefront's four filters pushed into their signals through listeners, and the filters are mirrored into the URL and read back out of it, so `/shop?q=croissant` narrowed the catalogue and left the search box empty: a shared link applied a filter nobody could see. Two way bindings make the bar and the signals one thing, and two of the four convert on the way through, because the signal says "no category" with an empty string where the field says it with null.
+
+`addFieldValueChangeListener` gave the counter order screen the line it wanted: which fields the assistant wrote, from the controller's own events rather than from the model's account of itself. The per field marker is the platform's answer to the same question and it is not the same answer, because it clears itself on the first keystroke, which is exactly when somebody asks.
+
+`AssistantHistory`, one session scoped bean keyed by the prompt a panel runs, keeps each assistant's exchange through `getHistory()` and `withHistory()`. Leaving the counter order screen and coming back used to lose the whole transcript while the form kept the values, which is the wrong half to keep. Text only: an eight megabyte photograph per turn held in the session for the sake of a thumbnail is a trade nobody asked for.
+
+`DataFetchObserver` was measured rather than adopted, and the measurement found something else. Every query this application makes already reports itself on the bus, so the observer had nothing to add; but the per caller breakdown in the diagnostics view attributed every fetch in the application to `PlatformEventRecorder`, because it walked the stack for the first `com.vaadin.bakery` frame and a listener runs inside the listener. The 25.3 fetch events carry the component, which is why they take one, so the column now reads `Grid` and `ComboBox (filtered)`.
+
+Two smaller ones: every telephone field asks for a telephone keypad and the catalogue's search box for a search keyboard, through the new `InputMode`, and a product card says it is an `article` through the new `HasAriaRole`.
+
 ## Findings recorded this session
 
 Each of these is a row or a section in `specs/FEEDBACK-25.3.md`, with its reproduction.
@@ -84,6 +98,7 @@ Each of these is a row or a section in `specs/FEEDBACK-25.3.md`, with its reprod
 | A push reconnect during a restart is logged as an application error | Existing row, softened from "every restart" to "often", with a clean restart as the counter example |
 | A lazy grid cannot have a select all checkbox, and cannot be given one | A section rather than a row, written door by door, and corrected in place once `GridContextMenu` proved the wider claim wrong |
 | A `MessageList` handed to the orchestrator renders markdown as text | Every documented example passes a bare `new MessageList()`, and every model writes markdown |
+| A brand new Spring bean hot swaps as `Stable` and is not registered | Same shape as the `@Menu` finding and worse in its effect: the view throws `NoSuchBeanDefinitionException`, and the exception names Spring rather than the loop. The loop already escalates when an existing bean changes shape, and says so in as many words |
 | Knowing that a file reached an `Upload` needs the handler a library owns | The non deprecated path is a `TransferProgressListener` on the handler you construct, so a component whose handler belongs to the orchestrator has no supported way to say a file arrived |
 | `FormLayout` colspan and `setMaxColumns` | Recorded while building the storefront filter row |
 | A documentation gap and a suggestion about the loop's output vocabulary | Both from the sessions above |
@@ -92,9 +107,9 @@ Two entries were withdrawn when their reproducers failed, and both are kept as s
 
 ## What is not done
 
-**Tests have not been run since the first Java edit of this session, deliberately.** That was the user's instruction and it stands. Expected fallout, from reading the diff: the board's action button assertions, `SanitizationTest` against the `SafeHtml` change, `BoardToolbarBrowserlessTest` against the chooser move, anything asserting the old panel structure, and `AssistantOffBrowserlessTest`, whose "offers nothing to type into" now has to mean the fill button and the paste area rather than a message input. The safe order for the gate is `stop`, then `clean verify`, then `start`, because a `clean` also throws away the frontend dev bundle and the first page afterwards takes about two minutes.
+**Tests have not been run since the first Java edit of this session, deliberately.** That is what a vibe coding step is: `specs/PROMPT.md` schedules the polish as two steps, this interactive one where no test is run or written, and an unattended one after it that brings the specifications up to the screens, writes or repairs the tests, and puts the gate back to green. Everything in this section is that second step's work rather than a list of omissions. Expected fallout, from reading the diff: the board's action button assertions, `SanitizationTest` against the `SafeHtml` change, `BoardToolbarBrowserlessTest` against the chooser move, anything asserting the old panel structure, and `AssistantOffBrowserlessTest`, whose "offers nothing to type into" now has to mean the fill button and the paste area rather than a message input. The safe order for the gate is `stop`, then `clean verify`, then `start`, because a `clean` also throws away the frontend dev bundle and the first page afterwards takes about two minutes.
 
-**Owed spec updates.** The cancelled to confirmed transition in `specs/04-security.md`, the conversation's attachments and clipboard paste as not done, the conversation no longer being closed on the staff side, and the panel's fixed phone width. The AI documents are already updated to the screen as it now behaves.
+**Owed spec updates**, for that same pass. The cancelled to confirmed transition in `specs/04-security.md`, the conversation's attachments and clipboard paste as not done, the conversation no longer being closed on the staff side, and the panel's fixed phone width. The AI documents are already updated to the screen as it now behaves.
 
 **One rename.** The counter order screen is still `PhoneOrderView`. The change is mechanical and touches six test files, so it belongs in the test pass.
 

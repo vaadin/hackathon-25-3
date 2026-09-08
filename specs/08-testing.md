@@ -2,6 +2,8 @@
 
 The old app had seven unit tests about date formatting and five TestBench classes. This one treats tests as the definition of done: every acceptance criterion in a feature document is a real test, and every feature document names the class that proves it.
 
+One pass is exempt, by design rather than by drift. During a vibe coding step no test is run and none is written, as **How the work is scheduled** in `00-overview.md` sets out: the screens are still moving, and an assertion argued about while the layout changes is written twice. The suite is expected to be red at the end of such a step, and the unattended pass that follows it repairs the assertions, writes what the new behaviour needs, and puts the gate back to green before anything else is claimed. Definition of done is measured at the end of that pass, never inside the interactive one.
+
 ## Tiers
 
 | Tier | Artifact | Suffix | Runs with | Owns |

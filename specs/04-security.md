@@ -8,7 +8,7 @@ Staff authenticate with email and password. Customers never authenticate: they h
 | --- | --- | --- |
 | `ADMIN` | `ROLE_ADMIN` | Everything, including reopening a picked up order and reading diagnostics |
 | `BAKER` | `ROLE_BAKER` | Kitchen board, the states an order passes through while it is being baked, stock |
-| `BARISTA` | `ROLE_BARISTA` | Counter and phone orders, customers, invoices, every order state |
+| `BARISTA` | `ROLE_BARISTA` | Orders taken by telephone, by email or at the counter, customers, invoices, every order state |
 
 `Role` is an enum. The old app stored a free string, which meant a typo created a role nobody had.
 

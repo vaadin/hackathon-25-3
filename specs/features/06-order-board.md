@@ -56,12 +56,11 @@ The lines of an order are edited in that same panel, and the shape of the editor
 
 ### Taking a new order
 
-The bakery takes orders three ways, and the application has to be able to record all three. Until now it could record only one: the customer's own checkout. The seeded data contains hundreds of counter and phone orders that no part of the application was able to produce.
+An order reaches the bakery two ways, and one of them has three doors. The application has to be able to record all of them. Until now it could record only the customer's own checkout, while the seeded data contains hundreds of orders that no part of the application was able to produce.
 
-- **At the counter.** The board offers to take a new order. It opens the same panel, empty, with the same line editor. The order is recorded as a counter order.
-- **On the telephone.** The assistant screen keeps what it is for, pasting in what the customer said and having the lines worked out from it, and it now records the result. The order is recorded as a phone order.
-- **Online.** Unchanged: the customer's own basket and checkout, recorded as an online order.
-- The counter and the telephone use the same line editor. Somebody who has learned one has learned the other, which is the whole reason for not building two.
+- **The customer's own basket and checkout.** Unchanged, recorded as an online order.
+- **A member of staff taking it.** Two screens, and how the order arrived is a field on both rather than a property of which screen was used: `PHONE`, `EMAIL` or `COUNTER`. The board offers to take one by hand, in the same panel, empty, with the same line editor. The counter order screen takes it from what the customer said or from a photograph of a scribbled note, worked out by the assistant.
+- Both staff screens use the same line editor. Somebody who has learned one has learned the other, which is the whole reason for not building two.
 
 ## Edge cases
 
@@ -112,9 +111,9 @@ The bakery takes orders three ways, and the application has to be able to record
 - [x] The total follows the lines before anything is saved
 - [x] Leaving with unsaved changes asks first
 
-### AC7: All three channels can be recorded
+### AC7: Every channel can be recorded
 - [x] An order taken at the board is recorded as a counter order
-- [x] An order taken on the assistant screen is recorded as a phone order
+- [ ] An order taken on the assistant screen is recorded with the channel chosen on it, `PHONE` by default
 - [x] An order placed by a customer is recorded as an online order
 - [x] The counter and the telephone present the same line editor
 
@@ -161,7 +160,7 @@ The bakery takes orders three ways, and the application has to be able to record
 | BOARD-18 | An order line | Setting its quantity to zero | The line is removed and the total follows | browserless | `OrderEditorBrowserlessTest` |
 | BOARD-19 | An edited order with unsaved changes | Closing the panel | It asks before discarding | browserless | `OrderEditorBrowserlessTest` |
 | BOARD-20 | The board | Taking a new order and saving it | It is recorded as a counter order and appears in the list | browserless | `OrderCreationBrowserlessTest` |
-| BOARD-21 | The assistant screen with lines worked out from pasted text | Saving | It is recorded as a phone order | browserless | `OrderCreationBrowserlessTest` |
+| BOARD-21 | The assistant screen with lines worked out from pasted text | Saving with the channel left at its default, and again with it set to email | The first is recorded as a phone order and the second as an email order | browserless | `OrderCreationBrowserlessTest` |
 | BOARD-22 | A new order with no lines | Saving | Refused, saying why, and nothing is written | browserless | `OrderCreationBrowserlessTest` |
 | BOARD-23 | A baker | Trying to hand an order over or cancel one | Refused, and the order does not move | unit | `OrderServiceTest` |
 | BOARD-24 | A barista and an order the kitchen left behind | Moving it on themselves | Allowed, so the counter can unstick it | unit | `OrderServiceTest` |

@@ -148,7 +148,7 @@ Slots are computed, not stored. A slot is `location` plus `date` plus `time`, it
 | `pickupDate` | LocalDate | `@NotNull` | |
 | `pickupTime` | LocalTime | `@NotNull` | |
 | `state` | OrderState | `@NotNull` | |
-| `channel` | Channel | `@NotNull` | `ONLINE`, `PHONE`, `COUNTER` |
+| `channel` | Channel | `@NotNull` | `ONLINE`, `PHONE`, `EMAIL`, `COUNTER` |
 | `assignedBaker` | User | `@ManyToOne` | Set from the kitchen board |
 | `items` | List&lt;OrderItem&gt; | `@OneToMany(cascade=ALL, orphanRemoval=true) @OrderColumn @NotEmpty @Valid` | |
 | `history` | List&lt;OrderHistoryItem&gt; | `@OneToMany(cascade=ALL) @OrderColumn`, lazy | |

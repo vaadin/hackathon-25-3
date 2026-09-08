@@ -2,6 +2,8 @@
 
 Two halves. Observability Kit 5 gives the production picture, and a diagnostics view built on the new `VaadinService` event bus gives the in application picture that no generic APM can show.
 
+This epic is scheduled last, after the polish passes. It instruments screens rather than shaping them, and instrumenting a screen that is still being redesigned is work done twice. The free half, the diagnostics view, is built; the kit's profile exists and has not been run yet, which is the schedule and not a gap.
+
 ## Observability Kit 5
 
 Behind the `observability` profile.

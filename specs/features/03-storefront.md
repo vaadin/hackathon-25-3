@@ -68,6 +68,7 @@ Product descriptions are written by admins and still pass through the shared jso
 - [x] Choosing a category updates the grid and the URL
 - [x] Excluding an allergen removes every product carrying it
 - [x] Filters survive a page reload because they are in the URL
+- [x] A URL carrying filters shows them in the filter bar, not only in the results. The bindings are two way, so the bar and the signals cannot disagree
 
 ### AC2: Cards are correct
 - [x] Every card shows photo, name, price and allergen chips

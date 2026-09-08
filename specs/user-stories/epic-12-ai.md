@@ -18,9 +18,9 @@
 
 ---
 
-### US-12.2: Phone order form filling
+### US-12.2: Counter order form filling
 
-**As a** barista **I want** the form filled from what the customer said **so that** I can listen instead of type.
+**As a** barista **I want** the form filled from what the customer said, or from a photograph of the note I scribbled while they talked, **so that** I can listen instead of type.
 
 **Tasks:**
 - [ ] `/orders/new` with a `FormLayout` and a `FormAIController`
@@ -28,8 +28,10 @@
 - [ ] Field marker with custom popover content showing the source snippet
 - [ ] Source tracking on, confidence per field displayed
 - [ ] Rejected writes reported back so the model self corrects
+- [ ] One paste area and one button, no chat input beside it, and a photograph that rides with the pasted words in the same turn
+- [ ] How the order arrived is a field on the screen, outside the container field discovery walks
 
-**25.3 APIs:** `FormAIController`, AI field marker, source tracking, confidence levels.
+**25.3 APIs:** `FormAIController`, AI field marker, source tracking, confidence levels, `AIAttachment` and `prompt(message, attachments)`.
 **Verified by:** `FormFillingBrowserlessTest`, `FormFillingGuardrailsBrowserlessTest`
 
 ---

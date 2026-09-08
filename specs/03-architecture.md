@@ -46,7 +46,9 @@ Errors travel as a small `DomainException` hierarchy (`NotFound`, `Conflict`, `R
 
 ## Signals
 
-Signals are the default way state moves between components. The rules:
+Signals are the default way state moves between components, and the brief asks for as much of the signals API as the application can honestly use, so the second table below is part of the specification too: what is used, and what is not used and why. An API left out for a reason is a finding; an API left out because nobody looked is a gap.
+
+The rules:
 
 | Rule | Why |
 | --- | --- |
@@ -59,6 +61,27 @@ Signals are the default way state moves between components. The rules:
 | Anything shared across sessions is a shared signal, subscribed in `whenAttached` and released by the returned registration | Leaks otherwise, and `whenAttached` is the 25.3 way to avoid overriding `onAttach` |
 
 Responsive layout comes from `Page.windowSizeSignal()`, not from media queries in Java. Dark mode is `ui.getElement().getThemeList().bind("dark", darkSignal)`.
+
+### How much of the API is actually used
+
+Counted over `src/main/java` and `src/main/kotlin`, so it can be recounted rather than believed.
+
+| Part of the API | Use |
+| --- | --- |
+| `bindText` | The whole of i18n. Every user visible string is bound through it, which is why switching language redraws nothing and loses no state |
+| `ValueSignal` | The common case, in session scoped beans and inside components |
+| `Signal.computed` | Derived values: the cart total, the filter specification, whether a truncation warning applies |
+| `ListSignal` | Collections that change shape rather than value, the kitchen board's tickets above all |
+| `Signal.effect` | Where a component has no binding to offer, which for a `Grid` is the documented idiom |
+| `SharedValueSignal`, `SharedListSignal` | Everything that crosses sessions: the board, the kitchen, the conversation count per order |
+| `Signal.untracked` | Reading inside an effect without subscribing to it, which is what stops a write from re-triggering its own effect |
+| `bindVisible`, `bindEnabled` | State that decides whether a control is there or usable |
+| `bindValue` on a field | Used by the four storefront filters, and adopting it fixed a bug rather than tidying code. The filters are mirrored into the URL and read back out of it, and with a listener that only writes, `/shop?q=croissant` narrowed the catalogue and left the search box empty: the filter was applied and invisible. Two of the four convert on the way through, because the signal says "no category" with an empty string where the field says it with null, and the allergen signal holds translation keys where the field holds allergens |
+| `bindChildren` | Impossible. It is documented and absent from 25.3.0-beta1, and `base/signals/Children.java` does the same job over a `ListSignal` with `Signal.effect`. Recorded in `FEEDBACK-25.3.md` |
+| `Grid.bindItems` | Does not exist. See the rule above |
+| `bindClassName`, `bindThemeName`, `bindReadOnly`, `bindPlaceholder`, `bindHelperText`, `bindWidth` | Not used. They exist and nothing in this application has needed one yet, which is worth saying rather than leaving as an implied claim of coverage |
+| `MapSignal`, `NumberSignal` | Not used. Nothing here is keyed state or a counter that several writers increment, and forcing one in to tick a box is the opposite of what this application is for |
+| `SignalOperation` results | Used only in tests, where awaiting a write is how a browserless test knows it landed. It is also how the dead signal environment bug in `FEEDBACK-25.3.md` was finally cornered |
 
 ## Data access and grids
 

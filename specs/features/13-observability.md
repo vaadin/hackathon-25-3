@@ -34,6 +34,7 @@ Both are written as assertions, not as screenshots.
 
 ### AC2: The diagnostics view needs no backend
 - [x] Session lock, RPC and data provider panels populate under normal use with the default profile
+- [x] A fetch is attributed to the component that issued it, and a filtered fetch is named as one, from the event rather than from the stack
 
 ### AC3: It proves the Grid claim
 - [x] Toggling the expensive column on the order board does not increase the query counter

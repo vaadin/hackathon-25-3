@@ -27,13 +27,28 @@ After that, each epic ends in a single commit carrying everything it changed. Th
 
 What never travels with an epic is the record of the work rather than the product: the build report, the findings for the Vaadin teams, the note for whoever opens the next session. Those are written as things are discovered and committed on their own at the end, so that reading the history of the application is not the same as reading the diary of building it.
 
+## How the work is scheduled
+
+Four passes, and what may happen in each is part of the specification because mixing them is what produces a codebase nobody can review.
+
+| Pass | What happens | What does not |
+| --- | --- | --- |
+| Specification | These documents, written and validated whole, in one commit | No implementation |
+| Implementation | One unattended session per epic order, each epic ending in one commit, tests written with the code | No interactive polish |
+| Polish, step one: vibe coding | Interactive, with the dev loop running and a browser open. Behaviour and appearance are argued out view by view and changed in seconds | No tests are run and none are written, even at the cost of a red suite. Stopping to fix a test assertion at this tempo costs more than it saves, and the assertions are argued about while the screen is still moving |
+| Polish, step two | Unattended. The specifications are brought up to what the screens now do, the tests are written or repaired, and the gate is green again | No new behaviour |
+
+Observability lands at the end, after the polish passes, because it instruments screens rather than shaping them and instrumenting a screen that is still being redesigned is work done twice.
+
 ## Licensing
 
-This is the full featured version and it expects a Vaadin Pro subscription. GridPro, the AI extensions and Observability Kit are used wherever they are the right tool for the job.
+This is the full featured version and it expects a Vaadin Pro subscription. There is a licence, so a commercial component is the default choice wherever it is the right tool, and choosing a core component in its place needs a reason. What that comes to, so the claim is checkable: `GridPro` edits the catalogue in place, `Crud` owns people and closures, `Dashboard` lays the metrics out, `Charts` draws them, the AI extensions fill the counter order form and answer from the board and the dashboard, and Observability Kit is the production half of epic 13.
+
+Three commercial components are still out, and this is the reason in each case rather than an oversight. Spreadsheet has nothing to do in a bakery that no grid does better. Rich Text Editor loses to Markdown here, because a product description is stored, diffed and rendered as text on a public page, and the specification asks for a live preview of exactly that. Collaboration Kit is replaced by shared signals, which are free, are native to 25.3 and are one of the things this application exists to exercise.
 
 No code here checks a licence, degrades, hides a feature or offers a substitute for one. Vaadin enforces its own terms and does it better than we could: a production frontend build without a licence fails, and development marks what is unlicensed. Our own check would be a second, worse copy of that, in a place with no API to do it properly, and it would double the paths a reader has to hold in their head to understand one screen.
 
-A core only version is contemplated, and when it is written it will be **a separate branch that replaces classes**, not a profile in this one. That keeps both versions readable: each branch is a whole application that compiles, rather than one codebase with a source root, a factory and an interface for every commercial component. It is not written yet, and nothing in this branch is shaped in advance to accommodate it.
+A core only version is the option after the hackathon rather than part of it, and when it is written it will be **a separate branch that replaces classes**, not a profile in this one. That keeps both versions readable: each branch is a whole application that compiles, rather than one codebase with a source root, a factory and an interface for every commercial component. It is not written yet, and nothing in this branch is shaped in advance to accommodate it.
 
 What this rules out, so it is not proposed again: licence probes at runtime, a `commercial` Maven profile in this branch, free fallbacks standing next to commercial components, and any conditional that asks what the machine is allowed to run.
 
@@ -43,7 +58,7 @@ What this rules out, so it is not proposed again: licence probes at runtime, a `
 | --- | --- | --- |
 | Visitor | no | Browses the catalogue, reads product pages, fills a cart, orders as a guest |
 | Customer | no account, holds a tracking link | Follows the order, talks to the bakery, cancels while it is still new, reorders, prints the invoice |
-| Barista | role `BARISTA` | Takes counter and phone orders, edits them, moves them through their states, answers customers |
+| Barista | role `BARISTA` | Takes orders by telephone, by email and at the counter, edits them, moves them through their states, answers customers |
 | Baker | role `BAKER` | Works the kitchen board, claims tickets, marks them ready, watches today at a glance |
 | Admin | role `ADMIN` | Manages catalogue, users, locations, closures and invoices, and reads the metrics |
 
@@ -112,7 +127,7 @@ These are the acceptance tests, written in the language of the actor. Each one i
 | # | Use case |
 | --- | --- |
 | B1 | See today's board grouped by pickup slot |
-| B2 | Take a phone order by pasting what the customer said and letting the assistant fill the form |
+| B2 | Take an order by pasting what the customer said, or by photographing the note scribbled while they talked, and letting the assistant fill the form |
 | B3 | See which fields the assistant filled, with source and confidence, and override any of them |
 | B4 | Find an existing customer by typing part of a name, an email or a phone number |
 | B5 | Create a customer inline when there is no match |
@@ -168,13 +183,13 @@ These are the acceptance tests, written in the language of the actor. Each one i
 | Lead time | Days a product needs between ordering and pickup. The slowest product in a cart sets the earliest date |
 | Closure | A date on which a location does not serve, either a holiday or maintenance |
 | Invoice | An immutable snapshot of a picked up order, numbered per year, with VAT broken out |
-| Channel | Where an order came from: `ONLINE`, `PHONE` or `COUNTER` |
+| Channel | Where an order came from: `ONLINE` when the customer ordered it themselves, and `PHONE`, `EMAIL` or `COUNTER` when a member of staff took it |
 
 ## What we deliberately leave out
 
 Ingredients and stock depletion, staff shifts, delivery and routing, payment gateways, customer accounts with login, loyalty and coupons, multi tenancy. Each is a large modelling exercise that adds almost no Vaadin 25.3 surface. See the rejection table in `01-domain-model.md` for the reasoning per item.
 
-Also out of scope: Tailwind (it competes with the Aura work in epic 12), Spreadsheet, Rich Text Editor, the CRUD component, Collaboration Kit (shared signals cover it natively and cheaper), Hilla, and native image builds.
+Also out of scope: Tailwind (it competes with the Aura work in epic 12), Spreadsheet, Rich Text Editor, Collaboration Kit (shared signals cover it natively and cheaper), Hilla, and native image builds. The reasoning for the three commercial ones is under Licensing. `Crud` was on this list and is not any more: people and closures are built with it.
 
 ## 25.3 feature coverage
 
@@ -216,21 +231,40 @@ Every feature lands in exactly one epic. If an epic is cut, this table says what
 | `UI.getLastUpdateSentTimestamp`, undelivered invocation warnings | 13 |
 | Observability Kit 5, Interaction Insights, UI state size, per view JDBC, Web Vitals | 13 |
 | Browserless multi user and multi window testing | 14 |
+| Copilot Kotlin support | 14, the about view is written in Kotlin |
+| Copilot Test Recorder, FormLayout editor, All Components view | 14, documented in the demo script |
 
 What of that list did not land, as of this pass:
 
 | Feature | State |
 | --- | --- |
 | `bindChildren` | Does not exist in 25.3.0-beta1, whatever the documentation says. `base/signals/Children.java` does the same job with `Signal.effect`. See `FEEDBACK-25.3.md` |
-| Charts with a free fallback | Only the fallback is built. Charts is not a dependency and no panel draws one |
-| Form AI controller, field marker, source tracking, confidence | Not built. `vaadin-ai-extensions-flow` is a dependency that nothing imports |
-| Grid AI controller | Not built |
-| `ToolException` and background execution | Unused. The orchestrator, the interceptor and the response metadata are all exercised |
+| Charts with a free fallback | Built the other way round to the plan. `vaadin-charts-flow` is a dependency and the dashboard draws with it, so the free fallback is what is now unused. One Charts bug is reproduced in `specs/issues/` |
+| Form AI controller, field marker, source tracking, confidence | Built. The controller fills the counter order form and the marker carries our own popover content. Two of the four do not work and neither is our doing: no model has ever reported a source, and the marker's badge does not open its popover. Both are rows in `FEEDBACK-25.3.md` and both criteria are left unticked |
+| Grid AI controller | Built. The board assistant fills a grid of its own from a query over the three guarded views |
+| `ToolException` and background execution | Used. Every tool of ours refuses through `ToolException`, and those refusals are what the model corrects itself from: a product the catalogue does not sell, a quantity out of range, a closed or full slot, a pickup the form would not take |
 | Clipboard paste | The component is wired into the product editor and the conversation. Proving it needs a real paste event, so it waits on `ClipboardPasteIT` |
-| Observability Kit 5 | The profile exists and nothing runs it, in the suite or in CI. The diagnostics view is fed by the free service event bus instead, which is the more interesting half |
+| Observability Kit 5 | The profile exists and nothing runs it. Scheduled rather than missing: observability lands after the polish passes, as **How the work is scheduled** says. The diagnostics view is fed by the free service event bus instead, which is the more interesting half and is built |
 | X-Frame-Options and URL scheme validation | Never configured explicitly. Whatever Spring Security defaults to is what this application does |
-| MessageList attachments | The uploads are built and untested |
+| MessageList attachments | Withdrawn. The composer's upload did not work, so it is removed rather than left on the screen, and `09-conversation.md` records the criterion as not done |
 
 Everything else on the list is in the application and covered. The one arrival since the table was written is the live assistant: `SpringAILLMProvider` ships inside `vaadin-ai-core-flow`, which is free, and epic 12 now wires it.
-| Copilot Kotlin support | 14, the about view is written in Kotlin |
-| Copilot Test Recorder, FormLayout editor, All Components view | 14, documented in the demo script |
+
+### 25.3 arrivals no epic claims
+
+The brief asks for all of 25.3, so what is not claimed has to be named, with a decision. Checked against the documentation server's own list of what 25.3 and 25.2 introduced, and against the code, so each row is a fact rather than an impression. An API left out for a reason is a finding; one left out because nobody looked is a gap, and these are the ones nobody had looked at.
+
+| Arrival | Decision |
+| --- | --- |
+| `RpcInvocationStartedEvent` and its family | Adopted while writing this. The diagnostics view listened on the deprecated `RpcInvocationEvent`, and now counts the started event instead. `NativeTable` was already the new `Table` family everywhere |
+| AI `addFieldValueChangeListener` | Taken. A line under the button says which fields the assistant wrote, built from the controller's own events rather than from the model's account of itself, so it survives the first keystroke where the per field marker does not |
+| AI conversation history and session persistence | Taken. `AssistantHistory`, one session scoped bean, keyed by the prompt a panel runs: every panel hands its history back at the end of each turn through `getHistory()` and asks for it again through `withHistory()` when it is rebuilt, so leaving a screen and coming back no longer loses the exchange. Text only, because keeping an eight megabyte photograph per turn in the session for the sake of a thumbnail is a trade nobody asked for |
+| Grid and chart query validation hooks | Already taken, and the row as first written was wrong. The controllers validate every query they are about to run, and the documented way to opt into the refusal reaching the model is to throw `ToolException` from `DatabaseProvider.executeQuery`, which `BakeryDatabase` has always done. What that class adds on top, three views and nothing else, one statement, `SELECT` only, 500 rows, five seconds, is not something the platform offers |
+| `DataFetchObserver` | Measured, and not needed. It exists so that a query a component runs outside a data provider can be reported on the same bus, and every query this application makes already goes through one: resetting the counters and filtering the lazy customer lookup moved them by itself. What the measurement did find was ours: the per caller breakdown attributed every fetch in the application to `PlatformEventRecorder`, because it walked the stack for the first `com.vaadin.bakery` frame and a listener runs inside the listener. The fetch events carry the component, which is why they take one, so the column now reads `Grid` and `ComboBox (filtered)` |
+| `DateRange`, DateTimePicker initial position, Grid programmatic scrolling, checkbox style variants, Text Field value change modes | Not needed by any screen as specified. Recorded so that nobody claims coverage of them |
+| `InputMode`, `HasAriaRole` | Taken. Every telephone field asks for a telephone keypad and the catalogue's search box for a search keyboard, which is the whole of the difference on a phone at the counter. A product card is an `article`, so a screen reader can offer to skip from one product to the next. `HasAriaDescription` is not taken: nothing here has a description to point a field at that its own helper text does not already carry |
+| `SplitLayout` splitter position and its i18n | Out. There is no split layout in the application: the panels are `MasterDetailLayout`, which is the better fit for a board with a detail |
+| LangChain4j provider | Out. One provider, the real one, is the rule in `06-ai.md`, and a second wiring proves nothing this application is asking |
+| `TemporaryFileUploadHandler` | Out. Both uploads here are in memory by design: a product photo goes to the database and a note photograph goes to the model. Nothing needs a file on disk |
+| Geolocation, Fullscreen, Wake Lock, Web Share, Page Visibility, Screen Orientation | Out, and this is the one place where the brief and the application disagree on purpose. A bakery has no use for any of them, and the last line of **What we are building** stands: where a 25.3 API does not fit a real need, we do not force it. Clipboard is the exception and is used |
+| Load testing with Playwright | Out of this branch. It is a test tier of its own and the suite already has four |
