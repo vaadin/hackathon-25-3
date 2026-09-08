@@ -48,4 +48,8 @@ No project needed, but a real model is: the parse happens while the request is b
 2. Put an unescaped `"` inside a description in its schema
 3. Send one prompt that should call it
 
+### State of this report
+
+Seen in a running application with a real provider, and not reduced to a minimal project: reproducing it needs an OpenAI key and one live turn. Everything above is what the application did, not what the API suggests it would do.
+
 Found on 25.3.0-beta1 with `vaadin-ai-core-flow` and Spring AI 2.0.0.

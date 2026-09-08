@@ -28,4 +28,8 @@ The badge opens the popover.
 
 Needs a licence and a model: fill one field through a real turn, then click the badge.
 
+### State of this report
+
+Seen in a running application with a real provider, and not reduced to a minimal project: reproducing it needs an OpenAI key and a commercial licence. Everything above is what the application did, not what the API suggests it would do.
+
 Found on 25.3.0-beta1 with `vaadin-ai-extensions-flow`.

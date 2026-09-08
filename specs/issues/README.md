@@ -56,7 +56,7 @@ Each of these has a reproduction somebody else can run in a few minutes.
 | `34-devloop-tooling-notes.md` | flow | Four small things, one of which blocks installation |
 | `35-ai-api-requests.md` | flow | Three things the API cannot do |
 | `36-server-side-gaps.md` | flow | An absolute URL, and asking what is licensed |
-| `37-testbench-cdp-blocked.md` | testbench | The cast to `HasCdp` fails against the proxy |
+| `37-testbench-cdp-blocked.md` | testbench | The proxy's interface list, and the unwrap loop that our own print test uses |
 | `38-dark-mode-two-mechanisms.md` | flow | `38-dark-mode/`, a button per mechanism and the measured colours |
 | `39-imported-css-blocked-by-security.md` | flow | `39-imported-css/`, two curl commands and one heading that stays black |
 | `40-upload-file-arrived-event.md` | flow-components | An `Upload` whose handler belongs to the orchestrator |
@@ -134,12 +134,13 @@ Both feedback files were read row by row and each row now has one of four destin
 
 | Destination | How many | Where it went |
 | --- | --- | --- |
-| Drafted as an issue | 39 drafts covering most of the rows, several of them bundling a family | This directory |
-| Real, not yet reduced | 3 | The table above, each with what it needs |
+| Drafted as an issue | 39 drafts, several of them bundling a family of rows | This directory, 20 of them with a project zip |
+| Corrected by their own reproduction | 4 | Still real, saying something different: the table above |
+| Real, not yet reduced | 4 | The not ready table, each with what it needs |
 | Not a report, it was our own rule | 9 | The specifications: `08-testing.md`, `10-dev-loop.md`, `03-architecture.md` |
-| Withdrawn or not reproducible | 7 | Deleted, with the lesson from each in the table above |
+| Withdrawn or not reproducible | 8 | Deleted, with the lesson from each in the table above |
 | Positive, worth saying anyway | 10 | `REPORT.md`, under what worked exactly as advertised |
 
 Some drafts deliberately carry several rows, because the rows shared one root: `22` is four browserless differences, `30` is seven documentation gaps, `34` is four dev loop notes, `35` is three AI API requests, `45` is four behaviours older than this release.
 
-Three drafts need something the reader may not have, and each says so at the bottom: a Charts licence for `09`, an OpenAI key for `13`, `28`, `29` and `41`, and both for `42`.
+Seven drafts need something the reader may not have, and each says so at the bottom: a Charts licence for `09`, an OpenAI key for `13`, `28` and `29`, and both for `27`, `41` and `42`. Those are also the seven that have not been reproduced outside this application: everything in them was seen here, with a real provider, and none of it has been reduced to a project. A live run is what they need, and it is the last piece of work this directory is missing.

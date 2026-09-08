@@ -36,4 +36,8 @@ Expose the column as text in the database view: `cast(o.pickup_time as varchar)`
 
 Any `GridAIController` over a view with a `TIME` column, and one question that selects it. Needs a licence and a model.
 
+### State of this report
+
+Seen in a running application with a real provider, and not reduced to a minimal project: reproducing it needs an OpenAI key and a Grid Pro licence. Everything above is what the application did, not what the API suggests it would do.
+
 Found on 25.3.0-beta1.
