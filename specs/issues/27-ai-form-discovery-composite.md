@@ -34,8 +34,16 @@ var form = new FormLayout(new NamePart(), new EmailField("Email"));
 new FormAIController(form);   // the model sees Email and not Name
 ```
 
-### State of this report
+### What a live run showed
 
-Seen in a running application with a real provider, and not reduced to a minimal project: reproducing it needs an OpenAI key and the commercial form controller. Everything above is what the application did, not what the API suggests it would do.
+Reproduced with the project below. A `FormLayout` with two `TextField` children and one `Composite` whose content holds a third field, source tracking on, one live turn against `gpt-4o-mini`:
+
+```
+name                         value=Ana Torres               source=(none)
+phone                        value=600123456                source=(none)
+note (inside the Composite)  value=(empty)                  source=(none)
+```
+
+Stronger than the row that started this: the nested field was passed to `describeField`, so the application named it explicitly, and it was still never offered to the model and never filled. Describing a field the walker did not find does not add it.
 
 Found on 25.3.0-beta1 with `vaadin-ai-extensions-flow`.

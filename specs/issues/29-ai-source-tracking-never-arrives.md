@@ -34,8 +34,15 @@ Put `confidence` and `extracts` in the `fill_form` schema, so the model is asked
 
 Any `FormAIController` with source tracking on, a real key, and one prompt that fills a field. Then `getFieldSource` on that field.
 
-### State of this report
+### What a live run showed
 
-Seen in a running application with a real provider, and not reduced to a minimal project: reproducing it needs an OpenAI key, source tracking on, and one live turn. Everything above is what the application did, not what the API suggests it would do.
+Reproduced with the project below, `setSourceTrackingEnabled(true)`, one clean turn against `gpt-4o-mini` that filled two fields:
+
+```
+name    value=Ana Torres    source=(none)
+phone   value=600123456     source=(none)
+```
+
+The field marker renders and its popover opens, and what it has to say is "This field value was modified by AI." and a Revert Value button. Nothing about where the value came from, because there is nothing to say.
 
 Found on 25.3.0-beta1 with `vaadin-ai-extensions-flow` and Spring AI 2.0.0.

@@ -36,8 +36,21 @@ Expose the column as text in the database view: `cast(o.pickup_time as varchar)`
 
 Any `GridAIController` over a view with a `TIME` column, and one question that selects it. Needs a licence and a model.
 
-### State of this report
+### What a live run showed
 
-Seen in a running application with a real provider, and not reduced to a minimal project: reproducing it needs an OpenAI key and a Grid Pro licence. Everything above is what the application did, not what the API suggests it would do.
+Reproduced with the project below: one table, `appointments(id INT, who VARCHAR, at TIME, on_day DATE)`, and the question "List every appointment with who it is for and its time".
+
+The model wrote the obvious SQL, `SELECT who AS "For", at AS "Time" FROM appointments`, and the grid rendered nothing. In the log:
+
+```
+java.lang.UnsupportedOperationException
+    at java.sql.Time.toInstant(Time.java:281)
+    at com.vaadin.flow.component.ai.grid.GridFormatting.formatValue(GridFormatting.java:55)
+    at com.vaadin.flow.component.ai.grid.GridRenderer.lambda$addColumn$d4d9cbbd$4(GridRenderer.java:121)
+```
+
+`java.sql.Time.toInstant` throws by contract: a TIME has no date, so it cannot be an instant. Any query that selects a TIME column reaches that line.
+
+The application is told nothing. The response listener reports no error, the assistant says it listed the appointments, and the grid stays empty.
 
 Found on 25.3.0-beta1.

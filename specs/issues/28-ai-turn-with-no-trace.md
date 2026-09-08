@@ -31,8 +31,29 @@ Any `GridAIController` over a `DatabaseProvider` whose `executeQuery` throws som
 
 Needs a real model, because the failure is inside a turn.
 
-### State of this report
+### What a live run showed
 
-Seen in a running application with a real provider, and not reduced to a minimal project: reproducing it needs an OpenAI key and a query the model cannot answer. Everything above is what the application did, not what the API suggests it would do.
+Reproduced with the project below, on two questions against `gpt-4o-mini`.
+
+The first one succeeds as far as the model is concerned and fails in the grid, and this is what the three surfaces said:
+
+| Surface | What it showed |
+| --- | --- |
+| Message list | "I have listed every appointment along with who it is for and its time. You can view the details in the grid." |
+| Grid | Nothing. Zero columns |
+| Response listener | Called once, `error: (none)` |
+
+The failure, `UnsupportedOperationException` from `java.sql.Time.toInstant`, is in the log and nowhere else.
+
+The second question makes the query fail. The listener was **not called at all**, the assistant's bubble was added and left empty, and the grid kept the previous question's columns. A person watching sees an empty answer and no reason.
+
+One correction to the row above: `ResponseEvent` carries no metadata to read. The whole class is
+
+```java
+public String getResponse();
+public Optional<Throwable> getError();
+```
+
+so a turn meter has nothing to count, and an application that wants token usage has to reach past the orchestrator to the provider.
 
 Found on 25.3.0-beta1 with `vaadin-ai-core-flow`.

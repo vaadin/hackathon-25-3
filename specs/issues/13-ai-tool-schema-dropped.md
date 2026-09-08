@@ -13,7 +13,7 @@ was expecting comma to separate Object entries
  at [Source: REDACTED; line: 4, column: 93]
 ```
 
-and then goes to the model with the other tools and without that one.
+twice per turn, at ERROR, from a class the application never called. The `[Source: REDACTED]` and the line and column are the only clues, and they point into a string the application cannot see.
 
 Ours was invalid because `\"soonest\"` in a Java text block emits an unescaped quote:
 
@@ -48,8 +48,14 @@ No project needed, but a real model is: the parse happens while the request is b
 2. Put an unescaped `"` inside a description in its schema
 3. Send one prompt that should call it
 
-### State of this report
+### What a live run showed, and what it corrected
 
-Seen in a running application with a real provider, and not reduced to a minimal project: reproducing it needs an OpenAI key and one live turn. Everything above is what the application did, not what the API suggests it would do.
+Reproduced with the project below, against `gpt-4o-mini`, with two tools: `set_name` with a valid schema and `set_pickup` with the broken one.
+
+**The tool is not dropped.** Both were offered and both were called, once each, and the turn answered correctly: "I set the customer's name to Ana Torres and the pickup for tomorrow at 09:00." The counters on the page prove the executions.
+
+What is real is the diagnosis. The error is logged twice per turn, it names Jackson and a column in a redacted source, and it never names the tool whose schema is broken. An application with a dozen tools has to bisect them to find out which one it is, while nothing appears to be wrong.
+
+The first version of this report said the tool went missing from the request. That was inferred from a turn where the model did not call our pickup tool, and the reason was the model, not the schema.
 
 Found on 25.3.0-beta1 with `vaadin-ai-core-flow` and Spring AI 2.0.0.
