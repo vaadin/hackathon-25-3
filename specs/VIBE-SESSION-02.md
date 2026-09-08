@@ -10,7 +10,7 @@ The same as session 01: the dev loop running, a headed Chrome driven through Pla
 
 Nineteen reproducer projects, one or two classes each, and thirty nine issue drafts. Every draft that can be reproduced links a zip of its project, so a reader downloads one file and runs one command.
 
-The interesting number is the other one. **Eight findings died and three were corrected**, and every single one of them was killed or corrected by building the project, never by rereading the row.
+The interesting number is the other one. **Ten findings died and five were corrected**, and every single one of them was killed or corrected by building the project, never by rereading the row.
 
 | Finding | What the project showed |
 | --- | --- |
@@ -22,6 +22,8 @@ The interesting number is the other one. **Eight findings died and three were co
 | The login overlay's CSRF field is empty and dangerous | The field is empty and harmless: a scripted submit signs in either way, because CSRF is not enforced on that POST in a default setup |
 | `LicenseChecker` answers the same for a product that does not exist | Kept as a note, not as an issue: nothing in it is a defect |
 | TestBench blocks CDP | It does not. Unwrap the proxy with `WrapsDriver` and CDP works, which is what our own print test has been doing all along. Two tests, green, in a real Chrome |
+| The AI field marker's badge does not open its popover | It opens, with a real mouse click through the driver |
+| A GridPro cell does not enter edit mode from a double click | It does, with a real double click through the driver. Two findings, one cause, one afternoon: both were about a gesture nobody performed |
 
 And the three corrections, which changed the application as well as the report:
 
@@ -30,6 +32,7 @@ And the three corrections, which changed the application as well as the report:
 | A lazy Grid cannot have a select all checkbox | `VISIBLE` works, through `setItems` and through `setItemsPageable`, and selects every row the count callback reports. `HIDDEN` is the setting that is not honoured: the checkbox is rendered anyway and ticks without selecting. The board offered exactly that inert control for as long as it asked for it to be hidden |
 | `Upload` has no non-deprecated arrival event | Three listeners are not deprecated, and one of them, `ProgressUpdateEvent`, carries the file name and the byte counts, so `readBytes == contentLength` is a working arrival signal. Poor, and not nothing |
 | Dark mode: the theme attribute does nothing | It does nothing under Aura. Under Lumo it is the mechanism that works, and the colour scheme moves only the text |
+| A tool whose schema is not valid JSON is dropped | It is not. Both tools were offered and both were called, and the turn answered correctly. What is real is that the error names Jackson and never names the tool |
 
 ## What changed in the application
 
@@ -38,9 +41,17 @@ And the three corrections, which changed the application as well as the report:
 - **`Children.java` is gone**, replaced by `bindChildren` in three views.
 - The CSV export takes a snapshot on the UI thread and answers `DownloadResponse.error` when the export fails, which is unrelated to any bug we could reproduce and is right anyway.
 
+## The live AI round
+
+The six findings that had only ever been seen inside this application were run again in a bare project, against `gpt-4o-mini`, with a licence and a key on the machine. Four were confirmed with what the run printed, one was corrected and one was withdrawn, and the round turned up three findings nobody had written down:
+
+- **A turn looped on `get_form_state` 150 times in 2 minutes 11 seconds** and stopped because the application was killed. There is no cap on tool call rounds. Ask a form for a field it does not have and this is what happens, and it is somebody's money.
+- **`withResponseListener` holds no session lock**, so the natural body of the listener throws and the orchestrator swallows it. That is why our turn meter read zero for an afternoon.
+- **`fill_form` called on the provider's own thread never returns.** It waits for the lock that thread already holds. Reduced with a fifteen line provider and a `@Timeout`, which is the only reason the test ends rather than hangs.
+
 ## What is still open
 
-Four findings are real here and not reduced anywhere else: a push reconnect logged as an error during a restart, a signal bound text that cannot be rebound, a tool call on the UI thread deadlocking `FormAIController`, and a GridPro cell that ignores a synthesised double click. Six more need an OpenAI key or a commercial licence to see at all, and each says so at the bottom of its draft.
+Two findings are real here and not reduced anywhere else: a push reconnect logged as an error during a restart, and a signal bound text that cannot be rebound.
 
 Nothing has been posted. Thirty nine drafts, each with a repository and a title, are in `specs/issues/`, and the command that posts one is in that directory's README.
 

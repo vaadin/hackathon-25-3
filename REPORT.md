@@ -94,9 +94,12 @@ All of them, with the workaround and the file it lives in, are in `specs/FEEDBAC
 | A new Spring bean hot swaps as `Stable` and is not registered | The first injection throws, and the loop said the change was live |
 | `MenuConfiguration.getPageHeader` is called with no route parameters | The browser tab and the page header come from one generator and disagree |
 | Dark mode has two mechanisms and they are not equivalent | An application has to set both, and nothing says so |
+| An AI turn can loop on one tool until the process is killed | 150 calls in two minutes on one button press, with no round cap and nothing on screen to say it is happening |
+| `fill_form` on the provider's own thread never returns | A provider that calls its tools synchronously, which the one method interface invites, deadlocks on the session lock |
+| A `GridAIController` grid renders nothing for a SQL TIME column | `java.sql.Time.toInstant` throws by contract, and the application is told nothing: the assistant says it listed the rows |
 | `mvn vaadin:install-dev-cli` does not exist | Declare `flow-maven-plugin` and use `mvn flow:install-dev-cli` |
 
-Three problems this table used to name are gone, because somebody built a project to reproduce them and they did not survive it: `bindChildren` exists and this application now calls it, `LazyDataView.getItems()` counts correctly, and an exception inside `Signal.effect` is logged at error level with its stack. Every finding, the corrections included, is in `specs/issues/`, one file per report with the project that reproduces it attached.
+Five problems this table used to name are gone, because somebody built a project to reproduce them and they did not survive it. `bindChildren` exists and this application now calls it. `LazyDataView.getItems()` counts correctly. An exception inside `Signal.effect` is logged at error level with its stack. And two were about a gesture nobody performed: the AI field marker's badge opens its popover and a GridPro cell enters edit mode, both from a real mouse rather than a synthesised event. Every finding, the corrections included, is in `specs/issues/`, one file per report with the project that reproduces it attached.
 
 `specs/FEEDBACK-25.3.md` also lists what worked exactly as advertised, which is most of it.
 

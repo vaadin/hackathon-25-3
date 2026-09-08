@@ -48,4 +48,15 @@ Capture the UI when the component attaches and wrap the body:
 
 The project below, route `/grid`. The listener writes to a `Pre`. Without `ui.access` the block keeps saying "no turn yet" and the log carries the exception above; with it, the same listener prints the turn.
 
+### Getting the project
+
+[`ai-live.zip`](https://github.com/vaadin/hackathon-25-3/raw/ea604a95b7f10720590dcd71c0e6955068f1d223/specs/issues/projects/ai-live.zip), 10 KB, sources only: four routes, one per finding, and the feature flag file the AI components need.
+
+```
+export OPENAI_API_KEY=...
+mvn spring-boot:run
+```
+
+Then `http://localhost:8140/grid`. It really calls the model, so it costs a few cents a run.
+
 Found on 25.3.0-beta1.

@@ -48,4 +48,15 @@ grep -c "Executing tool call: get_form_state" target/run.log
 
 The first button, which names only the fields the controller found, completes normally in one round and clears `ai-working`, so the two buttons are the same code and the difference is the sentence.
 
+### Getting the project
+
+[`ai-live.zip`](https://github.com/vaadin/hackathon-25-3/raw/ea604a95b7f10720590dcd71c0e6955068f1d223/specs/issues/projects/ai-live.zip), 10 KB, sources only: four routes, one per finding, and the feature flag file the AI components need.
+
+```
+export OPENAI_API_KEY=...
+mvn spring-boot:run
+```
+
+Then `http://localhost:8140/form`. It really calls the model, so it costs a few cents a run.
+
 Found on 25.3.0-beta1, `vaadin-ai-extensions-flow`, with `gpt-4o-mini`.

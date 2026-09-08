@@ -56,4 +56,15 @@ public Optional<Throwable> getError();
 
 so a turn meter has nothing to count, and an application that wants token usage has to reach past the orchestrator to the provider.
 
+### Getting the project
+
+[`ai-live.zip`](https://github.com/vaadin/hackathon-25-3/raw/ea604a95b7f10720590dcd71c0e6955068f1d223/specs/issues/projects/ai-live.zip), 10 KB, sources only: four routes, one per finding, and the feature flag file the AI components need.
+
+```
+export OPENAI_API_KEY=...
+mvn spring-boot:run
+```
+
+Then `http://localhost:8140/grid`. It really calls the model, so it costs a few cents a run.
+
 Found on 25.3.0-beta1 with `vaadin-ai-core-flow`.
