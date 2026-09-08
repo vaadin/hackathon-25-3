@@ -28,13 +28,13 @@ Commit the file with the flags the application needs, and never call `setEnabled
 
 ### Reproduce
 
-[`25-featureflags/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/25-featureflags), then `mvn test`. The test asserts the project has no flags file, calls `setEnabled`, and finds one. It deletes it again afterwards.
+[`25-featureflags.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/25-featureflags.zip), then `mvn test`. The test asserts the project has no flags file, calls `setEnabled`, and finds one. It deletes it again afterwards.
 
 ### Getting the project
 
+[`25-featureflags.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/25-featureflags.zip), 3 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/25-featureflags
 mvn test
 ```
 

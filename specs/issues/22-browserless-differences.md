@@ -26,7 +26,7 @@ A "how the browserless environment differs" page would cover all four.
 
 ### Reproduce
 
-[`22-browserless-differences/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/22-browserless-differences), then `mvn test`. Two tests, and they say different things:
+[`22-browserless-differences.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/22-browserless-differences.zip), then `mvn test`. Two tests, and they say different things:
 
 - `navigationCannotCarryAQueryString` **passes**: it documents the refusal, and that the tier wraps what the router throws, so the message is on the cause.
 - `aPageTitleGeneratorBeanReachesTheTitle` **fails**, `expected: <computed by the generator> but was: <>`. That failure is the finding.
@@ -37,9 +37,9 @@ Found on 25.3.0-beta1 with browserless-test 1.2.0-alpha2.
 
 ### Getting the project
 
+[`22-browserless-differences.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/22-browserless-differences.zip), 5 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/22-browserless-differences
 mvn test
 ```
 

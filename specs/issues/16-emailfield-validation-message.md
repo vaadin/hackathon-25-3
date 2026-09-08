@@ -27,13 +27,13 @@ Build the field through a factory that sets an error message explicitly.
 
 ### Reproduce
 
-[`16-emailfield-message/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/16-emailfield-message), then `mvn test`. One test, and it passes: the text field reads `must be a well-formed email address` and the email field reads the empty string.
+[`16-emailfield-message.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/16-emailfield-message.zip), then `mvn test`. One test, and it passes: the text field reads `must be a well-formed email address` and the email field reads the empty string.
 
 ### Getting the project
 
+[`16-emailfield-message.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/16-emailfield-message.zip), 4 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/16-emailfield-message
 mvn test
 ```
 

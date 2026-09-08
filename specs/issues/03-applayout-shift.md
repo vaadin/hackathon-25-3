@@ -7,7 +7,7 @@ On a cold load, `AppLayout` paints the view at the full window width and then re
 
 ### Reproduction
 
-[`03-applayout-shift/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/03-applayout-shift) is a project of two classes: a shell with a drawer, and a view that samples its own width every twenty milliseconds and prints each change. Run it with `mvn spring-boot:run`, open port 8093 and **reload**, because an in application navigation does not shift.
+[`03-applayout-shift.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/03-applayout-shift.zip) is a project of two classes: a shell with a drawer, and a view that samples its own width every twenty milliseconds and prints each change. Run it with `mvn spring-boot:run`, open port 8093 and **reload**, because an in application navigation does not shift.
 
 What it printed at a 1400 pixel viewport, with a drawer 84 pixels wide:
 
@@ -45,9 +45,9 @@ Do not compare an absolute width against one read earlier. Read a width and its 
 
 ### Getting the project
 
+[`03-applayout-shift.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/03-applayout-shift.zip), 4 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/03-applayout-shift
 mvn spring-boot:run
 ```
 

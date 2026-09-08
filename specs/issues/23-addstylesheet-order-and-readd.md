@@ -28,7 +28,7 @@ Win on specificity instead of order: `html:root` beats the plain `html` both the
 
 ### Reproduce
 
-The re-add half is in [`38-dark-mode/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/38-dark-mode), route `/swap`. `mvn spring-boot:run`, then `http://localhost:8138/swap` and press the buttons in order, listing `link[rel=stylesheet]` after each one:
+The re-add half is in [`38-dark-mode.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/38-dark-mode.zip), route `/swap`. `mvn spring-boot:run`, then `http://localhost:8138/swap` and press the buttons in order, listing `link[rel=stylesheet]` after each one:
 
 | After | Sheets on the page |
 | --- | --- |
@@ -48,9 +48,9 @@ The order half is not reduced. It is real in an application that swaps two sheet
 
 ### Getting the project
 
+[`38-dark-mode.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/38-dark-mode.zip), 4 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/38-dark-mode
 mvn spring-boot:run
 ```
 

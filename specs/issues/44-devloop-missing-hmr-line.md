@@ -29,7 +29,7 @@ Report both halves of a mixed change set.
 
 ### Reproduce
 
-[`10-devloop/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/10-devloop), which has one stylesheet and three views. With a page open at `/first`, so that there is a browser to push to:
+[`10-devloop.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/10-devloop.zip), which has one stylesheet and three views. With a page open at `/first`, so that there is a browser to push to:
 
 Edit only the colour in `src/main/resources/META-INF/resources/styles/app.css`, then apply:
 
@@ -55,9 +55,9 @@ Found on 25.3.0-beta1 with `flow-devloop-daemon` 25.3.0-beta1.
 
 ### Getting the project
 
+[`10-devloop.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/10-devloop.zip), 6 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/10-devloop
 mvn spring-boot:run
 ```
 

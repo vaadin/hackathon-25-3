@@ -31,7 +31,7 @@ Until then, a warning when a pom edit triggers a full recompile would help.
 
 ### Reproduce
 
-[`10-devloop/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/10-devloop) carries it: a `Ticket` entity, a `Tickets` repository with the query above, and a `/ticket` view that calls it. H2 in memory, no configuration.
+[`10-devloop.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/10-devloop.zip) carries it: a `Ticket` entity, a `Tickets` repository with the query above, and a `/ticket` view that calls it. H2 in memory, no configuration.
 
 1. `mvn flow:install-dev-cli`, then `.vaadin/vaadin-dev start`
 2. `.vaadin/vaadin-dev apply` after any edit to those classes. The outcome is green: `compiling -> runtime -> Stable`
@@ -66,9 +66,9 @@ Recovery: `stop`, `mvn clean compile`, `start`.
 
 ### Getting the project
 
+[`10-devloop.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/10-devloop.zip), 6 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/10-devloop
 mvn spring-boot:run
 ```
 

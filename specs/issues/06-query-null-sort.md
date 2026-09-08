@@ -32,13 +32,13 @@ Pass `List.of()`.
 
 ### Reproduce
 
-[`06-query-null-sort/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/06-query-null-sort): a grid filled with `setItemsPageable` and two buttons, one passing a null sort order list and one passing an empty one. The first prints the stack trace above, the second answers with the rows.
+[`06-query-null-sort.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/06-query-null-sort.zip): a grid filled with `setItemsPageable` and two buttons, one passing a null sort order list and one passing an empty one. The first prints the stack trace above, the second answers with the rows.
 
 ### Getting the project
 
+[`06-query-null-sort.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/06-query-null-sort.zip), 3 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/06-query-null-sort
 mvn spring-boot:run
 ```
 

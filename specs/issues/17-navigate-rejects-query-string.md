@@ -30,13 +30,13 @@ Either accept a query string in the string form and split it, or name the overlo
 
 ### Reproduce
 
-[`22-browserless-differences/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/22-browserless-differences), then `mvn test`. `navigationCannotCarryAQueryString` passes, and what it asserts is this refusal.
+[`22-browserless-differences.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/22-browserless-differences.zip), then `mvn test`. `navigationCannotCarryAQueryString` passes, and what it asserts is this refusal.
 
 ### Getting the project
 
+[`22-browserless-differences.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/22-browserless-differences.zip), 5 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/22-browserless-differences
 mvn test
 ```
 

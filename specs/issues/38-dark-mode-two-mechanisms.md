@@ -20,7 +20,7 @@ One mechanism, or a page that says there are two and which theme reads which. If
 
 ### Reproduce
 
-[`38-dark-mode/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/38-dark-mode). `mvn spring-boot:run`, then `http://localhost:8138/`: a button per mechanism and a button per theme, with no theme declared on the app shell so neither leaks into the other.
+[`38-dark-mode.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/38-dark-mode.zip). `mvn spring-boot:run`, then `http://localhost:8138/`: a button per mechanism and a button per theme, with no theme declared on the app shell so neither leaks into the other.
 
 Load a theme, press a dark button, and read the computed style of the body. Measured:
 
@@ -35,9 +35,9 @@ The bottom right cell is worth a second look on its own: under Lumo the colour s
 
 ### Getting the project
 
+[`38-dark-mode.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/38-dark-mode.zip), 4 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/38-dark-mode
 mvn spring-boot:run
 ```
 

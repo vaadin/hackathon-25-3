@@ -20,7 +20,7 @@ Either do not render the checkbox when the visibility rule says select all is no
 
 ### Reproduce
 
-[`20-grid-selectall-lazy/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/20-grid-selectall-lazy). `mvn spring-boot:run`, then two routes.
+[`20-grid-selectall-lazy.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/20-grid-selectall-lazy.zip). `mvn spring-boot:run`, then two routes.
 
 `http://localhost:8120/only-default` is the bug on its own page: one lazy grid, multi select, nothing else. The measurement, clicking the header checkbox once on a freshly loaded page:
 
@@ -48,9 +48,9 @@ The enum's own documentation is part of why nobody tried: `VISIBLE` says it show
 
 ### Getting the project
 
+[`20-grid-selectall-lazy.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/20-grid-selectall-lazy.zip), 5 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/20-grid-selectall-lazy
 mvn spring-boot:run
 ```
 

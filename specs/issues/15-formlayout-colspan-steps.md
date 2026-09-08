@@ -26,7 +26,7 @@ For the auto responsive half: say in the `setMaxColumns` documentation that the 
 
 ### Reproduce
 
-[`15-formlayout-colspan/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/15-formlayout-colspan). `mvn spring-boot:run`, then two routes.
+[`15-formlayout-colspan.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/15-formlayout-colspan.zip). `mvn spring-boot:run`, then two routes.
 
 `/steps` is the form above: four fields, steps at 1, 2 and 4 columns, and `setColspan(search, 3)`. The component lays it out with inline percentage widths, so the spans are readable as widths. Measured at three container widths:
 
@@ -42,9 +42,9 @@ The middle row is the one to look at. Three columns clamps to two, which is the 
 
 ### Getting the project
 
+[`15-formlayout-colspan.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/15-formlayout-colspan.zip), 3 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/15-formlayout-colspan
 mvn spring-boot:run
 ```
 

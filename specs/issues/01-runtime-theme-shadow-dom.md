@@ -23,7 +23,7 @@ So a string written for a screen reader is painted on screen, in English, inside
 
 ### Reproduction
 
-Two projects in [`01-grid-selectall/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/01-grid-selectall) and [`01b-test-runtime-theme/`](https://github.com/vaadin/hackathon-25-3/tree/9cf6235d4bf170002c44ac69c0d51063376828ba/specs/issues/01b-test-runtime-theme), identical except for one line. Run either with `mvn spring-boot:run`.
+Two projects in [`01-grid-selectall.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/01-grid-selectall.zip) and [`01b-test-runtime-theme.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/01b-test-runtime-theme.zip), identical except for one line. Run either with `mvn spring-boot:run`.
 
 | | Declared theme (port 8090) | `addStyleSheet` at runtime (port 8091) |
 | --- | --- | --- |
@@ -59,12 +59,12 @@ Declaring `@Theme` fixes it properly and gives up choosing the theme at runtime.
 
 ### Getting the project
 
+[`01-grid-selectall.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/01-grid-selectall.zip), 3 KB, sources only. Unzip it and:
+
 ```
-git clone --branch manolo --depth 1 https://github.com/vaadin/hackathon-25-3
-cd hackathon-25-3/specs/issues/01-grid-selectall
 mvn spring-boot:run
 ```
 
-The second project, `01b-test-runtime-theme`, is beside it and differs by one line.
+The second project, [`01b-test-runtime-theme.zip`](https://github.com/vaadin/hackathon-25-3/raw/1e50ad1f28e0c668ef34f8a87d9cec8ad8ab4626/specs/issues/projects/01b-test-runtime-theme.zip), differs from it by one line.
 
 Found on 25.3.0-beta1.
