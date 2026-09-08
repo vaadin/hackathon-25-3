@@ -1,5 +1,5 @@
 REPO: vaadin/flow
-TITLE: A tool whose parameter schema is not valid JSON is dropped, and the turn continues without it
+TITLE: An invalid tool schema logs a Jackson error that never names the tool
 
 ---
 ### Description

@@ -22,6 +22,8 @@ A GitHub issue cannot carry a file attachment through the API, so the projects s
 
 Nothing here keeps an unzipped copy: `.gitignore` refuses one. Unzip somewhere else, and if a project changes, zip it back over the file in `projects/`.
 
+`TO-POST.md` beside this file is the posting list: every draft with its repository, whether it is a defect or a request, whether somebody else can run it, and which zip it needs.
+
 ## Ready to post
 
 Each of these has a reproduction somebody else can run in a few minutes.
