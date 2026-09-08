@@ -20,6 +20,11 @@ final class UnsavedChanges {
         editor.addLinesChangeListener(event -> pending = true);
     }
 
+    /** Something else changed: a state picked in a field, for instance. */
+    void touched() {
+        pending = true;
+    }
+
     /** Nothing is at stake any more: the panel was saved, or freshly rendered. */
     void settled() {
         pending = false;

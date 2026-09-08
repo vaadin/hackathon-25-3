@@ -201,33 +201,50 @@ public class OrderLineEditor extends Composite<Div> implements HasEnabled {
         private final Div layout;
 
         private Row() {
-            Translations.bind(product, product::setLabel, "board.editor.product");
+            // Placeholders rather than labels. A label is a 25 pixel band above
+            // every field, and six fields down a phone-width panel spend 150
+            // pixels saying "Product", "Quantity" and "Comment" three times
+            // each. The words stay as the accessible names.
+            Translations.bind(product, product::setPlaceholder, "board.editor.product");
+            Translations.bind(product, product::setAriaLabel, "board.editor.product");
             product.setItems(products);
             // A product name is a product name in every language, so this one
             // is set once rather than dressed up as a locale binding.
             product.setItemLabelGenerator(Product::getName);
 
-            Translations.bind(quantity, quantity::setLabel, "board.editor.quantity");
+            Translations.bind(quantity, quantity::setAriaLabel, "board.editor.quantity");
             quantity.setMin(0);
             quantity.setMax(99);
             quantity.setStepButtonsVisible(true);
             quantity.setValue(1);
 
-            Translations.bind(comment, comment::setLabel, "board.editor.comment");
+            Translations.bind(comment, comment::setPlaceholder, "board.editor.comment");
+            Translations.bind(comment, comment::setAriaLabel, "board.editor.comment");
             Translations.bind(remove, remove::setAriaLabel, "board.editor.remove");
             remove.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
 
+            product.addClassName("order-editor__product");
+            quantity.addClassName("order-editor__quantity");
+            comment.addClassName("order-editor__comment");
+            remove.addClassName("order-editor__remove");
             price.addClassName("order-editor__price");
             Translations.bindText(price, locale -> {
                 revision.get();
                 var chosen = product.getValue();
                 var count = quantity.getValue() == null ? 0 : quantity.getValue();
-                return chosen == null ? "" : gross(chosen, count).format(locale);
+                // Zero rather than nothing on the empty trailing row: an
+                // absent price collapses its column and the row above it stops
+                // lining up with the rest.
+                return chosen == null ? Money.ZERO.format(locale) : gross(chosen, count).format(locale);
             });
 
             setEnabled(false);
+            price.setClassName("order-editor__price--pending", true);
             product.addValueChangeListener(event -> {
                 setEnabled(event.getValue() != null);
+                // The trailing row's zero is a placeholder holding its column
+                // open, not a price, so it reads as one.
+                price.setClassName("order-editor__price--pending", event.getValue() == null);
                 // Filling what is currently the last row is what earns a new
                 // empty one. Bulk loading appends its own trailing row once,
                 // explicitly, so this side effect stays out of its way.

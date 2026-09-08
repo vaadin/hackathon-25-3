@@ -23,13 +23,47 @@
   align-items: center;
 }
 
+/* The browse group takes the row so that the actions inside it have something
+   to be pushed to the end of. */
+.order-board__browse {
+  flex: 1 1 auto;
+}
+
 .order-board__browse vaadin-text-field {
   min-width: 18rem;
 }
 
-/* The chooser is a menu of one icon, so it does not need a button's padding. */
-.order-board__master vaadin-grid vaadin-menu-bar {
-  --vaadin-menu-bar-button-padding: 0 var(--vaadin-gap-xs, .25rem);
+/* The actions sit at the end of the row, whatever is in front of them. */
+.order-board__actions {
+  display: flex;
+  gap: var(--vaadin-gap-s, .5rem);
+  align-items: center;
+  margin-inline-start: auto;
+}
+
+/*
+ * One icon, so no padding anywhere: not around the button, and not in the grid
+ * cell holding it, whose own padding was what pushed the icon 7px off the
+ * centre of a 40px column.
+ */
+.column-chooser {
+  --vaadin-button-padding: 0;
+  min-width: 0;
+  display: block;
+  margin-inline: auto;
+}
+
+vaadin-grid-cell-content:has(.column-chooser),
+vaadin-grid-cell-content:has(.order-board__edit) {
+  padding: 0;
+}
+
+/* One icon in the narrowest column the board has. */
+.order-board__edit {
+  --vaadin-button-padding: 0;
+  min-width: 0;
+  display: block;
+  margin-inline: auto;
 }
 
 .order-detail__timeline > div {
@@ -75,33 +109,28 @@
 .order-board__band {
   container-type: inline-size;
   padding-block: var(--vaadin-gap-m, 1rem);
-}
-
-.order-board__band > * {
-  width: 100%;
-  max-width: 52rem;
-  margin-inline: auto;
-}
-
-.order-board__tiles {
+  /*
+   * One flow of equal boxes: a box per order line, then a box of allergens and
+   * a box of history beside them. As many columns as fit, all the same width,
+   * and a row's boxes all as tall as its tallest, which is what makes them read
+   * as one set of cards rather than three stacked sections.
+   */
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
   gap: var(--vaadin-gap-s, .5rem);
 }
 
-@container (min-width: 30rem) {
-  .order-board__tiles {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+/* The tiles container stops being a box of its own so that its tiles are boxes
+   in the band's grid, level with the allergens and the history. */
+.order-board__tiles {
+  display: contents;
 }
 
-@container (min-width: 46rem) {
-  .order-board__tiles {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
-.order-board__tile {
+/* Every box in the band is the same box: the quantity ones, the allergen one
+   and the history one. */
+.order-board__tile,
+.order-board__band-allergens,
+.order-board__band-history {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -110,9 +139,11 @@
   padding: var(--vaadin-gap-s, .5rem);
   background: var(--vaadin-background-container, rgba(0, 0, 0, .04));
   border-radius: var(--vaadin-radius-m, 8px);
+  box-sizing: border-box;
 }
 
-/* The number is the thing being read, so it is read first. */
+/* The number is the thing being read across a counter, so it stays the largest
+   thing in the band. */
 .order-board__tile-quantity {
   font-size: 1.6rem;
   font-weight: 700;
@@ -130,19 +161,34 @@
   font-style: italic;
 }
 
-.order-board__band-allergens,
-.order-board__band-history {
-  display: flex;
+.order-board__band-allergens {
+  flex-direction: row;
   flex-wrap: wrap;
-  gap: var(--vaadin-gap-s, .5rem);
-  margin-block-start: var(--vaadin-gap-m, 1rem);
+  align-content: center;
+  justify-content: center;
+  gap: .25rem;
 }
 
 .order-board__band-history {
-  flex-direction: column;
-  gap: .1rem;
-  opacity: .75;
+  justify-content: center;
+  /* The states fill the column, so stop centring their boxes to their text. */
+  align-items: stretch;
+  gap: .25rem;
   font-size: .9em;
+}
+
+/*
+ * Each state is a badge the width of its column, in a cool tint so it cannot be
+ * mistaken for the warm allergen chips beside it: one of these is what happened
+ * to the order, the other is what is in it.
+ */
+.order-board__band-history > * {
+  padding: .2rem .5rem;
+  border-radius: var(--vaadin-radius-s, 6px);
+  background: light-dark(rgba(25, 59, 103, .10), rgba(192, 213, 242, .16));
+  color: light-dark(#1c3757, #dbe7f7);
+  font-weight: 500;
+  box-sizing: border-box;
 }
 
 .order-board__master {
@@ -154,11 +200,203 @@
   box-sizing: border-box;
 }
 
+/*
+ * A body that scrolls and a footer that does not. The total and the save button
+ * are what somebody wants while reading the middle of a long order, and those
+ * are exactly what a single scrolling column takes away.
+ */
 .order-detail {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
+  padding: 0;
+  box-sizing: border-box;
+  /* A vertical layout aligns its children to the start, so a body and a footer
+     that used to be the panel itself came out as wide as their contents: 573
+     and 292 pixels inside an 823 pixel panel. */
+  align-items: stretch;
+}
+
+.order-detail__body {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
   overflow-y: auto;
   padding: var(--vaadin-gap-m, 1rem);
   box-sizing: border-box;
+}
+
+.order-detail__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vaadin-gap-m, 1rem);
+}
+
+.order-detail__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vaadin-gap-m, 1rem);
+  flex-wrap: wrap;
+}
+
+.order-detail__header h2 {
+  margin: 0;
+  /* The reference is an identifier, not a headline: at heading size it pushed
+     the state field onto a line of its own. */
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/*
+ * The order's facts as boxes that flow: who, which number, which counter, when,
+ * and the note if there is one. Each carries an icon so the kind of fact is
+ * legible before the value is read, and the note takes a row of its own because
+ * it is the only one whose length is unknown.
+ */
+.order-detail__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vaadin-gap-xs, .25rem);
+  margin-block: var(--vaadin-gap-s, .5rem);
+}
+
+.order-detail__fact {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .12rem .5rem;
+  border-radius: 999px;
+  background: var(--vaadin-background-container, rgba(0, 0, 0, .04));
+  border: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .08));
+  font-size: .9em;
+  white-space: nowrap;
+}
+
+.order-detail__fact vaadin-icon {
+  width: 0.95em;
+  height: 0.95em;
+  color: var(--vaadin-text-color-secondary, currentColor);
+  flex: 0 0 auto;
+}
+
+.order-detail__fact--note {
+  flex: 1 1 100%;
+  white-space: normal;
+  align-items: start;
+  border-radius: var(--vaadin-radius-m, 8px);
+}
+
+.order-detail__fact--note vaadin-icon {
+  margin-block-start: .25em;
+}
+
+.order-detail__footer {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  /* Buttons together on the left, the number alone on the right. */
+  justify-content: flex-start;
+  gap: var(--vaadin-gap-m, 1rem);
+  padding: var(--vaadin-gap-m, 1rem);
+  border-top: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
+  background: var(--bakery-raised, var(--vaadin-background-color, #fff));
+}
+
+/* The panel has a total in its footer, so the editor's own is one number twice.
+   It stays on the phone order screen, where there is no footer. */
+.order-detail .order-editor__total {
+  display: none;
+}
+
+.order-detail__total {
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-inline-start: auto;
+}
+
+/*
+ * Every state has a colour, and the colour says how much it wants somebody's
+ * attention: a solid fill for the two that do, a tint for the ones that are
+ * simply true, and a grey for the two that are over. The same pairs colour the
+ * badge on the board and the state field in the panel, so one order does not
+ * change colour when you open it.
+ */
+.state-chip,
+.order-detail__state {
+  --state-fill: light-dark(rgba(25, 59, 103, .10), rgba(192, 213, 242, .16));
+  --state-ink: light-dark(#1c3757, #dbe7f7);
+}
+
+/*
+ * Dark ink on a light tint of the same hue, one hue per meaning: blue for an
+ * order nobody has looked at, warm neutral for one that is accepted, amber for
+ * one in the oven, green for one that is ready and a quieter green for one that
+ * has gone, red for a problem and grey for a cancellation. Subtle on purpose:
+ * a board of fourteen rows should read as a list with colour in it, not as a
+ * set of traffic lights.
+ */
+[data-state="NEW"] {
+  --state-fill: light-dark(#e7eefb, rgba(120, 170, 255, .16));
+  --state-ink: light-dark(#1f4e8c, #b9d3f7);
+}
+
+[data-state="CONFIRMED"] {
+  --state-fill: light-dark(#eceae4, rgba(230, 220, 205, .14));
+  --state-ink: light-dark(#4a4034, #e2d7c6);
+}
+
+[data-state="IN_PREPARATION"] {
+  --state-fill: light-dark(#fdf0da, rgba(240, 180, 90, .16));
+  --state-ink: light-dark(#8a5a09, #f2c98a);
+}
+
+[data-state="READY"] {
+  --state-fill: light-dark(#e3f2e8, rgba(80, 190, 130, .16));
+  --state-ink: light-dark(#1c6b3f, #a6dcbd);
+}
+
+[data-state="PICKED_UP"] {
+  --state-fill: light-dark(#eef3ef, rgba(150, 200, 170, .12));
+  --state-ink: light-dark(#4a6b57, #bcd4c6);
+}
+
+[data-state="PROBLEM"] {
+  --state-fill: light-dark(#fbe6e4, rgba(220, 100, 90, .18));
+  --state-ink: light-dark(#97231c, #f3b4ae);
+}
+
+[data-state="CANCELLED"] {
+  --state-fill: light-dark(#f0eeec, rgba(220, 210, 205, .10));
+  --state-ink: light-dark(#6b625b, #cdc4bd);
+}
+
+.state-chip {
+  display: inline-block;
+  padding: .1rem .5rem;
+  border-radius: var(--vaadin-radius-s, 6px);
+  background: var(--state-fill);
+  color: var(--state-ink);
+  font-size: .9em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* The field is the status light: it wears the state it holds. */
+.order-detail__state::part(input-field) {
+  background: var(--state-fill);
+}
+
+/* The value sits in an input slotted from the light DOM, so the ink goes on the
+   input itself: a descendant of a ::part() cannot reach a slotted child. */
+.order-detail__state input,
+.order-detail__state::part(input-field) {
+  color: var(--state-ink);
+  font-weight: 600;
 }
 
 /*
@@ -178,11 +416,27 @@
   align-self: stretch;
 }
 
+/*
+ * Wide enough for one row: product, quantity, comment, price, remove. The text
+ * tracks are minmax(0, ...) so they shrink instead of pushing the last columns
+ * out, and the price track is fixed rather than auto so every row's remove
+ * cross lands in the same place: an auto track is as wide as its own number,
+ * and "€6.16" and "€24.20" are not the same width.
+ */
 .order-editor__row {
   display: grid;
-  grid-template-columns: 2fr 6rem 2fr 6rem 3rem;
+  grid-template-columns: minmax(0, 2fr) 5.5rem minmax(0, 2fr) 4.5rem 2.25rem;
   gap: var(--vaadin-gap-s, .5rem);
   align-items: end;
+}
+
+.order-editor__row > * {
+  min-width: 0;
+}
+
+/* A placeholder holding its column open, not a price. */
+.order-editor__price--pending {
+  opacity: .45;
 }
 
 .order-editor__price {
@@ -199,19 +453,121 @@
   margin-block: var(--vaadin-gap-m, 1rem);
 }
 
+/*
+ * Narrow, which is now every order panel. Two lines per item and no wasted
+ * column: the product with its quantity and its remove cross, then the comment
+ * with the price at the end of it. Three lines and a price of its own read as a
+ * form per item rather than as a list of items.
+ */
 @container (max-width: 34rem) {
   .order-editor__row {
-    grid-template-columns: 1fr 4rem 3rem;
+    grid-template-columns: minmax(0, 1fr) 5.5rem 1.75rem;
+    column-gap: var(--vaadin-gap-xs, .25rem);
+    /* Two pixels, so the comment reads as its own field rather than as the
+       bottom half of the product above it. */
+    row-gap: 2px;
+    align-items: end;
+    padding-block-end: var(--vaadin-gap-s, .5rem);
+  }
+
+
+  .order-editor__row .order-editor__product {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .order-editor__row .order-editor__quantity {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .order-editor__row .order-editor__remove {
+    grid-column: 3;
+    grid-row: 1;
+    /* Every field is one input tall now, so the cross belongs on their line
+       rather than at the bottom of a cell that is taller than they are. */
+    align-self: center;
+  }
+
+  .order-editor__row .order-editor__comment {
+    grid-column: 1;
+    grid-row: 2;
   }
 
   .order-editor__row .order-editor__price {
-    grid-column: 1 / -1;
+    grid-column: 2 / -1;
+    grid-row: 2;
+    text-align: end;
+    align-self: center;
+  }
+
+  /* A stepper does not need room for four digits. */
+  .order-editor__row .order-editor__quantity {
+    --vaadin-field-default-width: 5.5rem;
+  }
+
+  /*
+   * Every field carries 20 pixels of its own vertical padding, 16 above and 4
+   * below, which on six fields in a phone-width panel is 120 pixels of nothing.
+   * The label lives inside the field's own block, so taking the padding away
+   * costs no label room: measured, 77 pixels a field becomes 57.
+   */
+  .order-editor__row vaadin-combo-box,
+  .order-editor__row vaadin-integer-field,
+  .order-editor__row vaadin-text-field {
+    padding-block: 0;
   }
 }
 
 .phone-order__ai-form {
   display: grid;
   gap: var(--vaadin-gap-m, 1rem);
+}
+
+/* The title and how the order arrived, on one line, the field the size of its
+   longest word rather than the size of the page. */
+.phone-order__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--vaadin-gap-m, 1rem);
+}
+
+.phone-order__header h2 {
+  margin: 0;
+  flex: 1;
+}
+
+.phone-order__channel {
+  --vaadin-field-default-width: 11rem;
+  padding-block: 0;
+}
+
+/*
+ * Everything the assistant is given, and everything it says, in one block the
+ * width of the form under it. A vertical layout aligns its children to the
+ * start, so without this the paste area and the answer were each as wide as
+ * their own contents.
+ */
+.phone-order__assistant {
+  display: grid;
+  gap: var(--vaadin-gap-s, .5rem);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* The one control that acts on the paste area, and the photograph beside it.
+   The upload is a file list with a button in it, so it brings its own block
+   margins: they go, or the line is taller than the button. */
+.phone-order__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vaadin-gap-s, .5rem);
+}
+
+.phone-order__photo {
+  padding: 0;
 }
 
 /* The marker's popover content: a confidence badge over the words the value
@@ -236,10 +592,83 @@
   content: close-quote;
 }
 
+/*
+ * The panel and everything in it fill the width they are given. Both hosts are
+ * vertical layouts, which align their children to the start, so the question
+ * box, the answer and the meter were each as wide as their own contents.
+ */
+.board-ask,
+.ask-panel {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* The panel's own padding, rather than a vertical layout's default, so the
+   content is as wide as the panel minus one gap. */
+.board-ask {
+  padding: var(--vaadin-gap-m, 1rem);
+}
+
 .ask-panel {
   display: grid;
+  grid-template-columns: 100%;
   gap: var(--vaadin-gap-s, .5rem);
-  margin-block-start: var(--vaadin-gap-l, 1.5rem);
+  margin-block-start: var(--vaadin-gap-m, 1rem);
+}
+
+.ask-panel > * {
+  min-width: 0;
+}
+
+.ask-panel vaadin-message-input,
+.ask-panel vaadin-message-list,
+.ask-panel .board-ask__answers {
+  width: 100%;
+}
+
+/*
+ * The question box is a row of two, and the field already takes what the button
+ * does not: the 40 pixels left over were the component's own 16 pixel side
+ * padding, which is right for a chat window floating in a page and wrong for a
+ * panel that has its own. The field keeps flexing; the padding goes.
+ */
+.ask-panel vaadin-message-input {
+  padding-inline: 0;
+}
+
+.ask-panel vaadin-message-input vaadin-text-area {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+/*
+ * A paper plane instead of the word.
+ *
+ * The glyph goes on the label part and not on the button itself: a shadow
+ * host's ::after is treated as a light DOM child, and a light DOM child with
+ * nowhere to be slotted is never painted, which is why the first attempt
+ * produced an empty 16 pixel button. The mask follows the current colour, so
+ * the icon inherits the button's own ink in both colour schemes.
+ */
+.ask-panel vaadin-message-input-button {
+  min-width: 0;
+}
+
+.ask-panel vaadin-message-input-button::part(label) {
+  font-size: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ask-panel vaadin-message-input-button::part(label)::after {
+  content: "";
+  display: block;
+  width: 1.15rem;
+  height: 1.15rem;
+  background: currentColor;
+  mask: center / contain no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 20.5v-6l8-2.5-8-2.5v-6l19 8.5z'/%3E%3C/svg%3E");
 }
 
 .ask-panel .dashboard__asked {
@@ -274,4 +703,49 @@
 .assistant-off p {
   margin: 0;
   opacity: .85;
+}
+
+/*
+ * One order, one chronology, one line each. A message component stacks name,
+ * time and text into three rows, which on a log of fifteen entries is a column
+ * of dates rather than a history. The time lives inside the text, so what is
+ * left to do here is put the header back on the same line as the message.
+ */
+/*
+ * A log, not a chat. The avatar and the name column between them took half the
+ * width of a phone-width panel and left the text wrapping after three words,
+ * which is what made every entry look like a broken column. So: no avatar, and
+ * the name inline with the text, both flowing as one sentence.
+ */
+.conversation--merged vaadin-message {
+  padding-block: .15rem;
+}
+
+.conversation--merged vaadin-message::part(avatar) {
+  display: none;
+}
+
+.conversation--merged vaadin-message vaadin-avatar {
+  display: none;
+}
+
+.conversation--merged vaadin-message::part(content) {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--vaadin-gap-xs, .25rem);
+}
+
+.conversation--merged vaadin-message::part(header) {
+  flex: 0 0 auto;
+}
+
+.conversation--merged vaadin-message::part(name) {
+  font-weight: 600;
+}
+
+.conversation--merged vaadin-message::part(message) {
+  white-space: normal;
+  flex: 1 1 auto;
+  min-width: 0;
 }

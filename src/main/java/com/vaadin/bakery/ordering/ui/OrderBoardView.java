@@ -29,6 +29,8 @@ import com.vaadin.flow.component.masterdetaillayout.MasterDetailLayout;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -76,6 +78,7 @@ public class OrderBoardView extends MasterDetailLayout {
     private final Grid<Order> grid = new Grid<>();
     private final ValueSignal<String> search = new ValueSignal<>("");
     private final ValueSignal<Boolean> includePast = new ValueSignal<>(false);
+    private final Grid.Column<Order> editColumn;
     private final Grid.Column<Order> referenceColumn;
     private final Grid.Column<Order> customerColumn;
     private final Grid.Column<Order> slotColumn;
@@ -83,7 +86,6 @@ public class OrderBoardView extends MasterDetailLayout {
     private final Grid.Column<Order> summaryColumn;
     private final Grid.Column<Order> channelColumn;
     private final Grid.Column<Order> totalColumn;
-    private final Grid.Column<Order> chooserColumn;
 
     public OrderBoardView(OrderRepository orders, OrderService orderService, OrderQueryCounter counter,
             CurrentUser currentUser, SlotService slots) {
@@ -103,6 +105,13 @@ public class OrderBoardView extends MasterDetailLayout {
         // there is no select all to offer.
         selection.setSelectAllCheckboxVisibility(
                 GridMultiSelectionModel.SelectAllCheckboxVisibility.HIDDEN);
+        // The checkbox stays hidden, and that is not a preference. The board
+        // pages its rows, and a lazy grid cannot offer select all: the enum
+        // says so, VISIBLE "shows the select all checkbox, if in-memory data is
+        // used". Forcing it visible through the column itself is possible and
+        // is worse than nothing, because the click then selects no rows at all.
+        // The whole investigation, and what the toolbar does instead, is the
+        // select all row in specs/FEEDBACK-25.3.md.
         grid.setSizeFull();
 
         // Accessible names for the checkboxes and the sorters. The grid takes
@@ -130,6 +139,15 @@ public class OrderBoardView extends MasterDetailLayout {
         });
 
         // A column is not in the component tree, so the grid owns the binding.
+        // The panel opens from a column of its own rather than from a double
+        // click: a double click is invisible, and on a board where a single
+        // click expands the row it is also a gesture nobody discovers. The
+        // column is as narrow as an icon and frozen, so it stays reachable when
+        // the columns to its right are scrolled.
+        editColumn = grid.addComponentColumn(this::editButton).setKey("edit")
+                .setWidth("2.75rem").setFlexGrow(0).setFrozen(true)
+                .setTextAlign(com.vaadin.flow.component.grid.ColumnTextAlign.CENTER);
+
         referenceColumn = grid.addColumn(Order::getReference)
                 .setKey("reference").setSortProperty("reference").setAutoWidth(true);
         Translations.bind(grid, referenceColumn::setHeader, "board.column.reference");
@@ -159,29 +177,54 @@ public class OrderBoardView extends MasterDetailLayout {
         Translations.bind(grid, totalColumn::setHeader, "board.column.total");
         totalColumn.setVisible(false);
 
-        // The chooser lives in the header of a column of its own, frozen to the
-        // end, which is where a table's own settings are looked for. It is not
-        // one of the columns it lists, so it cannot turn itself off.
-        chooserColumn = grid.addColumn(order -> "").setKey("chooser")
-                .setWidth("4.5rem").setFlexGrow(0).setFrozenToEnd(true);
-        chooserColumn.setHeader(columnChooser());
+        // The columns menu opens from the table's own header, over any header
+        // cell including the select all one, which is the nearest thing the API
+        // has to a control in that cell. GridSelectionColumn extends Component
+        // rather than AbstractColumn, so it has no header API, and neither the
+        // default header row nor a prepended one has a cell for it: measured,
+        // and written up in the select all section of FEEDBACK-25.3.md.
+        //
+        // Built here, after every column it lists exists, because it reads
+        // their visibility.
+        columnChooser();
 
         // Details are independent of selection in 25.3, so expanding a row to
         // read its comments does not change what the bulk actions will act on.
         grid.setItemDetailsRenderer(new ComponentRenderer<>(this::details));
         grid.setDetailsVisibleOnClick(false);
 
-        grid.addItemClickListener(event -> grid.setDetailsVisible(event.getItem(),
-                !grid.isDetailsVisible(event.getItem())));
+        // One row expanded at a time. Several open bands turn the board into a
+        // wall of tiles with the queue lost between them, and the band is a
+        // glance at one order rather than a comparison of many.
+        grid.addItemClickListener(event -> {
+            var wasOpen = grid.isDetailsVisible(event.getItem());
+            collapseExpanded();
+            if (!wasOpen) {
+                expanded = event.getItem();
+                grid.setDetailsVisible(expanded, true);
+            }
+        });
 
-        grid.addItemDoubleClickListener(event -> getUI().ifPresent(ui ->
-                ui.navigate(ROUTE + "/" + event.getItem().getReference())));
+        // Escape collapses the band. The layout already gives Escape to the
+        // panel when one is open, and that one asks about unsaved work, so this
+        // only acts when there is nothing open over the board.
+        com.vaadin.flow.component.Shortcuts.addShortcutListener(this, () -> {
+            if (!isPanelOpen()) {
+                collapseExpanded();
+            }
+        }, com.vaadin.flow.component.Key.ESCAPE);
 
         setSizeFull();
         var master = new Div(toolbar(), grid);
         master.addClassName("order-board__master");
         setMaster(master);
-        setDetailSize("32rem");
+        // A phone's width, fixed, so the panel looks the same on every screen
+        // and the editor inside it has one shape to be right in rather than a
+        // range. The master takes the slack: with neither side expanding, the
+        // layout leaves the difference belonging to nobody, which on a 1428px
+        // window was 180 pixels of blank panel to the right of the scrollbar.
+        setDetailSize(DEFAULT_DETAIL_SIZE);
+        setExpandMaster(true);
         setOverlayContainment(MasterDetailLayout.OverlayContainment.LAYOUT);
 
         // Escape and a click outside are the two ways everybody already knows.
@@ -194,6 +237,29 @@ public class OrderBoardView extends MasterDetailLayout {
         // Three cells are translated or formatted by their value provider, and
         // only a reload makes the grid ask for them again.
         Translations.onLocale(this, locale -> applyFilter(search.get(), includePast.get()));
+    }
+
+    /** The panel width the board hands out unless a panel asks for more. */
+    private static final String DEFAULT_DETAIL_SIZE = "26rem";
+
+    /**
+     * Widens the panel area for a panel that needs it, and
+     * {@link #resetPanelWidth} puts it back. The board owns the number so that
+     * a panel which widens and then closes cannot leave every later panel wide.
+     */
+    public static void widenPanel(Component panel, String size) {
+        board(panel).ifPresent(board -> board.setDetailSize(size));
+    }
+
+    public static void resetPanelWidth(Component panel) {
+        board(panel).ifPresent(board -> board.setDetailSize(DEFAULT_DETAIL_SIZE));
+    }
+
+    private static java.util.Optional<OrderBoardView> board(Component panel) {
+        return panel.getUI().flatMap(ui -> ui.getInternals().getActiveRouterTargetsChain().stream()
+                .filter(OrderBoardView.class::isInstance)
+                .map(OrderBoardView.class::cast)
+                .findFirst());
     }
 
     /**
@@ -215,6 +281,9 @@ public class OrderBoardView extends MasterDetailLayout {
      * list. The two on the right act on whatever is ticked, and they are dark
      * until something is, which is the only honest way to say what they need.
      */
+    /** The one row whose details band is open, so opening another closes it. */
+    private Order expanded;
+
     private Div toolbar() {
         var field = new TextField();
         Translations.bind(field, field::setPlaceholder, "board.search.placeholder");
@@ -226,20 +295,24 @@ public class OrderBoardView extends MasterDetailLayout {
         Translations.bind(past, past::setLabel, "board.showPast");
         past.addValueChangeListener(event -> includePast.set(event.getValue()));
 
-        var take = Translations.bindText(new Button("",
-                event -> getUI().ifPresent(ui -> ui.navigate(ROUTE + "/" + NewOrderView.SEGMENT))), "board.new");
-        take.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        var take = iconAction(VaadinIcon.PLUS, "board.new",
+                () -> getUI().ifPresent(ui -> ui.navigate(ROUTE + "/" + NewOrderView.SEGMENT)));
         // NewOrderView is closed to a baker, so the board does not offer them
         // a button whose only outcome is being refused.
         take.setVisible(currentUser.get().map(user -> user.getRole() != Role.BAKER).orElse(false));
 
         // Open to a baker too: asking a question reads, it does not change an
         // order, and "which of these is at risk" is a kitchen question.
-        var question = Translations.bindText(new Button("",
-                event -> getUI().ifPresent(ui -> ui.navigate(
-                        ROUTE + "/" + com.vaadin.bakery.assistant.ui.BoardAskView.SEGMENT))), "board.ask");
+        var question = iconAction(VaadinIcon.MAGIC, "board.ask",
+                () -> getUI().ifPresent(ui -> ui.navigate(
+                        ROUTE + "/" + com.vaadin.bakery.assistant.ui.BoardAskView.SEGMENT)));
 
-        var browse = new Div(take, question, field, past);
+        // The two actions go last and are pushed to the end of the row, so the
+        // row reads as what you are looking at first and what you can do second.
+        var actions = new Div(question, take);
+        actions.addClassName("order-board__actions");
+
+        var browse = new Div(field, past, actions);
         browse.addClassName("order-board__browse");
 
         var confirm = bulkAction(VaadinIcon.CHECK, "board.bulk.confirm",
@@ -267,8 +340,18 @@ public class OrderBoardView extends MasterDetailLayout {
      * verb on a button is worth less than the room the search field gets back.
      */
     private Button bulkAction(VaadinIcon icon, String labelKey, Runnable action) {
-        var button = new Button(new Icon(icon), event -> action.run());
+        var button = iconAction(icon, labelKey, action);
         button.setEnabled(false);
+        return button;
+    }
+
+    /**
+     * An icon button whose words live in its accessible name and its tooltip.
+     * A toolbar of six controls does not have room for a verb on every button,
+     * and the search field is worth more than the words are.
+     */
+    private Button iconAction(VaadinIcon icon, String labelKey, Runnable action) {
+        var button = new Button(new Icon(icon), event -> action.run());
         Translations.bind(button, text -> {
             button.setAriaLabel(text);
             button.setTooltipText(text);
@@ -276,10 +359,8 @@ public class OrderBoardView extends MasterDetailLayout {
         return button;
     }
 
-    private MenuBar columnChooser() {
-        var menu = new MenuBar();
-        menu.addThemeVariants(MenuBarVariant.LUMO_TERTIARY_INLINE);
-        ColumnChooser.of(menu, "board.columns", List.of(
+    private void columnChooser() {
+        ColumnChooser.onHeaderOf(grid, List.of(
                 new ColumnChooser.Entry<>(referenceColumn, "board.column.reference"),
                 new ColumnChooser.Entry<>(customerColumn, "board.column.customer"),
                 new ColumnChooser.Entry<>(slotColumn, "board.column.slot"),
@@ -287,16 +368,62 @@ public class OrderBoardView extends MasterDetailLayout {
                 new ColumnChooser.Entry<>(summaryColumn, "board.column.items"),
                 new ColumnChooser.Entry<>(channelColumn, "board.column.channel"),
                 new ColumnChooser.Entry<>(totalColumn, "board.column.total")));
-        return menu;
     }
 
+    /**
+     * Opens this order's panel, or closes it if this order's panel is the one
+     * already open. Closing goes through the panel rather than navigating over
+     * its head, so unsaved work still gets to ask.
+     */
+    private Button editButton(Order order) {
+        var button = new Button(new Icon(VaadinIcon.EDIT), event -> {
+            if (isPanelOpenFor(order)) {
+                closePanel();
+                return;
+            }
+            // The panel says everything the band says and more, so the band
+            // closes: two views of one order at once is one of them wasting
+            // half the board.
+            collapseExpanded();
+            getUI().ifPresent(ui -> ui.navigate(ROUTE + "/" + order.getReference()));
+        });
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        button.addClassName("order-board__edit");
+        Translations.bind(grid, text -> {
+            button.setAriaLabel(text);
+            button.setTooltipText(text);
+        }, "board.editor.open");
+        return button;
+    }
+
+    /** Closes whichever row is expanded, if any. */
+    private void collapseExpanded() {
+        if (expanded != null) {
+            grid.setDetailsVisible(expanded, false);
+            expanded = null;
+        }
+    }
+
+    private boolean isPanelOpen() {
+        return getUI().map(ui -> ui.getInternals().getActiveRouterTargetsChain().stream()
+                .anyMatch(BoardPanel.class::isInstance)).orElse(false);
+    }
+
+    private boolean isPanelOpenFor(Order order) {
+        return getUI().map(ui -> ui.getInternals().getActiveViewLocation())
+                .map(location -> location.getPath().equals(ROUTE + "/" + order.getReference()))
+                .orElse(false);
+    }
+
+    /**
+     * The state's own colour, from the one palette that also colours the state
+     * field in the panel: `data-state` picks the pair and the stylesheet holds
+     * them, so the board and the editor cannot drift apart.
+     */
     private Span stateBadge(Order order) {
         var badge = Translations.bindText(new Span(), order.getState().translationKey());
-        badge.getElement().getThemeList().add("badge " + switch (order.getState()) {
-            case READY, PICKED_UP -> "success";
-            case PROBLEM, CANCELLED -> "error";
-            default -> "contrast";
-        });
+        badge.addClassName("state-chip");
+        badge.getElement().setAttribute("data-state", order.getState().name());
         return badge;
     }
 
@@ -357,16 +484,31 @@ public class OrderBoardView extends MasterDetailLayout {
                 .ifPresent(OrderBoardView::reload));
     }
 
-    private void applyFilter(String term, boolean withPast) {
+    /**
+     * The board's current filter, in one place, because the select all control
+     * has to mean exactly what the grid is showing and not something close to
+     * it.
+     */
+    private org.springframework.data.jpa.domain.Specification<Order> specification(
+            String term, boolean withPast) {
         // A search is a search: when somebody types a reference, they mean any
         // order, not only the ones still to come.
         var searching = term != null && !term.isBlank();
         var from = withPast || searching ? null : slots.today().minusDays(1);
         // Arrays.asList, not List.of: an inactive filter is null, and List.of
         // rejects nulls with an NPE that surfaces only on stderr.
-        var specification = OrderSpecifications.all(java.util.Arrays.asList(
+        return OrderSpecifications.all(java.util.Arrays.asList(
                 OrderSpecifications.matching(term),
                 OrderSpecifications.fromDate(from)));
+    }
+
+    private static org.springframework.data.domain.Sort boardOrder() {
+        return org.springframework.data.domain.Sort.by("pickupDate").ascending()
+                .and(org.springframework.data.domain.Sort.by("pickupTime").ascending());
+    }
+
+    private void applyFilter(String term, boolean withPast) {
+        var specification = specification(term, withPast);
 
         // Lazy, page by page, with the sort the board is read in. The counter
         // makes the cost of a page visible to the diagnostics view and to the
@@ -374,13 +516,13 @@ public class OrderBoardView extends MasterDetailLayout {
         grid.setItemsPageable(pageable -> {
             counter.countQuery();
             var sorted = org.springframework.data.domain.PageRequest.of(
-                    pageable.getPageNumber(), pageable.getPageSize(),
-                    org.springframework.data.domain.Sort.by("pickupDate").ascending()
-                            .and(org.springframework.data.domain.Sort.by("pickupTime").ascending()));
+                    pageable.getPageNumber(), pageable.getPageSize(), boardOrder());
             return specification == null ? orders.findAll(sorted).getContent()
                     : orders.findAll(specification, sorted).getContent();
         }, pageable -> Math.toIntExact(specification == null ? orders.count() : orders.count(specification)));
+
     }
+
 
     /** Used by the tests that prove a hidden column costs nothing. */
     Grid.Column<Order> expensiveColumn() {

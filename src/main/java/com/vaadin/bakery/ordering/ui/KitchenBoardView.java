@@ -54,7 +54,7 @@ import java.util.Map;
  */
 @Route("kitchen")
 @PageTitle("Kitchen")
-@Menu(order = 11, title = "Kitchen", icon = "vaadin:fire")
+@Menu(order = 12, title = "Kitchen", icon = "vaadin:fire")
 @RolesAllowed({ Role.ADMIN_NAME, Role.BAKER_NAME })
 public class KitchenBoardView extends VerticalLayout {
 
