@@ -84,6 +84,18 @@ The prompt asks for signals with as much of their API as possible, for commercia
 
 Two smaller ones: every telephone field asks for a telephone keypad and the catalogue's search box for a search keyboard, through the new `InputMode`, and a product card says it is an `article` through the new `HasAriaRole`.
 
+### The export that crashed, and the two things that changed
+
+Reported as "the application crashed when I exported as CSV", and it never reproduced. The report arrived after the application had been restarted, so the log that would have held the exception was gone, and the browser console logs from that hour hold nothing but push reconnect noise: a failed download is an HTTP response outside the page and leaves no console error.
+
+Three hypotheses died with evidence rather than with an opinion. Not the session lock, which is the one the documentation warns about, because calling the export from a thread holding no lock returns all 1038 rows. Not the response constructor, whose signature really is `(InputStream, String, String, long)`. Not lazy loading, because the two fields the export reads are columns.
+
+Two real weaknesses turned up while looking, and both are fixed. The export read the filter signals from the download request, which is a race with whoever is typing rather than a crash, and a failure had nowhere to go: a download has no screen, so an exception reaching the container reads to a person as the application having died.
+
+It works now, and the honest conclusion is that nobody knows which change did it, because two changed at once: a brand new browser, after the old one died, and the snapshot that stopped the request reading UI state. What is established is narrower and worth more: the server path answers 200 with 63 KB and 1039 rows, it honours the filter, and it can no longer fail silently.
+
+The suspicion that remains is the automated browser. The Playwright MCP server disconnected at the same moment, which is what happens when the Chrome it drives dies, and a real download in a page under automation is a known hazard. That went into the verification skill rather than into the application, because whatever it was, the lesson is the same: verify a download by fetching it, not by clicking it.
+
 ## Findings recorded this session
 
 Each of these is a row or a section in `specs/FEEDBACK-25.3.md`, with its reproduction.
