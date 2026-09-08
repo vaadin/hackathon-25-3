@@ -36,6 +36,12 @@ Covers V5 to V11.
 
 Capacity is advisory in the picker and authoritative in the service. Between choosing a slot and submitting, another customer may take the last place, so the submit path re checks and reports it clearly.
 
+### The cart line on a phone
+
+Below 700 pixels a line is three rows rather than six columns, and the rows are what somebody reads in order: the photograph, the name and the price; then anything they wanted to say about it; then how many, with the way to remove it at the right edge.
+
+Named areas rather than a narrower version of the same columns, which is what it was and what went wrong: a three rem column held a four rem photograph, so the photograph ran under the product name, and another three rem column held a quantity stepper, whose plus button was clipped by 32 pixels off the right edge. Measured at 390: no overflow on the page and none in the row. Measured at 1280: still one line of six columns, 65 pixels tall.
+
 ## Edge cases
 
 | Scenario | Behaviour |
