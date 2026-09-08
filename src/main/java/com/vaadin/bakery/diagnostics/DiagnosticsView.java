@@ -176,11 +176,15 @@ public class DiagnosticsView extends VerticalLayout {
         panel.add(new H3(getTranslation(locale, "diagnostics.kit.dashboard")), new Pre(DASHBOARD_COMMAND),
                 note(getTranslation(locale, "diagnostics.kit.dashboardNote")));
 
-        // And what the three programs are, which is the part that was missing:
-        // the commands were here and nothing said which of them was the
-        // application, which was remembering the numbers and which was drawing
-        // them. Somebody reading a command without that has to guess.
-        panel.add(note(getTranslation(locale, "diagnostics.kit.pieces")));
+        // What the three programs are, and then the three questions somebody
+        // actually asks about the middle one: how a container reaches an
+        // application that is not in it, how it knows where to look, and
+        // whether it has to identify itself. Four short lines, because a
+        // paragraph on a screen is a paragraph nobody reads.
+        panel.add(note(getTranslation(locale, "diagnostics.kit.pieces")),
+                note(getTranslation(locale, "diagnostics.kit.reach")),
+                note(getTranslation(locale, "diagnostics.kit.url")),
+                note(getTranslation(locale, "diagnostics.kit.auth")));
         return panel;
     }
 
