@@ -35,385 +35,289 @@ insert into allergen (id, version, code, name) values (11, 0, 'FISH', 'Fish');
 insert into allergen (id, version, code, name) values (12, 0, 'MOLLUSC', 'Mollusc');
 
 -- product: 48 rows
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (1, 0, 'Sourdough loaf', 'sourdough-loaf', 1, '## Sourdough loaf
-
-Baked this morning in our own ovens. Part of our breads range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (1, 0, 'Sourdough loaf', 'sourdough-loaf', 1, 'Baked this morning in our own ovens. Part of our breads range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 450, 'REDUCED', 'sourdough-loaf.webp', 0, null, 16, true, true, 0);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (2, 0, 'Rye bread', 'rye-bread', 1, '## Rye bread
-
-Baked this morning in our own ovens. Part of our breads range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (2, 0, 'Rye bread', 'rye-bread', 1, 'Baked this morning in our own ovens. Part of our breads range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 420, 'REDUCED', 'rye-bread.webp', 0, null, 22, true, false, 1);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (3, 0, 'Baguette', 'baguette', 1, '## Baguette
-
-Baked this morning in our own ovens. Part of our breads range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (3, 0, 'Baguette', 'baguette', 1, 'Baked this morning in our own ovens. Part of our breads range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 260, 'REDUCED', 'baguette.webp', 0, null, 16, true, false, 2);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (4, 0, 'Wholegrain loaf', 'wholegrain-loaf', 1, '## Wholegrain loaf
-
-Baked this morning in our own ovens. Part of our breads range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (4, 0, 'Wholegrain loaf', 'wholegrain-loaf', 1, 'Baked this morning in our own ovens. Part of our breads range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 470, 'REDUCED', 'wholegrain-loaf.webp', 0, null, 28, true, false, 3);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (5, 0, 'Focaccia', 'focaccia', 1, '## Focaccia
-
-Baked this morning in our own ovens. Part of our breads range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (5, 0, 'Focaccia', 'focaccia', 1, 'Baked this morning in our own ovens. Part of our breads range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 520, 'REDUCED', 'focaccia.webp', 0, null, 10, true, false, 4);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (6, 0, 'Ciabatta', 'ciabatta', 1, '## Ciabatta
-
-Baked this morning in our own ovens. Part of our breads range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (6, 0, 'Ciabatta', 'ciabatta', 1, 'Baked this morning in our own ovens. Part of our breads range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 300, 'REDUCED', 'ciabatta.webp', 0, null, 29, true, false, 5);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (7, 0, 'Seeded spelt loaf', 'seeded-spelt-loaf', 1, '## Seeded spelt loaf
-
-Baked this morning in our own ovens. Part of our breads range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (7, 0, 'Seeded spelt loaf', 'seeded-spelt-loaf', 1, 'Baked this morning in our own ovens. Part of our breads range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 1 day(s) ahead
 ', 540, 'REDUCED', 'seeded-spelt-loaf.webp', 1, 11, 11, true, false, 6);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (8, 0, 'Country miche', 'country-miche', 1, '## Country miche
-
-Baked this morning in our own ovens. Part of our breads range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (8, 0, 'Country miche', 'country-miche', 1, 'Baked this morning in our own ovens. Part of our breads range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 1 day(s) ahead
 ', 690, 'REDUCED', 'country-miche.webp', 1, 12, 40, true, false, 7);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (9, 0, 'Butter croissant', 'butter-croissant', 2, '## Butter croissant
-
-Baked this morning in our own ovens. Part of our pastries range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (9, 0, 'Butter croissant', 'butter-croissant', 2, 'Baked this morning in our own ovens. Part of our pastries range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 220, 'REDUCED', 'butter-croissant.webp', 0, null, 24, true, false, 8);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (10, 0, 'Almond croissant', 'almond-croissant', 2, '## Almond croissant
-
-Baked this morning in our own ovens. Part of our pastries range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (10, 0, 'Almond croissant', 'almond-croissant', 2, 'Baked this morning in our own ovens. Part of our pastries range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 290, 'REDUCED', 'almond-croissant.webp', 0, null, 15, true, true, 9);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (11, 0, 'Pain au chocolat', 'pain-au-chocolat', 2, '## Pain au chocolat
-
-Baked this morning in our own ovens. Part of our pastries range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (11, 0, 'Pain au chocolat', 'pain-au-chocolat', 2, 'Baked this morning in our own ovens. Part of our pastries range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 250, 'REDUCED', 'pain-au-chocolat.webp', 0, null, 15, true, false, 10);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (12, 0, 'Cinnamon bun', 'cinnamon-bun', 2, '## Cinnamon bun
-
-Baked this morning in our own ovens. Part of our pastries range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (12, 0, 'Cinnamon bun', 'cinnamon-bun', 2, 'Baked this morning in our own ovens. Part of our pastries range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 240, 'REDUCED', 'cinnamon-bun.webp', 0, null, 14, true, false, 11);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (13, 0, 'Cardamom knot', 'cardamom-knot', 2, '## Cardamom knot
-
-Baked this morning in our own ovens. Part of our pastries range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (13, 0, 'Cardamom knot', 'cardamom-knot', 2, 'Baked this morning in our own ovens. Part of our pastries range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 260, 'REDUCED', 'cardamom-knot.webp', 0, null, 38, true, false, 12);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (14, 0, 'Apple danish', 'apple-danish', 2, '## Apple danish
-
-Baked this morning in our own ovens. Part of our pastries range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (14, 0, 'Apple danish', 'apple-danish', 2, 'Baked this morning in our own ovens. Part of our pastries range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 280, 'REDUCED', 'apple-danish.webp', 0, null, 4, true, false, 13);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (15, 0, 'Berry danish', 'berry-danish', 2, '## Berry danish
-
-Baked this morning in our own ovens. Part of our pastries range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (15, 0, 'Berry danish', 'berry-danish', 2, 'Baked this morning in our own ovens. Part of our pastries range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 290, 'REDUCED', 'berry-danish.webp', 0, null, 20, true, false, 14);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (16, 0, 'Pistachio roll', 'pistachio-roll', 2, '## Pistachio roll
-
-Baked this morning in our own ovens. Part of our pastries range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (16, 0, 'Pistachio roll', 'pistachio-roll', 2, 'Baked this morning in our own ovens. Part of our pastries range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 340, 'REDUCED', 'pistachio-roll.webp', 0, null, 14, true, false, 15);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (17, 0, 'Croissant with ham', 'croissant-with-ham', 2, '## Croissant with ham
-
-Baked this morning in our own ovens. Part of our pastries range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (17, 0, 'Croissant with ham', 'croissant-with-ham', 2, 'Baked this morning in our own ovens. Part of our pastries range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 350, 'REDUCED', 'croissant-with-ham.webp', 0, null, 18, true, false, 16);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (18, 0, 'Carrot cake', 'carrot-cake', 3, '## Carrot cake
-
-Baked this morning in our own ovens. Part of our cakes range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (18, 0, 'Carrot cake', 'carrot-cake', 3, 'Baked this morning in our own ovens. Part of our cakes range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 2 day(s) ahead
 ', 2400, 'REDUCED', 'carrot-cake.webp', 2, 9, 34, true, false, 17);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (19, 0, 'Chocolate cake', 'chocolate-cake', 3, '## Chocolate cake
-
-Baked this morning in our own ovens. Part of our cakes range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (19, 0, 'Chocolate cake', 'chocolate-cake', 3, 'Baked this morning in our own ovens. Part of our cakes range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 2 day(s) ahead
 ', 2600, 'REDUCED', 'chocolate-cake.webp', 2, 9, 23, true, true, 18);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (20, 0, 'Cheesecake', 'cheesecake', 3, '## Cheesecake
-
-Baked this morning in our own ovens. Part of our cakes range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (20, 0, 'Cheesecake', 'cheesecake', 3, 'Baked this morning in our own ovens. Part of our cakes range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 2 day(s) ahead
 ', 2800, 'REDUCED', 'cheesecake.webp', 2, 12, 35, true, false, 19);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (21, 0, 'Lemon tart', 'lemon-tart', 3, '## Lemon tart
-
-Baked this morning in our own ovens. Part of our cakes range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (21, 0, 'Lemon tart', 'lemon-tart', 3, 'Baked this morning in our own ovens. Part of our cakes range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 2 day(s) ahead
 ', 2200, 'REDUCED', 'lemon-tart.webp', 2, 10, 11, true, false, 20);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (22, 0, 'Strawberry tart', 'strawberry-tart', 3, '## Strawberry tart
-
-Baked this morning in our own ovens. Part of our cakes range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (22, 0, 'Strawberry tart', 'strawberry-tart', 3, 'Baked this morning in our own ovens. Part of our cakes range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 2 day(s) ahead
 ', 2500, 'REDUCED', 'strawberry-tart.webp', 2, 12, 5, true, false, 21);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (23, 0, 'Birthday sponge', 'birthday-sponge', 3, '## Birthday sponge
-
-Baked this morning in our own ovens. Part of our cakes range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (23, 0, 'Birthday sponge', 'birthday-sponge', 3, 'Baked this morning in our own ovens. Part of our cakes range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 3 day(s) ahead
 ', 3200, 'REDUCED', 'birthday-sponge.webp', 3, 11, 13, true, false, 22);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (24, 0, 'Tiramisu cake', 'tiramisu-cake', 3, '## Tiramisu cake
-
-Baked this morning in our own ovens. Part of our cakes range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (24, 0, 'Tiramisu cake', 'tiramisu-cake', 3, 'Baked this morning in our own ovens. Part of our cakes range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 2 day(s) ahead
 ', 2900, 'REDUCED', 'tiramisu-cake.webp', 2, 11, 10, true, false, 23);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (25, 0, 'Blueberry muffin', 'blueberry-muffin', 3, '## Blueberry muffin
-
-Baked this morning in our own ovens. Part of our cakes range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (25, 0, 'Blueberry muffin', 'blueberry-muffin', 3, 'Baked this morning in our own ovens. Part of our cakes range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 320, 'REDUCED', 'blueberry-muffin.webp', 0, null, 26, true, false, 24);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (26, 0, 'Chocolate brownie', 'chocolate-brownie', 3, '## Chocolate brownie
-
-Baked this morning in our own ovens. Part of our cakes range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (26, 0, 'Chocolate brownie', 'chocolate-brownie', 3, 'Baked this morning in our own ovens. Part of our cakes range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 300, 'REDUCED', 'chocolate-brownie.webp', 0, null, 1, true, false, 25);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (27, 0, 'Chocolate chip cookie', 'chocolate-chip-cookie', 4, '## Chocolate chip cookie
-
-Baked this morning in our own ovens. Part of our cookies range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (27, 0, 'Chocolate chip cookie', 'chocolate-chip-cookie', 4, 'Baked this morning in our own ovens. Part of our cookies range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 180, 'REDUCED', 'chocolate-chip-cookie.webp', 0, null, 19, true, false, 26);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (28, 0, 'Oatmeal raisin cookie', 'oatmeal-raisin-cookie', 4, '## Oatmeal raisin cookie
-
-Baked this morning in our own ovens. Part of our cookies range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (28, 0, 'Oatmeal raisin cookie', 'oatmeal-raisin-cookie', 4, 'Baked this morning in our own ovens. Part of our cookies range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 180, 'REDUCED', 'oatmeal-raisin-cookie.webp', 0, null, 0, true, true, 27);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (29, 0, 'Peanut butter cookie', 'peanut-butter-cookie', 4, '## Peanut butter cookie
-
-Baked this morning in our own ovens. Part of our cookies range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (29, 0, 'Peanut butter cookie', 'peanut-butter-cookie', 4, 'Baked this morning in our own ovens. Part of our cookies range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 190, 'REDUCED', 'peanut-butter-cookie.webp', 0, null, 34, true, false, 28);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (30, 0, 'Shortbread', 'shortbread', 4, '## Shortbread
-
-Baked this morning in our own ovens. Part of our cookies range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (30, 0, 'Shortbread', 'shortbread', 4, 'Baked this morning in our own ovens. Part of our cookies range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 170, 'REDUCED', 'shortbread.webp', 0, null, 7, true, false, 29);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (31, 0, 'Almond biscotti', 'almond-biscotti', 4, '## Almond biscotti
-
-Baked this morning in our own ovens. Part of our cookies range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (31, 0, 'Almond biscotti', 'almond-biscotti', 4, 'Baked this morning in our own ovens. Part of our cookies range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 200, 'REDUCED', 'almond-biscotti.webp', 0, null, 32, true, false, 30);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (32, 0, 'Ginger snap', 'ginger-snap', 4, '## Ginger snap
-
-Baked this morning in our own ovens. Part of our cookies range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (32, 0, 'Ginger snap', 'ginger-snap', 4, 'Baked this morning in our own ovens. Part of our cookies range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 160, 'REDUCED', 'ginger-snap.webp', 0, null, 29, true, false, 31);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (33, 0, 'Sesame cracker', 'sesame-cracker', 4, '## Sesame cracker
-
-Baked this morning in our own ovens. Part of our cookies range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (33, 0, 'Sesame cracker', 'sesame-cracker', 4, 'Baked this morning in our own ovens. Part of our cookies range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 210, 'REDUCED', 'sesame-cracker.webp', 0, null, 34, true, false, 32);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (34, 0, 'Spinach quiche', 'spinach-quiche', 5, '## Spinach quiche
-
-Baked this morning in our own ovens. Part of our savoury range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (34, 0, 'Spinach quiche', 'spinach-quiche', 5, 'Baked this morning in our own ovens. Part of our savoury range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 1 day(s) ahead
 ', 480, 'REDUCED', 'spinach-quiche.webp', 1, 12, 18, true, false, 33);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (35, 0, 'Cheese and onion pie', 'cheese-and-onion-pie', 5, '## Cheese and onion pie
-
-Baked this morning in our own ovens. Part of our savoury range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (35, 0, 'Cheese and onion pie', 'cheese-and-onion-pie', 5, 'Baked this morning in our own ovens. Part of our savoury range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Order 1 day(s) ahead
 ', 520, 'REDUCED', 'cheese-and-onion-pie.webp', 1, 8, 16, true, false, 34);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (36, 0, 'Empanada', 'empanada', 5, '## Empanada
-
-Baked this morning in our own ovens. Part of our savoury range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (36, 0, 'Empanada', 'empanada', 5, 'Baked this morning in our own ovens. Part of our savoury range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 400, 'REDUCED', 'empanada.webp', 0, null, 30, true, false, 35);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (37, 0, 'Tuna roll', 'tuna-roll', 5, '## Tuna roll
-
-Baked this morning in our own ovens. Part of our savoury range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (37, 0, 'Tuna roll', 'tuna-roll', 5, 'Baked this morning in our own ovens. Part of our savoury range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 430, 'REDUCED', 'tuna-roll.webp', 0, null, 40, true, true, 36);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (38, 0, 'Vegetable focaccia slice', 'vegetable-focaccia-slice', 5, '## Vegetable focaccia slice
-
-Baked this morning in our own ovens. Part of our savoury range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (38, 0, 'Vegetable focaccia slice', 'vegetable-focaccia-slice', 5, 'Baked this morning in our own ovens. Part of our savoury range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 350, 'REDUCED', 'vegetable-focaccia-slice.webp', 0, null, 12, true, false, 37);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (39, 0, 'Ham and cheese sandwich', 'ham-and-cheese-sandwich', 5, '## Ham and cheese sandwich
-
-Baked this morning in our own ovens. Part of our savoury range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (39, 0, 'Ham and cheese sandwich', 'ham-and-cheese-sandwich', 5, 'Baked this morning in our own ovens. Part of our savoury range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 560, 'REDUCED', 'ham-and-cheese-sandwich.webp', 0, null, 27, true, false, 38);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (40, 0, 'Mushroom pastry', 'mushroom-pastry', 5, '## Mushroom pastry
-
-Baked this morning in our own ovens. Part of our savoury range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (40, 0, 'Mushroom pastry', 'mushroom-pastry', 5, 'Baked this morning in our own ovens. Part of our savoury range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 460, 'REDUCED', 'mushroom-pastry.webp', 0, null, 8, true, false, 39);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (41, 0, 'Filter coffee', 'filter-coffee', 6, '## Filter coffee
-
-Baked this morning in our own ovens. Part of our drinks range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (41, 0, 'Filter coffee', 'filter-coffee', 6, 'Baked this morning in our own ovens. Part of our drinks range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 190, 'STANDARD', 'filter-coffee.webp', 0, null, 15, true, false, 40);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (42, 0, 'Espresso', 'espresso', 6, '## Espresso
-
-Baked this morning in our own ovens. Part of our drinks range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (42, 0, 'Espresso', 'espresso', 6, 'Baked this morning in our own ovens. Part of our drinks range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 160, 'STANDARD', 'espresso.webp', 0, null, 17, true, false, 41);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (43, 0, 'Cappuccino', 'cappuccino', 6, '## Cappuccino
-
-Baked this morning in our own ovens. Part of our drinks range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (43, 0, 'Cappuccino', 'cappuccino', 6, 'Baked this morning in our own ovens. Part of our drinks range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 240, 'STANDARD', 'cappuccino.webp', 0, null, 13, true, false, 42);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (44, 0, 'Oat latte', 'oat-latte', 6, '## Oat latte
-
-Baked this morning in our own ovens. Part of our drinks range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (44, 0, 'Oat latte', 'oat-latte', 6, 'Baked this morning in our own ovens. Part of our drinks range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 260, 'STANDARD', 'oat-latte.webp', 0, null, 3, true, false, 43);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (45, 0, 'Orange juice', 'orange-juice', 6, '## Orange juice
-
-Baked this morning in our own ovens. Part of our drinks range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (45, 0, 'Orange juice', 'orange-juice', 6, 'Baked this morning in our own ovens. Part of our drinks range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 280, 'STANDARD', 'orange-juice.webp', 0, null, 5, true, false, 44);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (46, 0, 'Hot chocolate', 'hot-chocolate', 6, '## Hot chocolate
-
-Baked this morning in our own ovens. Part of our drinks range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (46, 0, 'Hot chocolate', 'hot-chocolate', 6, 'Baked this morning in our own ovens. Part of our drinks range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 270, 'STANDARD', 'hot-chocolate.webp', 0, null, 4, true, true, 45);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (47, 0, 'Iced tea', 'iced-tea', 6, '## Iced tea
-
-Baked this morning in our own ovens. Part of our drinks range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (47, 0, 'Iced tea', 'iced-tea', 6, 'Baked this morning in our own ovens. Part of our drinks range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts
 - Available every morning
 ', 230, 'STANDARD', 'iced-tea.webp', 0, null, 10, true, false, 46);
-insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (48, 0, 'Sparkling water', 'sparkling-water', 6, '## Sparkling water
-
-Baked this morning in our own ovens. Part of our drinks range.
+insert into product (id, version, name, slug, category_id, description_markdown, price_cents, vat_rate, image_path, lead_time_days, daily_capacity, stock_today, available, featured, sort_order) values (48, 0, 'Sparkling water', 'sparkling-water', 6, 'Baked this morning in our own ovens. Part of our drinks range.
 
 - Made with ingredients we can name
 - No improvers, no shortcuts

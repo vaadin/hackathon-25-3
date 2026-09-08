@@ -24,6 +24,16 @@ public class OrderHistoryItem extends AbstractEntity {
     @Column(nullable = false, length = 1000)
     private String message;
 
+    /**
+     * What changed, as data rather than as a sentence: "NEW>CANCELLED" for a
+     * transition, "2900>3400" in cents for a total. The view translates and
+     * formats it, so a row written in one language reads correctly in the
+     * other, which is the same rule the message key follows.
+     */
+    @Size(max = 120)
+    @Column(length = 120)
+    private String detail;
+
     @NotNull
     @Column(nullable = false)
     private Instant timestamp = Instant.now();
@@ -38,6 +48,19 @@ public class OrderHistoryItem extends AbstractEntity {
         this.newState = newState;
         this.message = message;
         this.createdBy = createdBy;
+    }
+
+    public OrderHistoryItem(OrderState newState, String message, String detail, User createdBy) {
+        this(newState, message, createdBy);
+        this.detail = detail;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
     }
 
     public OrderState getNewState() {

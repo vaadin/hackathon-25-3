@@ -132,7 +132,9 @@ const products = productSpecs.map(([name, category, price, vat, lead, allergenCo
 
 const description = (product) => {
   const category = categories.find((c) => c.id === product.categoryId).name.toLowerCase();
-  return `## ${product.name}\n\nBaked this morning in our own ovens. Part of our ${category} range.\n\n` +
+  // No leading heading: the product's name is the page's own H1, and a
+  // description that repeats it made the panel show the name twice.
+  return `Baked this morning in our own ovens. Part of our ${category} range.\n\n` +
     `- Made with ingredients we can name\n- No improvers, no shortcuts\n` +
     (product.leadTimeDays > 0 ? `- Order ${product.leadTimeDays} day(s) ahead\n` : '- Available every morning\n');
 };

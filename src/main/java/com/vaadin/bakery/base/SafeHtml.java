@@ -1,6 +1,7 @@
 package com.vaadin.bakery.base;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Entities;
 import org.jsoup.safety.Safelist;
 
@@ -16,12 +17,22 @@ public final class SafeHtml {
             .addAttributes("a", "href", "title")
             .addProtocols("a", "href", "http", "https", "mailto", "tel");
 
+    /**
+     * Cleaning must not reformat. Jsoup pretty prints by default, which
+     * normalises whitespace, and the whole structure of a markdown document is
+     * whitespace: every product description arrived at the renderer as one long
+     * line, so its heading swallowed its own body text and its bullet list, and
+     * the product panel showed the lot as a single heading.
+     */
+    private static final Document.OutputSettings VERBATIM =
+            new Document.OutputSettings().prettyPrint(false);
+
     private SafeHtml() {
     }
 
-    /** Untrusted markup, cleaned. */
+    /** Untrusted markup, cleaned, with the source's own line structure intact. */
     public static String clean(String html) {
-        return html == null ? "" : Jsoup.clean(html, SAFELIST);
+        return html == null ? "" : Jsoup.clean(html, "", SAFELIST, VERBATIM);
     }
 
     /**

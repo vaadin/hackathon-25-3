@@ -24,7 +24,12 @@ public enum OrderState {
             case READY -> Set.of(PICKED_UP, PROBLEM, CANCELLED);
             case PICKED_UP -> Set.of();
             case PROBLEM -> Set.of(CONFIRMED, CANCELLED);
-            case CANCELLED -> Set.of();
+            // A cancellation is reversible. Most cancellations are somebody
+            // pressing the wrong thing, and a state a screen can enter and
+            // never leave is a trap: the reopening is recorded in the history
+            // like every other change. Handing over is not reversible, and does
+            // not need to be, because by then the order has an invoice.
+            case CANCELLED -> Set.of(CONFIRMED);
         };
     }
 

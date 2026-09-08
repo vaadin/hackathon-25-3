@@ -291,6 +291,22 @@
              every test run against. -->
         <profile>
             <id>ai</id>
+            <!-- On by default wherever a key exists, off by default everywhere
+                 else. An explicit -Pai still works and is what CI uses.
+
+                 Not activeByDefault: Maven turns every activeByDefault profile
+                 off the moment any other profile is named, so -Pit or -Ppostgres
+                 would silently take the assistant away.
+
+                 Not the main build either: that would put Spring AI on the
+                 classpath of a build with no key, and the rule this project
+                 holds to is that the default build boots and tests with no
+                 licence, no key and no network. -->
+            <activation>
+                <property>
+                    <name>env.OPENAI_API_KEY</name>
+                </property>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.springframework.ai</groupId>

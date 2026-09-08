@@ -5,6 +5,7 @@ import com.vaadin.bakery.catalogue.Product;
 import com.vaadin.bakery.catalogue.ProductRepository;
 import com.vaadin.bakery.people.Customer;
 import com.vaadin.bakery.people.CustomerService;
+import com.vaadin.bakery.people.Role;
 import com.vaadin.bakery.people.User;
 import java.security.SecureRandom;
 import java.time.Clock;
@@ -138,7 +139,8 @@ public class OrderService {
                 .map(order -> order.getHistory().stream()
                         .map(entry -> new OrderHistoryLine(entry.getTimestamp(), entry.getMessage(),
                                 entry.getNewState(),
-                                entry.getCreatedBy() == null ? null : entry.getCreatedBy().getFullName()))
+                                entry.getCreatedBy() == null ? null : entry.getCreatedBy().getFullName(),
+                                entry.getDetail()))
                         .toList())
                 .orElse(List.of());
     }
@@ -323,11 +325,35 @@ public class OrderService {
         // Mutated in place rather than replaced: the collection has orphan
         // removal, and Hibernate only tracks removals against the very
         // instance it manages, not a new list handed to the setter.
+        // What the change cost, before it is applied, so the history can say
+        // what moved rather than only that something did.
+        var wasCents = current.getTotalGrossCents();
+
         current.getItems().clear();
         current.getItems().addAll(items);
         current.recalculateTotals();
-        current.addHistory(new OrderHistoryItem(current.getState(), "ordering.history.linesChanged", actor));
+        var detail = wasCents == current.getTotalGrossCents() ? null
+                : wasCents + ">" + current.getTotalGrossCents();
+        current.addHistory(new OrderHistoryItem(current.getState(), "ordering.history.linesChanged",
+                detail, actor));
         return orders.save(current);
+    }
+
+    /**
+     * The internal note, by reference rather than by the caller's copy.
+     *
+     * It is a scratchpad, not a figure anybody reconciles, so it does not need
+     * the version check the lines get. Loading the row here is what stops it
+     * needing one: saving the caller's detached copy bumped the version under
+     * the screen that was holding it, and the next line save then failed
+     * against work nobody else had touched.
+     */
+    @Transactional
+    public void updateInternalNote(String reference, String note) {
+        orders.findByReference(reference).ifPresent(order -> {
+            order.setInternalNote(note == null || note.isBlank() ? null : note);
+            orders.save(order);
+        });
     }
 
     @Transactional
@@ -346,8 +372,18 @@ public class OrderService {
         if (actor != null && !target.settableBy(actor.getRole())) {
             throw new DomainException.RuleViolation("ordering.state.notYourRole", target.name());
         }
+        // Reopening a cancelled order is the same commercial decision as
+        // cancelling it, so the role rule that keeps a baker out of one keeps
+        // them out of the other.
+        if (current.getState() == OrderState.CANCELLED && actor != null && actor.getRole() == Role.BAKER) {
+            throw new DomainException.RuleViolation("ordering.state.notYourRole", target.name());
+        }
+        // Read before the write, or the detail says "READY>READY".
+        var was = current.getState();
         current.setState(target);
-        current.addHistory(new OrderHistoryItem(target, message, actor));
+        // The transition itself, as data: the view translates both names, so a
+        // change made in Spanish reads correctly in English.
+        current.addHistory(new OrderHistoryItem(target, message, was + ">" + target, actor));
         var saved = orders.save(current);
         // The customer watching their tracking page is on the other end of
         // this, and so is every board showing the order.
