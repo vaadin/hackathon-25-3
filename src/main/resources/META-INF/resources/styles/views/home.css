@@ -36,3 +36,15 @@
   gap: var(--vaadin-gap-l, 1.5rem);
   align-content: start;
 }
+
+/*
+ * The picks are a handful, not a catalogue, so they get a wider track than the
+ * storefront grid: at 14rem a 1245px window resolved to exactly five columns
+ * and left the sixth pick alone on a row of its own with four empty cells
+ * beside it. At 20rem the same window gives three, so six picks are two full
+ * rows, and the photographs are the size a landing page wants. It still falls
+ * to two columns and then one as the window narrows.
+ */
+.home-view__featured {
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+}

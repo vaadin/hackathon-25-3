@@ -23,12 +23,27 @@ public class ProductCardComponent extends Div {
     public ProductCardComponent(ProductCard card, SerializableConsumer<ProductCard> onAdd) {
         addClassName("product-card");
 
+        var href = "shop/" + ProductDetailView.SEGMENT + "/" + card.slug();
+
         var media = new Div();
         media.addClassName("product-card__media");
         var image = new Image(card.imageUrl(), card.name());
         image.addClassName("product-card__image");
         image.getElement().setAttribute("loading", "lazy");
-        media.add(image);
+        // The photograph opens the product too. It is the largest thing on the
+        // card and the thing somebody actually points at, and a card whose only
+        // way in is its title reads as a card that does not open.
+        //
+        // A second link to the same route with the same name would be announced
+        // twice and would be a second tab stop, so this one is out of the tab
+        // order and hidden from assistive technology: the title next to it is
+        // the accessible way in. The badge stays outside the link, because
+        // "order two days ahead" is content and not decoration.
+        var imageLink = new Anchor(href, image);
+        imageLink.addClassName("product-card__image-link");
+        imageLink.getElement().setAttribute("tabindex", "-1");
+        imageLink.getElement().setAttribute("aria-hidden", "true");
+        media.add(imageLink);
         if (card.needsLeadTime()) {
             var badge = Translations.bindText(new Span(), "catalogue.leadTime.badge", card.leadTimeDays());
             badge.addClassNames("product-card__badge");
@@ -36,7 +51,7 @@ public class ProductCardComponent extends Div {
             media.add(badge);
         }
 
-        var title = new Anchor("shop/" + ProductDetailView.SEGMENT + "/" + card.slug(), card.name());
+        var title = new Anchor(href, card.name());
         title.addClassName("product-card__title");
 
         var price = Translations.bindText(new Span(), locale -> card.price().format(locale));

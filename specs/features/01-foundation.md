@@ -14,7 +14,7 @@ Single Maven module, `com.vaadin.bakery:bakery`, Java 21, Spring Boot 4, Vaadin 
 
 `MainLayout` is annotated `@Layout`, so no view declares a layout. It contains: brand, a `SideNav` built from `MenuConfiguration`, the cart badge, the language selector, the theme toggle, and the user menu. The page title is bound to `UI.routerStateSignal()`, not set by each view.
 
-Navigation entries are grouped: Shop, Operations, Administration. A group whose entries are all inaccessible to the current user does not render.
+Navigation entries are grouped: Shop, Operations, Administration. Each group is a parent `SideNavItem` holding its entries as children, collapsible and expanded by default, and each parent carries an icon so the three rows align. Shop carries the storefront's own path and matches nested routes, so it navigates and stays current while a product page is open, and the storefront is therefore not repeated as a child of itself. Operations and Administration are labels, because neither has a landing page. A group whose entries are all inaccessible to the current user does not render, which for a signed out visitor leaves Shop with Hours and About under it.
 
 ### Security
 

@@ -7,13 +7,16 @@ import com.vaadin.bakery.catalogue.ProductCard;
 import com.vaadin.bakery.catalogue.ProductImageRepository;
 import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.masterdetaillayout.MasterDetailLayout;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.select.Select;
@@ -96,7 +99,7 @@ public class StorefrontView extends MasterDetailLayout implements HasUrlParamete
         setSizeFull();
         setMaster(list);
         setForceOverlay(true);
-        setOverlaySize("46rem");
+        setOverlaySize("38rem");
         setOverlayContainment(MasterDetailLayout.OverlayContainment.LAYOUT);
 
         // Escape and a click outside are the two ways everybody already knows.
@@ -116,7 +119,17 @@ public class StorefrontView extends MasterDetailLayout implements HasUrlParamete
         getUI().ifPresent(ui -> ui.navigate(StorefrontView.class));
     }
 
-    private Div filterBar() {
+    /**
+     * The four filters as a form rather than a row of fields.
+     *
+     * Auto responsive rather than responsive steps: the column count is derived
+     * from the bar's own width against {@code columnWidth}, and the labels move
+     * beside their fields when there is room and back above them when there is
+     * not. That last part is the reason for the mode. It is a measurement the
+     * component makes of itself, and a breakpoint cannot express it, because the
+     * bar's width depends on the drawer and not on the window.
+     */
+    private Component filterBar() {
         var search = new TextField();
         Translations.bind(search, search::setPlaceholder, "catalogue.search.placeholder");
         search.setValueChangeMode(ValueChangeMode.EAGER);
@@ -124,7 +137,6 @@ public class StorefrontView extends MasterDetailLayout implements HasUrlParamete
         search.addValueChangeListener(event -> filters.search().set(event.getValue()));
 
         var category = new Select<String>();
-        Translations.bind(category, category::setLabel, "catalogue.category");
         var categories = catalogue.categories().stream().map(item -> item.getName()).toList();
         category.setItems(categories);
         category.setEmptySelectionAllowed(true);
@@ -135,7 +147,11 @@ public class StorefrontView extends MasterDetailLayout implements HasUrlParamete
         // The 25.3 change event semantics matter here: the value arrives once
         // per user action, so the catalogue refilters once and not once per chip.
         var allergens = new MultiSelectComboBox<Allergen>();
-        Translations.bind(allergens, allergens::setLabel, "catalogue.allergens.exclude");
+        // Empty, it was the only control on the bar with nothing written in it,
+        // which reads as a field that failed to load rather than as a filter
+        // nobody has used yet.
+        Translations.bind(allergens, allergens::setPlaceholder,
+                "catalogue.allergens.exclude.placeholder");
         allergens.setItems(catalogue.allergens());
         // Re-setting the generator is what makes the rendered chips and the
         // dropdown redraw; refreshing the data provider alone leaves the
@@ -146,16 +162,43 @@ public class StorefrontView extends MasterDetailLayout implements HasUrlParamete
                 event.getValue().stream().map(Allergen::translationKey).collect(Collectors.toSet())));
 
         var sort = new Select<CatalogueFilters.Sort>();
-        Translations.bind(sort, sort::setLabel, "catalogue.sort");
         sort.setItems(CatalogueFilters.Sort.values());
         Translations.onLocale(sort, locale ->
                 sort.setItemLabelGenerator(value -> getTranslation(locale, value.translationKey())));
         sort.setValue(CatalogueFilters.Sort.RELEVANCE);
         sort.addValueChangeListener(event -> filters.sort().set(event.getValue()));
 
-        var bar = new Div(search, category, allergens, sort);
+        var bar = new FormLayout();
         bar.addClassName("storefront-view__filters");
+        // Four columns, two, then one, and the labels move beside their fields
+        // only in that last state. Four filters divide evenly into all three
+        // counts, so no state ever strands a field on a row of its own: that is
+        // what a three column state could not do, and it is why none of these
+        // needs a colspan. A field's colspan is one static number clamped to the
+        // active step's column count, so it cannot be one thing at four columns
+        // and another at two anyway.
+        //
+        // The width these steps measure is the bar's own and not the window's,
+        // so they hold whether or not the drawer is open.
+        bar.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1, FormLayout.ResponsiveStep.LabelsPosition.ASIDE),
+                new FormLayout.ResponsiveStep("34em", 2, FormLayout.ResponsiveStep.LabelsPosition.TOP),
+                new FormLayout.ResponsiveStep("52em", 4, FormLayout.ResponsiveStep.LabelsPosition.TOP));
+        bar.setLabelWidth("6em");
+        filter(bar, search, "catalogue.search");
+        filter(bar, category, "catalogue.category");
+        filter(bar, allergens, "catalogue.allergens.exclude");
+        filter(bar, sort, "catalogue.sort");
         return bar;
+    }
+
+    /**
+     * One labelled filter. The label belongs to the form item and not to the
+     * field, because that is what the layout moves to the side of the field: a
+     * label set on the field itself stays above it at every width.
+     */
+    private static FormLayout.FormItem filter(FormLayout bar, Component field, String key) {
+        return bar.addFormItem(field, Translations.bindText(new Span(), key));
     }
 
     private void addToCart(ProductCard card) {

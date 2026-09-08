@@ -4,6 +4,7 @@ import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.bakery.base.security.CurrentUser;
 import com.vaadin.bakery.base.ui.AppearanceSettings.Theme;
 import com.vaadin.bakery.ordering.CartSignals;
+import com.vaadin.bakery.people.Role;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -43,6 +44,8 @@ public class MainLayout extends AppLayout {
 
     private static final Set<String> OPERATIONS = Set.of("orders", "kitchen");
     private static final Set<String> ADMINISTRATION = Set.of("admin");
+    /** The route the Shop group is, rather than one of the things inside it. */
+    private static final String STOREFRONT = "shop";
 
     private final CurrentUser currentUser;
     private final CartSignals cart;
@@ -234,17 +237,45 @@ public class MainLayout extends AppLayout {
         return menu;
     }
 
+    /**
+     * One navigation with three parents, each holding the entries that belong to
+     * it. The groups used to be three separate {@code SideNav}s with a label
+     * apiece, which reads as three headings rather than as a structure that can
+     * be collapsed.
+     *
+     * The Shop parent carries the storefront's own path: the group and the
+     * storefront are the same thing, and a child repeating its parent's name is
+     * the only thing that arrangement adds. The other two parents are labels,
+     * because neither operations nor administration has a landing page.
+     */
     private Component navigation() {
-        var shop = new SideNav();
+        var nav = new SideNav();
+
+        var shop = new SideNavItem("");
         Translations.bind(shop, shop::setLabel, "nav.group.shop");
-        var operations = new SideNav();
+        var operations = new SideNavItem("");
         Translations.bind(operations, operations::setLabel, "nav.group.operations");
-        var administration = new SideNav();
+        // Every parent carries an icon, because the Shop parent takes its own
+        // from the storefront entry and a group without one starts its label in
+        // the icon column, leaving the three parents out of line with each other.
+        operations.setPrefixComponent(new Icon(VaadinIcon.TASKS));
+        var administration = new SideNavItem("");
         Translations.bind(administration, administration::setLabel, "nav.group.administration");
+        administration.setPrefixComponent(new Icon(VaadinIcon.COG));
 
         List<MenuEntry> entries = MenuConfiguration.getMenuEntries();
         for (MenuEntry entry : entries) {
             var target = groupFor(entry.path(), shop, operations, administration);
+            if (target == shop && STOREFRONT.equals(head(entry.path()))) {
+                shop.setPath(entry.path());
+                // A product page is a route under the storefront, so the parent
+                // stays current while one is open.
+                shop.setMatchNested(true);
+                if (entry.icon() != null) {
+                    shop.setPrefixComponent(new Icon(entry.icon()));
+                }
+                continue;
+            }
             var item = new SideNavItem(entry.title(), entry.path());
             Translations.bind(item, item::setLabel, navigationKey(entry.path()));
             if (entry.icon() != null) {
@@ -253,15 +284,25 @@ public class MainLayout extends AppLayout {
             target.addItem(item);
         }
 
-        var container = new com.vaadin.flow.component.orderedlayout.VerticalLayout();
-        container.setPadding(false);
-        container.setSpacing(false);
-        for (SideNav nav : List.of(shop, operations, administration)) {
-            if (!nav.getItems().isEmpty()) {
-                container.add(nav);
+        for (SideNavItem group : List.of(shop, operations, administration)) {
+            // A group nobody has access to is not an empty group, it is absent.
+            if (group.getItems().isEmpty() && group.getPath() == null) {
+                continue;
             }
+            nav.addItem(group);
         }
-        return container;
+
+        // One group opens on a cold load: the one this person works in. A baker
+        // and a barista live in Operations, an administrator in Administration,
+        // and somebody who has not signed in gets a closed drawer, because
+        // every group they can see is one item deep anyway. Whatever route they
+        // are on opens its own group as well, which the side nav does by itself
+        // without being told.
+        currentUser.get()
+                .map(user -> user.getRole() == Role.ADMIN ? administration : operations)
+                .filter(group -> group.getParent().isPresent())
+                .ifPresent(group -> group.setExpanded(true));
+        return nav;
     }
 
     /**
@@ -270,13 +311,19 @@ public class MainLayout extends AppLayout {
      * annotation.
      */
     private static String navigationKey(String path) {
-        var head = path.startsWith("/") ? path.substring(1) : path;
-        return "nav.item." + head.replace('/', '.');
+        var route = path.startsWith("/") ? path.substring(1) : path;
+        return "nav.item." + route.replace('/', '.');
     }
 
-    private SideNav groupFor(String path, SideNav shop, SideNav operations, SideNav administration) {
-        var head = path.startsWith("/") ? path.substring(1) : path;
-        var first = head.contains("/") ? head.substring(0, head.indexOf('/')) : head;
+    /** The first segment of a route, which is what decides its group. */
+    private static String head(String path) {
+        var route = path.startsWith("/") ? path.substring(1) : path;
+        return route.contains("/") ? route.substring(0, route.indexOf('/')) : route;
+    }
+
+    private SideNavItem groupFor(String path, SideNavItem shop, SideNavItem operations,
+            SideNavItem administration) {
+        var first = head(path);
         if (ADMINISTRATION.contains(first)) {
             return administration;
         }

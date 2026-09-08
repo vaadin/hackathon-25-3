@@ -16,10 +16,13 @@ Hero with the bakery name and today's opening hours, a row of featured products,
 
 - A responsive card grid, rendered with `bindChildren` over a `ListSignal<ProductCard>`. Adding a filter never rebuilds the whole grid.
 - Each card: photo with a blurred placeholder while it loads, name, price, allergen chips, an add to cart button, and a badge when the product needs lead time ("order two days ahead").
+- The photo opens the product as well as the name does, since it is the largest thing on the card and the thing a visitor points at. It is a second link to the same route, out of the tab order and hidden from assistive technology so the name stays the one announced way in, and the lead time badge sits outside it because that badge is content. The add to cart button is outside it too, so adding never navigates.
 - Filters, all signals, all reflected in the URL as query parameters so a filtered catalogue is shareable: text search, category, and allergen exclusion.
 - Allergen exclusion is a `MultiSelectComboBox`. In 25.3 its value synchronises on the change event, so the catalogue refilters once per user action and not once per chip.
 - Text search is a debounced text field feeding a signal. No search button.
 - Sorting: relevance, price ascending, price descending, name.
+- The four filters are a `FormLayout` in responsive steps mode, with three states measured on the bar's own width rather than the window's, so the drawer does not shift them. From 52em: four columns, one row. From 34em: two columns, so a tidy two by two. Below that: one column with the labels beside their fields, which is what keeps four filters from pushing the catalogue off a phone screen. Four filters divide evenly into four, two and one, so no state strands a field on a row of its own and none of them needs a colspan. A three column state does not have that property, and the colspan that would have fixed it cannot vary between states: see the colspan row in `FEEDBACK-25.3.md`. Each label belongs to its form item and not to its field, because that is what can move to the side.
+- The photographs in the catalogue grid sit at 80 percent opacity, so the names, prices and add buttons carry the page. The same card renders the home page picks at full opacity, where the photograph is the point.
 - Empty state: an illustration, the active filters as removable chips, and a clear all action.
 
 ### Product page, route `/shop/product/{slug}`
@@ -104,3 +107,4 @@ Product descriptions are written by admins and still pass through the shared jso
 | SHOP-08 | A product marked unavailable | Opening the catalogue | It is absent, and its page shows the unavailable notice | browserless | `CatalogueBrowserlessTest` |
 | SHOP-09 | Filters that match nothing | Looking at the grid | The empty state lists the active filters | browserless | `CatalogueBrowserlessTest` |
 | SHOP-10 | A running application | Going offline and navigating | The offline page renders | testbench | `PwaInstallIT` |
+| SHOP-11 | A card in the catalogue | Looking at the link around its photo | It leads where the title leads, is out of the tab order and is hidden from assistive technology | browserless | `ProductCardContentBrowserlessTest` |

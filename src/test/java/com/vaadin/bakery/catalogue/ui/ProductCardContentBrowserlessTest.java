@@ -1,5 +1,6 @@
 package com.vaadin.bakery.catalogue.ui;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -7,6 +8,7 @@ import com.vaadin.bakery.Application;
 import com.vaadin.bakery.catalogue.CatalogueService;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
@@ -73,6 +75,36 @@ class ProductCardContentBrowserlessTest extends SpringBrowserlessTest {
 
         assertTrue(text.contains("ahead") || text.contains("day"),
                 "the card warns about the lead time: " + text);
+    }
+
+    /**
+     * The photograph opens the product, not just the title. It is the largest
+     * thing on the card and the thing a visitor points at.
+     *
+     * Asserted on the link around the photo rather than by clicking it: the
+     * click and the overlay that follows are already covered by
+     * `CatalogueOverlayBrowserlessTest`, and what regresses here is the wiring,
+     * a photo that stops being inside a link and nobody notices because the
+     * title still works.
+     */
+    @Test
+    void thePhotographOpensTheProduct() {
+        navigate(StorefrontView.class);
+        var card = firstCard();
+
+        var titleHref = find(Anchor.class).withClassName("product-card__title").first().getHref();
+        var imageLink = find(Anchor.class).withClassName("product-card__image-link").first();
+
+        assertEquals(titleHref, imageLink.getHref(),
+                "the photo leads where the title leads");
+        assertTrue(imageLink.getChildren().anyMatch(child -> child instanceof Image),
+                "and the photo is what is inside it");
+        assertEquals("-1", imageLink.getElement().getAttribute("tabindex"),
+                "it is not a second tab stop, the title is the accessible way in");
+        assertEquals("true", imageLink.getElement().getAttribute("aria-hidden"),
+                "and it is not announced twice");
+        assertTrue(card.getElement().getTextRecursively().contains("€"),
+                "the rest of the card is untouched");
     }
 
     /** The chips are words a customer knows, in their language. */

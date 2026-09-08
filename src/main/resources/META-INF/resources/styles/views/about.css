@@ -1,6 +1,8 @@
+/* The page takes the width it is given: two panels of tables read better wide
+   than boxed into 72rem with the rest of the row empty. */
 .about,
 .hours-view {
-  max-width: 72rem;
+  width: 100%;
 }
 
 .about__capabilities {

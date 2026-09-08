@@ -33,6 +33,10 @@
 .panel > h2:first-child,
 .panel > h3:first-child {
   margin-block-start: 0;
+  /* A panel's heading needs air under it: against a table's own header row,
+     the default heading margin read as one block of text. The xl step, not the
+     m one, which is 12px on this palette and no more than the default. */
+  margin-block-end: var(--vaadin-gap-xl, 1.5rem);
 }
 
 /* As many columns as fit, never narrower than the content needs. */
@@ -41,7 +45,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
   gap: var(--vaadin-gap-m, 1rem);
-  align-items: start;
+  /* Panels sharing a row share its height, so two tables side by side are two
+     cards of the same size rather than one tall and one stubby. */
+  align-items: stretch;
 }
 
 /* A table that fills its panel and reads as data rather than as a wall. */
@@ -61,6 +67,15 @@
 .panel tr:last-child th,
 .panel tr:last-child td {
   border-bottom: none;
+}
+
+/* A table fills its column and no more. Without this a single long word takes
+   the table past the panel's edge: "breadcrumbsComponent" on the about page put
+   it 9 pixels out. Row headers only, because that is where the unbreakable
+   identifiers are, and allowing it everywhere let a column narrow until the
+   word "State" broke across two lines. */
+.panel table tbody th {
+  overflow-wrap: anywhere;
 }
 
 .panel caption {
@@ -109,8 +124,17 @@ table td {
   padding: var(--vaadin-padding-s, .35rem) var(--vaadin-padding-m, .6rem);
 }
 
+/* A row's leading cell is a header for assistive technology, not a coloured
+   column: the only thing that separates rows is the striping. */
+table tbody th {
+  background: none;
+}
+
+/* Barely there on purpose. The striping is there to let the eye follow one row
+   across, not to draw a ladder: at container tint the alternation read as two
+   different tables stacked. */
 table tbody tr:nth-child(even) {
-  background: var(--vaadin-background-container, rgba(0, 0, 0, .03));
+  background: light-dark(rgba(0, 0, 0, .022), rgba(255, 255, 255, .028));
 }
 
 /* The view header sits in the navbar beside the controls, so it stays on one

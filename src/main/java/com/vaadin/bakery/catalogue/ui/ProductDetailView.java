@@ -69,11 +69,14 @@ public class ProductDetailView extends VerticalLayout implements BeforeEnterObse
      * away the filters somebody had just set.
      */
     private Button close() {
-        var button = Translations.bindText(new Button("", event ->
-                getUI().ifPresent(ui -> ui.navigate(StorefrontView.class))), "catalogue.backToShop");
+        var button = new Button(new com.vaadin.flow.component.icon.Icon(
+                com.vaadin.flow.component.icon.VaadinIcon.CLOSE),
+                event -> getUI().ifPresent(ui -> ui.navigate(StorefrontView.class)));
         button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        button.setIcon(new com.vaadin.flow.component.icon.Icon(
-                com.vaadin.flow.component.icon.VaadinIcon.ARROW_LEFT));
+        // A cross with no words still has to say what it does out loud, and the
+        // escape key and a click outside already do the same thing.
+        Translations.bind(button, button::setAriaLabel, "catalogue.backToShop");
+        Translations.bind(button, button::setTooltipText, "catalogue.backToShop");
         button.addClassName("product-view__close");
         return button;
     }
@@ -113,23 +116,27 @@ public class ProductDetailView extends VerticalLayout implements BeforeEnterObse
         }), "catalogue.addToCart");
         add.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        var details = new Div();
-        details.addClassName("product-view__details");
-        details.add(new H1(product.getName()), price, allergens, markdown);
+        // Name, price and allergens sit beside the photograph; everything that
+        // wants the full width of the panel goes under both of them.
+        var header = new Div(new H1(product.getName()), price, allergens);
+        header.addClassName("product-view__header");
+
+        var body = new Div(markdown);
+        body.addClassName("product-view__body");
         if (product.getLeadTimeDays() > 0) {
-            details.add(Translations.bindText(new Paragraph(), "catalogue.leadTime.notice",
+            body.add(Translations.bindText(new Paragraph(), "catalogue.leadTime.notice",
                     product.getLeadTimeDays()));
         }
+
+        var layout = new Div(media, header, body);
+        layout.addClassName("product-view__layout");
         if (!product.isAvailable()) {
-            details.add(Translations.bindText(new Paragraph(), "catalogue.notAvailable"));
+            body.add(Translations.bindText(new Paragraph(), "catalogue.notAvailable"));
         } else {
             var actions = new Div(quantity, add);
             actions.addClassName("product-view__actions");
-            details.add(actions);
+            layout.add(actions);
         }
-
-        var layout = new Div(media, details);
-        layout.addClassName("product-view__layout");
         add(close(), layout);
     }
 }

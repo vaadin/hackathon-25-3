@@ -25,8 +25,9 @@ class CatalogueUrlStateBrowserlessTest extends SpringBrowserlessTest {
     private ProductRepository products;
 
     private List<String> visibleProductNames() {
-        return find(Anchor.class).all().stream()
-                .filter(anchor -> anchor.getHref().startsWith("shop/product/"))
+        // The titles, not every link to a product: a card has two of those, the
+        // title and the photograph.
+        return find(Anchor.class).withClassName("product-card__title").all().stream()
                 .map(Anchor::getText)
                 .toList();
     }
