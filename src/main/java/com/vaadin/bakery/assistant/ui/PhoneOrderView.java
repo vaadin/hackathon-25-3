@@ -7,6 +7,7 @@ import com.vaadin.bakery.assistant.Controllers;
 import com.vaadin.bakery.assistant.OrderLineTool;
 import com.vaadin.bakery.assistant.PickupSlotTool;
 import com.vaadin.bakery.assistant.Prompts;
+import com.vaadin.bakery.assistant.UiWork;
 import com.vaadin.bakery.base.error.DomainException;
 import com.vaadin.bakery.base.security.CurrentUser;
 import com.vaadin.bakery.catalogue.CatalogueService;
@@ -29,9 +30,9 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.messages.MessageInput;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.messages.MessageList;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -39,6 +40,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.server.streams.UploadHandler;
+import com.vaadin.flow.component.ai.common.AIAttachment;
 import com.vaadin.flow.component.ai.common.ConfidenceLevel;
 import com.vaadin.flow.component.ai.common.SourceExtract;
 import com.vaadin.flow.component.ai.form.FieldMarkerI18n;
@@ -56,9 +60,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Taking an order over the telephone.
  *
- * The barista pastes what the customer said and the assistant fills the form.
- * Every write goes through the binder, so a value the domain refuses is
- * reported back and the model corrects itself rather than writing nonsense.
+ * The barista pastes what the customer said, or photographs the note they
+ * scribbled while the customer talked, and one button hands both to the
+ * assistant, which fills the form. Every write goes through the binder, so a
+ * value the domain refuses is reported back and the model corrects itself
+ * rather than writing nonsense.
+ *
+ * The screen is not only for the telephone, so it does not claim to be: how
+ * the order arrived is a field, and the same form takes a call, an email and
+ * somebody standing at the counter dictating.
  *
  * Two things are deliberate. The policy interceptor runs before anything leaves
  * the machine, and the turn meter shows what each answer cost and whether it
@@ -71,8 +81,8 @@ import org.slf4j.LoggerFactory;
  * With no model, the panel says so in red and the form is filled by hand.
  */
 @Route("orders/new")
-@PageTitle("Phone order")
-@Menu(order = 12, title = "Phone order", icon = "vaadin:phone")
+@PageTitle("Counter order")
+@Menu(order = 11, title = "Counter order", icon = "vaadin:cart-o")
 @RolesAllowed({ Role.ADMIN_NAME, Role.BARISTA_NAME })
 public class PhoneOrderView extends VerticalLayout {
 
@@ -86,10 +96,14 @@ public class PhoneOrderView extends VerticalLayout {
     private final TextArea whatTheySaid = new TextArea();
     private final TextArea internalNote = new TextArea();
     private final ComboBox<Customer> knownCustomer = new ComboBox<>();
+    private final ComboBox<Channel> channel = new ComboBox<>();
     private final OrderLineEditor editor;
     private final SlotPicker picker;
     private final TurnMeter meter = new TurnMeter();
     private final Div aiForm = new Div();
+    private Upload photo;
+    /** The photograph waiting to ride with the next prompt, if there is one. */
+    private AIAttachment staged;
     private AIOrchestrator orchestrator;
     private final CustomerService customerSearch;
     private final SlotService slotService;
@@ -136,8 +150,24 @@ public class PhoneOrderView extends VerticalLayout {
         internalNote.setId("internalNote");
         internalNote.setHeight("4rem");
 
+        // How the order reached the bakery. Deliberately outside the container
+        // the controller walks: the customer's words cannot know this, only the
+        // person taking it can, and a model guessing it would be guessing about
+        // its own conversation. ONLINE is missing because that is the channel a
+        // customer uses on their own, and nobody is here to record it.
+        Translations.bind(channel, channel::setLabel, "assistant.channel");
+        channel.setItemLabelGenerator(value -> getTranslation(value.translationKey()));
+        channel.setItems(Channel.PHONE, Channel.EMAIL, Channel.COUNTER);
+        channel.setValue(Channel.PHONE);
+        channel.addClassName("phone-order__channel");
+
         Translations.bind(whatTheySaid, whatTheySaid::setLabel, "assistant.whatTheySaid");
-        whatTheySaid.setHeight("8rem");
+        // One line that grows to eight as they talk, rather than a fixed block
+        // of eight that is empty most of the time. An explicit height would
+        // defeat the growing, so there is none.
+        whatTheySaid.setWidthFull();
+        whatTheySaid.setMinRows(1);
+        whatTheySaid.setMaxRows(8);
         Translations.bind(whatTheySaid, whatTheySaid::setPlaceholder, "assistant.whatTheySaid.placeholder");
 
         editor = new OrderLineEditor(catalogue);
@@ -159,7 +189,7 @@ public class PhoneOrderView extends VerticalLayout {
             try {
                 orders.place(editor.getLines(), firstName.getValue(), lastName.getValue(), email.getValue(),
                         phone.getValue(), picker.getLocation(), picker.getDate(), picker.getTime(),
-                        Channel.PHONE, null, currentUser.get().orElse(null));
+                        channel.getValue(), null, currentUser.get().orElse(null));
                 getUI().ifPresent(ui -> ui.navigate(OrderBoardView.ROUTE));
             } catch (DomainException failure) {
                 Notification.show(getTranslation(failure.translationKey(), failure.arguments()))
@@ -174,10 +204,27 @@ public class PhoneOrderView extends VerticalLayout {
         aiForm.addClassName("phone-order__ai-form");
         aiForm.add(form, editor, picker, internalNote);
 
-        add(Translations.bindText(new H2(), "assistant.phoneOrder"), whatTheySaid, aiForm, save,
-                assistantPanel(assistant, policy), meter);
+        var header = new Div(Translations.bindText(new H2(), "assistant.counterOrder"), channel);
+        header.addClassName("phone-order__header");
+
+        add(header, assistantPanel(assistant, policy), aiForm, save, meter);
     }
 
+    /**
+     * What the barista types into, and the one control that acts on it.
+     *
+     * There used to be a chat box here beside the paste area, which meant the
+     * screen had two places to type and no way to tell what either did: the
+     * paste area was labelled and inert, and the thing that actually reached
+     * the model was a message input with a Send button. Now the paste area is
+     * the input, the photograph is the other input, and one button sends
+     * whichever of them is filled.
+     *
+     * The provider is not named here any more. It is on the about page, which
+     * is where a reader looks for what the build is made of, and a badge over
+     * every assistant repeated it without ever being the answer to a question
+     * somebody had while taking an order.
+     */
     private Div assistantPanel(AssistantStatus assistant, AssistantPolicy policy) {
         var panel = new Div();
         panel.addClassName("phone-order__assistant");
@@ -189,33 +236,43 @@ public class PhoneOrderView extends VerticalLayout {
         controller = formController();
 
         if (!assistant.isAvailable()) {
+            // And nothing to paste into either: an input that cannot reach a
+            // model is worse than no input, because it looks like one that can.
             panel.add(Assistants.unavailable(assistant));
             return panel;
         }
 
-        var status = Translations.bindText(new Span(), "assistant.provider", assistant.describe());
-        status.getElement().getThemeList().add("badge small");
-        panel.add(status);
+        // Captured while the view is being built, because a response arrives on
+        // a worker thread where there is no current UI to ask for.
+        var ui = UI.getCurrent();
 
         var messages = new MessageList();
-        var input = new MessageInput();
+        // A model writes markdown whether or not anybody asked it to, and a
+        // message list renders text, so its emphasis arrived as asterisks
+        // around the words it meant to stress.
+        messages.setMarkdown(true);
 
         try {
             // The orchestrator itself is free. The policy hook and the turn meter
             // are the two things this application cares about most. The lines
             // ride alongside the controller as a tool of ours, because a list
             // that grows has no field to fill until it has grown.
+            //
+            // No input component: this one is prompted from code, so that one
+            // button can carry the pasted words and the photograph together.
             orchestrator = AIOrchestrator.builder(assistant.newSession(), Prompts.of("phone-order"))
-                    .withInput(input)
                     .withMessageList(messages)
                     .withController(Controllers.of(controller, tools(UI.getCurrent())))
                     .withRequestInterceptor(policy.interceptor())
-                    .withResponseListener(event -> event.getMetadata().ifPresent(metadata -> meter.record(
-                            metadata.tokenUsage() == null ? 0 : metadata.tokenUsage().totalTokens(),
-                            metadata.finishReason())))
+                    .withResponseListener(event -> {
+                        event.getMetadata().ifPresent(metadata -> meter.record(
+                                metadata.tokenUsage() == null ? 0 : metadata.tokenUsage().totalTokens(),
+                                metadata.finishReason()));
+                        UiWork.on(ui, this::sayIfTheSlotIsMissing);
+                    })
                     .withAssistantName(getTranslation("app.name"))
                     .build();
-            panel.add(messages, input);
+            panel.add(whatTheySaid, actions(), messages);
         } catch (RuntimeException unavailable) {
             // A licence the machine does not have, or the components switched
             // off. Same treatment: say so where it can be seen.
@@ -224,6 +281,91 @@ public class PhoneOrderView extends VerticalLayout {
         }
 
         return panel;
+    }
+
+    /**
+     * The fill button and the photograph, on one line under the paste area.
+     *
+     * The photograph is an upload of ours rather than the orchestrator's file
+     * receiver. The receiver hands its files to the orchestrator when a user
+     * submits a message through an input component, and there is no input
+     * component here, so keeping the bytes ourselves is what lets one button
+     * send words and a picture in the same turn. Source tracking allows one
+     * attachment per prompt, which is also why the upload takes one file.
+     */
+    private Div actions() {
+        var fill = new Button(new Icon(VaadinIcon.MAGIC), event -> fill());
+        fill.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        Translations.bindText(fill, "assistant.fill");
+
+        photo = new Upload(UploadHandler.inMemory((metadata, data) -> staged = new AIAttachment(
+                metadata.fileName(), metadata.contentType(), data)));
+        photo.setMaxFiles(1);
+        photo.setAcceptedMimeTypes("image/*");
+        photo.setMaxFileSize(8 * 1024 * 1024);
+        // Nothing to drop onto: the drop target is a box the size of the form,
+        // and this sits on one line beside a button.
+        photo.setDropAllowed(false);
+        photo.addFileRemovedListener(event -> staged = null);
+        photo.addClassName("phone-order__photo");
+
+        var pick = new Button(new Icon(VaadinIcon.CAMERA));
+        pick.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        Translations.bindText(pick, "assistant.photo");
+        photo.setUploadButton(pick);
+
+        var row = new Div(fill, photo);
+        row.addClassName("phone-order__actions");
+        return row;
+    }
+
+    /**
+     * One turn, from whatever the barista has given us.
+     *
+     * A photograph with no words still needs a sentence, because a prompt is
+     * what the turn is made of, so an empty paste area supplies one saying to
+     * read the note. Both empty is the one case that asks rather than guesses.
+     */
+    private void fill() {
+        var said = whatTheySaid.getValue() == null ? "" : whatTheySaid.getValue().trim();
+        var attachment = staged;
+        if (said.isBlank() && attachment == null) {
+            Notification.show(getTranslation("assistant.fill.nothing"))
+                    .addThemeVariants(NotificationVariant.LUMO_CONTRAST);
+            return;
+        }
+        var message = said.isBlank() ? getTranslation("assistant.fill.fromPhoto") : said;
+        if (attachment == null) {
+            orchestrator.prompt(message);
+            return;
+        }
+        orchestrator.prompt(message, java.util.List.of(attachment));
+        // Sent, so it is no longer waiting. The next turn is about the next
+        // note, and the same picture twice is a second bill for nothing.
+        staged = null;
+        photo.clearFileList();
+    }
+
+    /**
+     * Says so when the turn left the pickup empty.
+     *
+     * The slot is the one thing on this screen the model cannot write directly,
+     * and a model that skips the tool still writes a sentence saying when the
+     * order will be collected: watched twice, it announced a Friday at five
+     * that no field held. The form is what the bakery reads, so when the lines
+     * are there and the pickup is not, the screen says it out loud rather than
+     * leaving the chat's account of it standing.
+     */
+    private Void sayIfTheSlotIsMissing() {
+        if (!editor.getLines().isEmpty() && picker.getDate() == null) {
+            // Longer than the default five seconds: it arrives at the end of a
+            // turn the reader spent watching the form fill itself, and it is
+            // the one thing on the screen that is missing rather than wrong.
+            var warning = Notification.show(getTranslation("assistant.slot.missing"), 9000,
+                    Notification.Position.BOTTOM_START);
+            warning.addThemeVariants(NotificationVariant.LUMO_WARNING);
+        }
+        return null;
     }
 
     /**

@@ -53,6 +53,10 @@ public class AskPanel extends Div {
         }
 
         var messages = new MessageList();
+        // A model writes markdown whether or not anybody asked it to, and a
+        // message list renders text, so its emphasis arrived as asterisks
+        // around the words it meant to stress.
+        messages.setMarkdown(true);
         var input = new MessageInput();
 
         try {

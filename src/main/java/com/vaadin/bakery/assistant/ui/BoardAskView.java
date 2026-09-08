@@ -46,6 +46,15 @@ public class BoardAskView extends VerticalLayout implements BoardPanel {
     public BoardAskView(AssistantStatus assistant, AssistantPolicy policy, BakeryDatabase database) {
         addClassName("board-ask");
 
+        // A conversation and a table of results need more room than an order
+        // form, so this panel widens the layout while it is open and hands the
+        // width back when it closes. The board owns the number: a panel that
+        // set it and forgot would leave every later panel wide.
+        whenAttached(ui -> {
+            OrderBoardView.widenPanel(this, "34rem");
+            return () -> OrderBoardView.resetPanelWidth(this);
+        });
+
         var close = new Button(new Icon(VaadinIcon.CLOSE_SMALL), event -> close());
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         Translations.bind(close, close::setAriaLabel, "board.panel.close");

@@ -24,6 +24,8 @@ import tools.jackson.databind.JsonNode;
  */
 public final class PickupSlotTool implements LLMProvider.ToolSpec {
 
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(PickupSlotTool.class);
+
     private static final String SOONEST = "soonest";
     private static final int HORIZON_DAYS = 60;
 
@@ -59,14 +61,24 @@ public final class PickupSlotTool implements LLMProvider.ToolSpec {
                 + "if it cannot be served. A refusal names the next time that is free, so take it.";
     }
 
+    /**
+     * The schema, with the word soonest in single quotes.
+     *
+     * It carried double quotes, escaped for Java and therefore not escaped in
+     * the JSON, which made the schema invalid. Spring AI logs that as an error
+     * and drops the tool for the request, so the model never saw this tool at
+     * all: it filled the rest of the form, narrated a pickup time it had no
+     * way to set, and left the picker empty. Nothing on the screen said so.
+     * Recorded in {@code specs/FEEDBACK-25.3.md}.
+     */
     @Override
     public String getParametersSchema() {
         return """
                 {
                   "type": "object",
                   "properties": {
-                    "date": { "type": "string", "description": "Pickup day as YYYY-MM-DD. Omit it, or send \"soonest\", and the bakery picks the earliest day it can serve." },
-                    "time": { "type": "string", "description": "Pickup time as HH:mm on the hour or the half hour. Omit it, or send \"soonest\", and the bakery picks." }
+                    "date": { "type": "string", "description": "Pickup day as YYYY-MM-DD. Omit it, or send 'soonest', and the bakery picks the earliest day it can serve." },
+                    "time": { "type": "string", "description": "Pickup time as HH:mm on the hour or the half hour. Omit it, or send 'soonest', and the bakery picks." }
                   },
                   "required": []
                 }
@@ -128,6 +140,28 @@ public final class PickupSlotTool implements LLMProvider.ToolSpec {
 
         picker.datePicker().setValue(date);
         picker.timeSelect().setValue(time);
+
+        // Read back rather than trust the write. A Select takes a value only
+        // when it is one of its items, and the day's times are reloaded by the
+        // date it was just given, so a time this tool accepted can still be a
+        // time the form has no row for. It answered "set" for it once, and the
+        // barista's screen said half past seven.
+        var writtenDay = picker.datePicker().getValue();
+        var writtenTime = picker.timeSelect().getValue();
+        if (!date.equals(writtenDay) || !time.equals(writtenTime)) {
+            throw new ToolException(time + " is not a time " + location.getName() + " collects at on "
+                    + date + ". These are: " + slots.options(location, date).stream()
+                            .filter(option -> option.isAvailable())
+                            .map(option -> option.time().toString())
+                            .reduce((a, b) -> a + ", " + b).orElse("none that day")
+                    + ". Propose one of them.");
+        }
+
+        // Successful calls are the ones worth seeing in a demo: a model that
+        // narrates a pickup it never set leaves nothing else behind.
+        LOG.info("propose_pickup_slot: asked date={} time={}, set {} at {}",
+                wantedDay.isEmpty() ? SOONEST : wantedDay, wantedTime.isEmpty() ? SOONEST : wantedTime,
+                date, time);
         return "Pickup set for " + date + " at " + time + " at " + location.getName() + ".";
     }
 
