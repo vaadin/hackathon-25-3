@@ -6,7 +6,7 @@ import com.vaadin.flow.server.SessionLockReleasedEvent;
 import com.vaadin.flow.server.SessionLockRequestedEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.communication.RpcInvocationEndedEvent;
-import com.vaadin.flow.server.communication.RpcInvocationEvent;
+import com.vaadin.flow.server.communication.RpcInvocationStartedEvent;
 import com.vaadin.flow.server.data.DataCountEndedEvent;
 import com.vaadin.flow.server.data.DataCountStartedEvent;
 import com.vaadin.flow.server.data.DataFetchEndedEvent;
@@ -59,7 +59,7 @@ public class PlatformEventRecorder implements VaadinServiceInitListener {
             }
         });
 
-        bus.addListener(RpcInvocationEvent.class, rpc -> rpcInvocations.incrementAndGet());
+        bus.addListener(RpcInvocationStartedEvent.class, rpc -> rpcInvocations.incrementAndGet());
         bus.addListener(RpcInvocationEndedEvent.class, rpc -> {
         });
 
@@ -70,20 +70,32 @@ public class PlatformEventRecorder implements VaadinServiceInitListener {
         });
         bus.addListener(DataFetchStartedEvent.class, fetch -> {
             dataFetchQueries.incrementAndGet();
-            fetchesByCaller.merge(callerName(), 1L, Long::sum);
+            fetchesByCaller.merge(callerName(fetch), 1L, Long::sum);
         });
         bus.addListener(DataFetchEndedEvent.class, fetch -> {
         });
     }
 
-    /** Which of our own classes asked for the data, for the per view breakdown. */
-    private String callerName() {
-        return StackWalker.getInstance()
-                .walk(frames -> frames
-                        .map(StackWalker.StackFrame::getClassName)
-                        .filter(name -> name.startsWith("com.vaadin.bakery"))
-                        .findFirst()
-                        .orElse("unknown"));
+    /**
+     * Which component asked for the data, for the per view breakdown.
+     *
+     * The event carries it, which is the whole reason the 25.3 fetch events
+     * take a component: a query can be attributed to the grid or the combo box
+     * that issued it rather than only to the request it arrived in. This used
+     * to walk the stack for the first `com.vaadin.bakery` frame, which is a
+     * frame of this class, because a listener runs inside the listener: the
+     * column read "PlatformEventRecorder" for every fetch in the application
+     * and had never read anything else.
+     *
+     * A filtered fetch is named as one, because a combo box loading matches for
+     * what somebody typed and a grid loading its next page are the same event
+     * and not the same cost.
+     */
+    private String callerName(DataFetchStartedEvent fetch) {
+        var component = fetch.getComponent()
+                .map(item -> item.getClass().getSimpleName())
+                .orElse("unattributed");
+        return fetch.isFiltered() ? component + " (filtered)" : component;
     }
 
     public void countUndeliveredInvocation() {
