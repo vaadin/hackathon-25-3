@@ -35,6 +35,12 @@ An invoice keeps the language it was issued in, for good. It is a document of re
 
 Admin only, requires a reason, records it in the order history, and never reuses the number. A voided invoice prints with a void watermark.
 
+### The export runs outside the session
+
+A download is its own request. It arrives without the session lock, which the download documentation mentions in passing and nothing in the API prevents, so the export reads no UI state at all: the filter and the locale are copied into a snapshot by the same effect that reloads the grid, and the request reads that. Reading the signals from there was a race with whoever was typing in the filter.
+
+And it cannot fail silently. A download has no screen to fail on, so an exception left to propagate reaches the browser as whatever the container makes of it and reaches the person as nothing, which is what "the application crashed" looks like from the outside. The callback catches, logs the filter that produced the failure, and answers `DownloadResponse.error(500, ...)` with a sentence.
+
 ## Edge cases
 
 | Scenario | Behaviour |

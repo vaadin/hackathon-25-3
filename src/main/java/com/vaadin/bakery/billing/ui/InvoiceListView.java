@@ -44,6 +44,8 @@ import java.util.Locale;
 @RolesAllowed({ Role.ADMIN_NAME, Role.BARISTA_NAME })
 public class InvoiceListView extends VerticalLayout {
 
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(InvoiceListView.class);
+
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("d MMM yyyy");
 
     private final InvoiceRepository invoices;
@@ -51,6 +53,21 @@ public class InvoiceListView extends VerticalLayout {
     private final Grid<Invoice> grid = new Grid<>();
     private final ValueSignal<String> search = new ValueSignal<>("");
     private final ValueSignal<InvoiceStatus> status = new ValueSignal<>(null);
+
+    /**
+     * What the export needs, copied out of the signals every time they change.
+     *
+     * A download is not a UI request: it arrives on its own, without the
+     * session lock, which the download documentation mentions in passing and
+     * nothing in the API stops. Reading a signal from there is a race with
+     * whoever is typing in the filter, and reading the locale is the same race
+     * again, so the request reads this snapshot instead and touches no UI state
+     * at all. Volatile because it is written under the lock and read without
+     * it.
+     */
+    private volatile String exportTerm = "";
+    private volatile InvoiceStatus exportStatus;
+    private volatile Locale exportLocale = Locale.ENGLISH;
 
     public InvoiceListView(InvoiceRepository invoices, InvoiceService invoiceService) {
         this.invoices = invoices;
@@ -101,7 +118,17 @@ public class InvoiceListView extends VerticalLayout {
         add(new Div(searchField, statusFilter, export), grid);
         // Re-running the load on a locale change is what redraws the cells whose
         // value provider formats a date or an amount.
-        Translations.onLocale(this, locale -> reload(search.get(), status.get()));
+        // One effect, because `onLocale` registers one: reading the two filter
+        // signals inside it is what makes the grid reload when they change, and
+        // it is also the moment to copy them for the export.
+        Translations.onLocale(this, locale -> {
+            var term = search.get();
+            var wanted = status.get();
+            exportTerm = term;
+            exportStatus = wanted;
+            exportLocale = locale;
+            reload(term, wanted);
+        });
     }
 
     private Span statusBadge(Invoice invoice) {
@@ -153,7 +180,7 @@ public class InvoiceListView extends VerticalLayout {
     /** Exactly the rows the filter shows, with numbers a spreadsheet understands. */
     String csv() {
         var rows = new StringBuilder("number,issued,customer,net,vat,gross,status\n");
-        filtered(search.peek(), status.peek()).forEach(invoice -> rows
+        filtered(exportTerm, exportStatus).forEach(invoice -> rows
                 .append(invoice.getNumber()).append(',')
                 .append(invoice.getIssuedAt()).append(',')
                 .append('"').append(invoice.getBillingName().replace("\"", "\"\"")).append('"').append(',')
@@ -173,9 +200,22 @@ public class InvoiceListView extends VerticalLayout {
      */
     private DownloadHandler csvDownload() {
         return DownloadHandler.fromInputStream(event -> {
-            var bytes = csv().getBytes(StandardCharsets.UTF_8);
-            return new DownloadResponse(new ByteArrayInputStream(bytes), "invoices.csv",
-                    "text/csv; charset=utf-8", bytes.length);
+            try {
+                var bytes = csv().getBytes(StandardCharsets.UTF_8);
+                return new DownloadResponse(new ByteArrayInputStream(bytes), "invoices.csv",
+                        "text/csv; charset=utf-8", bytes.length);
+            } catch (RuntimeException failure) {
+                // A download has no screen to fail on. Left to propagate, the
+                // browser gets whatever the container makes of it and the
+                // person gets nothing at all, which is what "it crashed" looks
+                // like from the outside. This turns it into an HTTP error with
+                // a sentence, and puts the filter that produced it in the log,
+                // which is the part that makes the next one diagnosable.
+                LOG.error("The invoice export failed. Filter: term '{}', status {}",
+                        exportTerm, exportStatus, failure);
+                return DownloadResponse.error(500,
+                        getTranslation(exportLocale, "billing.invoice.exportFailed"));
+            }
         });
     }
 
