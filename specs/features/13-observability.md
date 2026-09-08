@@ -29,8 +29,9 @@ Both are written as assertions, not as screenshots.
 ## Acceptance criteria
 
 ### AC1: Metrics are exported
-- [ ] With the profile on, `/actuator/prometheus` returns Vaadin metrics including navigation timing and UI state size
-- [ ] `/actuator/vaadin/observability` returns insights
+- [x] With the profile on, `/actuator/prometheus` returns Vaadin metrics including navigation timing and fetched rows by route. Verified by hand, once, and written up in `07-observability.md`: 22 `vaadin_*` families, every one labelled by route. Not UI state size, which is not among them
+- [x] `/actuator/vaadin/observability` answers with active instrumentation. It returns no insights, because an insight is a slow interaction and ordinary use of a local application has none
+- [x] A scraper reaches the metrics with HTTP Basic and only as an admin, health stays public, and a barista is refused by the rule rather than by the endpoint
 
 ### AC2: The diagnostics view needs no backend
 - [x] Session lock, RPC and data provider panels populate under normal use with the default profile
@@ -48,7 +49,8 @@ Both are written as assertions, not as screenshots.
 
 ### Still open
 
-- Neither endpoint criterion is tested. `ObservabilityEndpointTest` proves health is public and that the metrics endpoint is not, which is AC5, not AC1. Asserting the Vaadin metrics themselves needs a run with the `observability` profile, and nothing runs one.
+- The endpoint criteria are ticked on one manual run rather than on a test. `ObservabilityEndpointTest` now covers what can be covered without the profile: health is public, the metrics are not, an admin's Basic credentials are accepted rather than redirected, and a barista is refused. Asserting the `vaadin_*` families themselves needs a build with the `observability` profile, and nothing runs one, so OBS-01 stays a name in the table.
+- Interaction Insights has nothing to show without a deliberately slow interaction. Whatever demonstrates it has to stage one, and no screen here does.
 - AC4 needs rereading rather than testing. `Application` is now annotated `@Push`, because the assistant streams its answer token by token and those tokens reach the browser no other way. The premise of both criteria, a deferred callback delivered with no push connection, no longer describes this application. The button in the diagnostics view still schedules the callback and still reports what it cost, so the interesting part survives, but the undelivered counter now needs a UI that has actually gone rather than one that merely cannot be reached.
 
 ## Test cases

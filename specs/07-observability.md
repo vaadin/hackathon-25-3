@@ -2,7 +2,22 @@
 
 Two halves. Observability Kit 5 gives the production picture, and a diagnostics view built on the new `VaadinService` event bus gives the in application picture that no generic APM can show.
 
-This epic is scheduled last, after the polish passes. It instruments screens rather than shaping them, and instrumenting a screen that is still being redesigned is work done twice. The free half, the diagnostics view, is built; the kit's profile exists and has not been run yet, which is the schedule and not a gap.
+This epic is scheduled last, after the polish passes. It instruments screens rather than shaping them, and instrumenting a screen that is still being redesigned is work done twice. The free half, the diagnostics view, is built and works. The kit's half has now been run once, deliberately, to find out whether the profile as written produces anything: it does, and it needed one fix to be reachable. What is still not done is the Grafana dashboard and the demo script around it.
+
+### What the one run measured
+
+`./mvnw spring-boot:run -Pobservability -Dspring-boot.run.profiles=observability`, then a walk through login, the order board, the closures admin and the dashboard.
+
+- `observability-kit-starter:5.0.0-beta1` resolves from the platform BOM, with `observability-kit-micrometer` and `observability-kit-spring` behind it. No agent, no `-javaagent`, no `agent.properties`, exactly as the page says.
+- `/actuator/prometheus` serves 22 `vaadin_*` metric families: sessions total, active and duration; UIs total, active and `ui.access` timing; navigation timing by route and outcome; request, RPC and data query durations; session lock wait and hold; fetched rows and requested pages by route; and, because `vaadin.observability.client=true`, client side bootstrap duration and Web Vitals FCP and LCP by route. Every one is labelled by route, which is what makes "which view is slowest" answerable.
+- `/actuator/vaadin/observability` answers `{"schemaVersion":1,"instrumentation":"active","insights":[]}`. Instrumentation is live and the insight list is empty, because an insight is a slow interaction and nothing in a walk through a local application is slow. Demonstrating Interaction Insights therefore needs a deliberately slow interaction rather than ordinary use, which the demo script has to stage.
+- No licence complaint anywhere, and no telemetry backend was needed to read either endpoint.
+
+### The one fix it needed
+
+The endpoints were not reachable. There was a single security chain and the Vaadin one accepts everything, so `/actuator/prometheus` answered a scrape with a 302 to the login page: the committed Prometheus job would have collected a login form every five seconds, and the Grafana dashboard would have been empty with nothing saying why.
+
+The actuator now has a chain of its own, ordered first, matching `/actuator/**`, with HTTP Basic, no session and no CSRF, still requiring the admin role, and health still public. Measured after the change: health 200 with no credentials, prometheus and insights 200 with an admin's Basic header, 403 with a barista's, 302 without any. `ops/prometheus.yml` carries the credentials, which is what a scraper does.
 
 ## Observability Kit 5
 
@@ -23,14 +38,14 @@ vaadin.observability.traces=true
 
 No agent JAR, no `-javaagent`, no `agent.properties`. Metrics at `/actuator/prometheus`, insights at `/actuator/vaadin/observability`.
 
-`docker compose up -d` starts Prometheus and Grafana with a committed dashboard JSON at `ops/grafana/bakery-dashboard.json`. The dashboard has four rows:
+`docker compose up -d` starts Prometheus and Grafana. **Not built, and the compose file promises it anyway:** it mounts `./ops/grafana` as Grafana's provisioning directory and that directory does not exist, so the dashboard below is a description of what to build and not of what is there. `ops/prometheus.yml` is real and now carries the credentials the scrape needs.
 
-| Row | Panels |
-| --- | --- |
-| Traffic | Sessions, UIs, navigations per minute, navigation timing by route |
-| Health | Errors by route and component, connection state, Web Vitals |
-| Memory | UI state size gauges by route, node counts, sessions over time |
-| Data | Data provider queries per view, JDBC spans and fetch sizes by view |
+| Row | Panels | State |
+| --- | --- | --- |
+| Traffic | Sessions, UIs, navigations per minute, navigation timing by route | Every metric exists, measured. No dashboard |
+| Health | Errors by route and component, connection state, Web Vitals | Web Vitals exist, FCP and LCP by route. No error or connection metric was seen in the 22 families |
+| Memory | UI state size gauges by route, node counts, sessions over time | Sessions exist. **No UI state size metric exists**, so this row is a claim the kit does not support, or supports under a name that did not appear |
+| Data | Data provider queries per view, JDBC spans and fetch sizes by view | Query durations, fetched rows and requested pages exist by route. No JDBC span was seen |
 
 Without a licence the kit degrades to no telemetry rather than a startup failure, and the about view says so.
 
@@ -41,7 +56,7 @@ A dashboard that nobody reads is decoration. Each of these is a question the bak
 | Question | Where it is answered |
 | --- | --- |
 | Which view is slowest for real users | Interaction Insights, backtracking slow interactions |
-| Which view leaks server side state | UI state size gauge by route |
+| Which view leaks server side state | UI state size gauge by route. **No such metric appeared in the one run**, so this question is currently unanswerable and the claim needs checking against the kit's own documentation before the demo relies on it |
 | Which view is responsible for that spike in database time | JDBC spans attributed per view |
 | Did the last deployment make navigation slower | Navigation timing by route, before and after |
 | Are customers on bad connections losing the session | Client side connection state and Web Vitals |

@@ -4,6 +4,14 @@ global:
 scrape_configs:
   - job_name: bakery
     metrics_path: /actuator/prometheus
+    # A scraper is not a person and cannot use a login form. The actuator has a
+    # security chain of its own, with HTTP Basic and the admin role, so these
+    # credentials are what reaches the metrics. Without them the scrape used to
+    # collect a 302 to the login page every five seconds and the dashboard
+    # stayed empty with nothing saying why.
+    basic_auth:
+      username: admin@bakery.test
+      password: admin
     static_configs:
       # host.docker.internal reaches the application running outside Docker
       - targets: ["host.docker.internal:8080"]

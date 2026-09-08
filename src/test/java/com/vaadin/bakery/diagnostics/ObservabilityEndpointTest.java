@@ -1,5 +1,6 @@
 package com.vaadin.bakery.diagnostics;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,9 +36,18 @@ class ObservabilityEndpointTest {
     private int port;
 
     private int statusOf(String path) throws Exception {
+        return statusOf(path, null, null);
+    }
+
+    /** The same request, with HTTP Basic credentials when there are any. */
+    private int statusOf(String path, String user, String password) throws Exception {
         try (var client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build()) {
-            var request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path)).GET().build();
-            return client.send(request, HttpResponse.BodyHandlers.ofString()).statusCode();
+            var request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path)).GET();
+            if (user != null) {
+                request.header("Authorization", "Basic " + java.util.Base64.getEncoder()
+                        .encodeToString((user + ":" + password).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            }
+            return client.send(request.build(), HttpResponse.BodyHandlers.ofString()).statusCode();
         }
     }
 
@@ -53,5 +63,26 @@ class ObservabilityEndpointTest {
     void metricsAreNotPublic() throws Exception {
         assertNotEquals(200, statusOf("/actuator/prometheus"),
                 "an anonymous request must not receive the metrics");
+    }
+
+    /**
+     * A scraper authenticates with HTTP Basic, because it cannot use a login
+     * form. That is what the actuator's own security chain is for, and it is
+     * testable here whether or not the kit is on the classpath: authorization
+     * runs before routing, so an admin gets past the rule and reaches either
+     * the metrics or a 404, while anyone else is refused by the rule itself.
+     *
+     * Without that chain the answer for all three was a 302 to the login page,
+     * so the committed Prometheus job collected a login form every five
+     * seconds and the dashboard stayed empty with nothing saying why.
+     */
+    @Test
+    void aScraperGetsInWithBasicCredentialsAndOnlyAsAnAdmin() throws Exception {
+        int asAdmin = statusOf("/actuator/prometheus", "admin@bakery.test", "admin");
+        assertTrue(asAdmin == 200 || asAdmin == 404,
+                "an admin's credentials are accepted rather than redirected, got " + asAdmin);
+
+        assertEquals(403, statusOf("/actuator/prometheus", "barista@bakery.test", "barista"),
+                "and a barista is refused by the rule, not by the endpoint");
     }
 }
