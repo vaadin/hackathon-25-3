@@ -10,7 +10,9 @@ import com.vaadin.bakery.assistant.BakeryDatabase;
 import com.vaadin.bakery.ordering.ui.DashboardView;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.messages.MessageInput;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.upload.Upload;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +49,18 @@ class AssistantOffBrowserlessTest extends SpringBrowserlessTest {
         navigate(PhoneOrderView.class);
 
         assertTrue(saysItIsOff(), "the panel says so rather than looking empty");
-        assertTrue(find(MessageInput.class).all().isEmpty(), "and offers nothing to type into");
+        // The screen used to assert the absence of a message input, which it
+        // still lacks and would lack whatever happened, because there is no
+        // chat box on it any more. What has to be absent is the paste area and
+        // the two controls that act on it: an input that cannot reach a model
+        // is worse than no input, because it looks like one that can.
+        assertTrue(find(Button.class).withText("Fill the form").all().isEmpty(),
+                "and nothing offers to fill the form");
+        assertTrue(find(Upload.class).all().isEmpty(),
+                "and no photograph can be handed to a model that is not there");
+        assertTrue(find(TextArea.class).all().stream()
+                        .noneMatch(area -> "What the customer said".equals(area.getLabel())),
+                "and there is nowhere to paste what they said");
     }
 
     /** And the rest of that screen is untouched, which is the point of saying so. */
@@ -60,8 +73,7 @@ class AssistantOffBrowserlessTest extends SpringBrowserlessTest {
         // order taken by hand is still an order: that is the whole offer when
         // there is no assistant, and it is what the red panel says.
         assertTrue(view.editor().getLines().isEmpty(), "the form is a form");
-        assertTrue(find(com.vaadin.flow.component.button.Button.class)
-                .withText("Fill from what they said").all().isEmpty(),
+        assertTrue(find(Button.class).withText("Fill the form").all().isEmpty(),
                 "and nothing offers to fill it from somewhere else");
     }
 

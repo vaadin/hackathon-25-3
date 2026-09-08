@@ -60,8 +60,19 @@ class DiagnosticsBrowserlessTest extends SpringBrowserlessTest {
                 "the platform reported the fetch on the event bus");
     }
 
+    /**
+     * The breakdown names the component that fetched, which is what the 25.3
+     * fetch events carry and the reason they take a component at all.
+     *
+     * It used to assert that the caller was one of our own classes, and it
+     * passed while being wrong: the name came from walking the stack for the
+     * first `com.vaadin.bakery` frame, and the first such frame is the listener
+     * doing the walking, so every fetch in the application was attributed to
+     * `PlatformEventRecorder`. A test that asserts a prefix cannot tell that
+     * apart from an answer, which is why this one now names the component.
+     */
     @Test
-    void theRecorderKnowsWhichOfOurClassesAskedForTheData() {
+    void theRecorderKnowsWhichComponentAskedForTheData() {
         recorder.reset();
         navigate(OrderBoardView.class);
 
@@ -69,9 +80,11 @@ class DiagnosticsBrowserlessTest extends SpringBrowserlessTest {
         Grid<Order> grid = (Grid<Order>) find(Grid.class).single();
         grid.getDataProvider().fetch(new Query<>(0, 50, List.of(), null, null)).count();
 
+        assertTrue(recorder.fetchesByCaller().containsKey("Grid"),
+                "the breakdown names the grid that fetched, got " + recorder.fetchesByCaller());
         assertTrue(recorder.fetchesByCaller().keySet().stream()
-                .anyMatch(caller -> caller.startsWith("com.vaadin.bakery")),
-                "the caller breakdown names our own classes, got " + recorder.fetchesByCaller());
+                .noneMatch(caller -> caller.contains("Recorder")),
+                "and not the listener that recorded it, got " + recorder.fetchesByCaller());
     }
 
     @Test

@@ -61,9 +61,19 @@ class OrderEditorBrowserlessTest extends SpringBrowserlessTest {
         return find(OrderLineEditor.class).single();
     }
 
-    /** Any seeded order that actually has something in it. */
+    /**
+     * Any seeded order that has something in it and can still be edited.
+     *
+     * Not merely "has lines": an invoiced order is a document somebody has
+     * already been given, so its lines and its state are read only and the
+     * panel offers no Save at all. The first seeded order with lines happens to
+     * be one of those, which is why this filters the state as well. An invoice
+     * is issued when an order is picked up.
+     */
     private String referenceWithLines() {
         return orders.findAll().stream()
+                .filter(order -> order.getState() != com.vaadin.bakery.ordering.OrderState.PICKED_UP
+                        && order.getState() != com.vaadin.bakery.ordering.OrderState.CANCELLED)
                 .map(com.vaadin.bakery.ordering.Order::getReference)
                 .filter(reference -> !orderService.detailLines(reference).isEmpty())
                 .findFirst()
@@ -154,7 +164,7 @@ class OrderEditorBrowserlessTest extends SpringBrowserlessTest {
         var providerBefore = board.grid().getDataProvider();
 
         find(OrderLineEditor.class).single().setLines(List.of(new CartLine(product.getId(), 7, "extra crusty")));
-        test(find(Button.class).withText("Save the order").single()).click();
+        test(find(Button.class).withText("Save").single()).click();
 
         assertEquals(List.of(new CartLine(product.getId(), 7, "extra crusty")),
                 orderService.detailLines(reference).stream()
@@ -226,7 +236,7 @@ class OrderEditorBrowserlessTest extends SpringBrowserlessTest {
     @Test
     void theCounterPanelAsksBeforeDiscardingToo() {
         navigate(OrderBoardView.class);
-        test(find(Button.class).withText("New order").single()).click();
+        test(find(Button.class).withAriaLabel("New order").single()).click();
         find(OrderLineEditor.class).single()
                 .setLines(List.of(new CartLine(catalogue.availableProducts().getFirst().getId(), 2, null)));
 

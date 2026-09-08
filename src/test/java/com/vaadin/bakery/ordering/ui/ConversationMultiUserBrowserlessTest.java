@@ -74,8 +74,12 @@ class ConversationMultiUserBrowserlessTest extends SpringBrowserlessTest {
 
         var after = list().getItems();
         assertEquals(before + 1, after.size(), "the open panel caught the new message");
-        assertTrue(after.stream().anyMatch(item -> "Is it ready yet?".equals(item.getText())),
-                "and it is the message that was posted");
+        // Contains rather than equals: an entry is one line, and the line opens
+        // with the time it was written, because the panel merges the history
+        // and the messages into a single list where a bare text would not say
+        // when anything happened.
+        assertTrue(after.stream().anyMatch(item -> item.getText().contains("Is it ready yet?")),
+                "and it is the message that was posted, got " + after.stream().map(item -> item.getText()).toList());
     }
 
     /** The signal is per order, so a message about one does not stir the other. */

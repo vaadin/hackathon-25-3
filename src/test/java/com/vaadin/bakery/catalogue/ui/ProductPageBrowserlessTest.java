@@ -32,9 +32,16 @@ class ProductPageBrowserlessTest extends SpringBrowserlessTest {
         navigate("shop/product/carrot-cake", ProductDetailView.class);
 
         assertEquals("Carrot cake", find(H1.class).single().getText());
+        // Against the product's own text rather than against a heading the
+        // dataset happens to open with: this asserts that the raw markdown
+        // reaches the component, which renders it client side, and it keeps
+        // asserting that when the dataset is regenerated.
+        var product = catalogue.bySlug("carrot-cake").orElseThrow();
+        var opening = product.getDescriptionMarkdown().strip().lines().findFirst().orElseThrow();
         var markdown = find(Markdown.class).single();
-        assertTrue(markdown.getContent().contains("## Carrot cake"),
-                "the raw markdown reaches the component, which renders it client side");
+        assertTrue(markdown.getContent().contains(opening),
+                "the product's own words reach the component, got " + markdown.getContent());
+        assertTrue(markdown.getContent().contains("- "), "and it is still markdown, not rendered html");
     }
 
     @Test

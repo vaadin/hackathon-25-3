@@ -10,7 +10,6 @@ import com.vaadin.bakery.ordering.Order;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.menubar.MenuBar;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,18 +36,19 @@ class ColumnVisibilityBrowserlessTest extends SpringBrowserlessTest {
     }
 
     /**
-     * The toggles are reached through the column that hosts the menu. A
-     * component set as a grid column header is outside the tree the finder
-     * walks, so {@code find(Checkbox.class)} returns nothing since the chooser
-     * moved into the table. See {@code specs/FEEDBACK-25.3.md}.
+     * The toggles are reached through the grid's own context menu, which is
+     * where the chooser lives: there is no column and no header component any
+     * more, because a grid offers a menu over the whole header, the select all
+     * cell included, and that is the only way to put one there. A menu's items
+     * are outside the tree the finder walks, so {@code find(Checkbox.class)}
+     * finds none of these, and they are not attached either until a client
+     * opens the menu, which a browserless test has no way to do. So the toggles
+     * are driven by their value rather than by {@code test(box).click()}: it is
+     * the same listener and the same code path, and the alternative is not
+     * covering the chooser at all. See {@code specs/FEEDBACK-25.3.md}.
      */
     private List<Checkbox> toggles() {
-        var menu = (MenuBar) grid().getColumns().stream()
-                .filter(column -> "chooser".equals(column.getKey()))
-                .findFirst()
-                .orElseThrow()
-                .getHeaderComponent();
-        return menu.getItems().getFirst().getSubMenu().getItems().stream()
+        return find(OrderBoardView.class).single().chooserMenu().getItems().stream()
                 .flatMap(item -> item.getChildren())
                 .filter(Checkbox.class::isInstance)
                 .map(Checkbox.class::cast)
@@ -76,7 +76,7 @@ class ColumnVisibilityBrowserlessTest extends SpringBrowserlessTest {
         var column = grid().getColumns().stream().filter(c -> "items".equals(c.getKey())).findFirst().orElseThrow();
 
         assertFalse(column.isVisible(), "off before");
-        test(items).click();
+        items.setValue(true);
         assertTrue(column.isVisible(), "and on after");
     }
 
@@ -85,16 +85,16 @@ class ColumnVisibilityBrowserlessTest extends SpringBrowserlessTest {
         navigate(OrderBoardView.class);
         var on = toggles().stream().filter(Checkbox::getValue).toList();
         // Turn them all off but the last one, which must refuse.
-        on.subList(0, on.size() - 1).forEach(box -> test(box).click());
+        on.subList(0, on.size() - 1).forEach(box -> box.setValue(false));
         var last = on.getLast();
 
-        test(last).click();
+        last.setValue(false);
 
         assertTrue(last.getValue(), "the toggle springs back");
-        // The chooser lives in a column of its own at the end of the table, and
-        // it is not one of the columns it lists, so it is not counted here.
+        // The edit column is the grid's own furniture rather than one of the
+        // columns the chooser lists, so it is not counted here.
         assertEquals(1, grid().getColumns().stream()
-                        .filter(column -> !"chooser".equals(column.getKey()))
+                        .filter(column -> !"edit".equals(column.getKey()))
                         .filter(Grid.Column::isVisible).count(),
                 "and the table still has a column");
     }

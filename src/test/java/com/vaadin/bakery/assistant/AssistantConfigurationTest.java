@@ -1,9 +1,11 @@
 package com.vaadin.bakery.assistant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.vaadin.bakery.Application;
 import com.vaadin.bakery.assistant.AssistantConfiguration.AssistantStatus;
@@ -37,15 +39,25 @@ class AssistantConfigurationTest {
     /**
      * Which switch is off, not just that one is.
      *
-     * The default build compiles no provider at all, so the honest answer is
-     * "this build has none", and it is a different answer from "the key is
-     * missing". Naming both at once is what sent the first reader to look at a
-     * key that was already exported.
+     * Two builds reach this test and they have different right answers. Without
+     * the {@code ai} profile no provider is compiled at all, so the honest
+     * answer is "this build has none". With the profile, which activates on the
+     * key being present in the environment, Spring AI is on the classpath and
+     * the test profile is what holds the assistant back, so the answer is
+     * "something else turned it off". Both are named reasons and neither is
+     * {@code NONE}, which is the criterion: a screen says which switch, and it
+     * never says the assistant is on when it is not.
+     *
+     * Asserting one of the two would make this test pass or fail on whether
+     * whoever ran it had a key exported, which is a property of the machine and
+     * not of the application.
      */
     @Test
     void theAssistantSaysWhichSwitchIsOff() {
-        assertEquals(Reason.NO_AI_PROFILE, assistant.reason(),
-                "the default build has no Spring AI on the classpath");
+        assertNotEquals(Reason.NONE, assistant.reason(),
+                "the assistant is off, so there is a switch to name");
+        assertTrue(assistant.reason() == Reason.NO_AI_PROFILE || assistant.reason() == Reason.DISABLED,
+                "either this build has no provider, or the test profile is holding it: " + assistant.reason());
         assertFalse(assistant.reason().translationKey().isBlank(), "and a screen can say so");
     }
 

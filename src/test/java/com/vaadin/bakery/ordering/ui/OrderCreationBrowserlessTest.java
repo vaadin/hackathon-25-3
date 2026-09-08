@@ -112,7 +112,9 @@ class OrderCreationBrowserlessTest extends SpringBrowserlessTest {
      * until this task, so this is the red test: before {@code NewOrderView}
      * exists and the board's toolbar offers it, this fails with
      * {@code NoSuchElementException: No visible Button ... matching Button and
-     * text='New order'}. Once the button and view exist, it still has to save
+     * ariaLabel='New order'}. The toolbar's controls are icons with their words
+     * as the accessible name, so that is what a test looks for and what a
+     * screen reader reads. Once the button and view exist, it still has to save
      * through {@code OrderService.place} and land a {@code Channel.COUNTER}
      * order for the assertions below to pass.
      */
@@ -127,7 +129,7 @@ class OrderCreationBrowserlessTest extends SpringBrowserlessTest {
 
         TestLogin.asBarista();
         navigate(OrderBoardView.class);
-        test(find(Button.class).withText("New order").single()).click();
+        test(find(Button.class).withAriaLabel("New order").single()).click();
 
         var editor = find(OrderLineEditor.class).single();
         editor.setLines(List.of(new CartLine(product.getId(), 2, null)));
@@ -146,7 +148,7 @@ class OrderCreationBrowserlessTest extends SpringBrowserlessTest {
         var providerBefore = board.grid().getDataProvider();
 
         long before = orderRepository.count();
-        test(find(Button.class).withText("Save the order").single()).click();
+        test(find(Button.class).withText("Save").single()).click();
 
         assertEquals(before + 1, orderRepository.count());
         var created = orderRepository.findAll().stream()
@@ -183,7 +185,7 @@ class OrderCreationBrowserlessTest extends SpringBrowserlessTest {
 
         TestLogin.asBarista();
         navigate(OrderBoardView.class);
-        test(find(Button.class).withText("New order").single()).click();
+        test(find(Button.class).withAriaLabel("New order").single()).click();
 
         var editor = find(OrderLineEditor.class).single();
         var picker = find(SlotPicker.class).single();
@@ -206,7 +208,7 @@ class OrderCreationBrowserlessTest extends SpringBrowserlessTest {
     void savingWithNoLinesTouchesNoCustomerAndNoOrder() {
         TestLogin.asBarista();
         navigate(OrderBoardView.class);
-        test(find(Button.class).withText("New order").single()).click();
+        test(find(Button.class).withAriaLabel("New order").single()).click();
 
         test(find(TextField.class).withLabel("First name").single()).setValue("Nobody");
         test(find(TextField.class).withLabel("Last name").single()).setValue("Yet");
@@ -217,7 +219,7 @@ class OrderCreationBrowserlessTest extends SpringBrowserlessTest {
 
         // Nothing was ever added to the editor: the trailing empty row does
         // not count, exactly like OrderLineEditor.getLines() already promises.
-        test(find(Button.class).withText("Save the order").single()).click();
+        test(find(Button.class).withText("Save").single()).click();
 
         assertEquals(ordersBefore, orderRepository.count(), "no order was placed");
         assertEquals(customersBefore, customerRepository.count(), "no customer was created either");
@@ -238,7 +240,7 @@ class OrderCreationBrowserlessTest extends SpringBrowserlessTest {
 
         TestLogin.asBarista();
         navigate(OrderBoardView.class);
-        test(find(Button.class).withText("New order").single()).click();
+        test(find(Button.class).withAriaLabel("New order").single()).click();
 
         var editor = find(OrderLineEditor.class).single();
         editor.setLines(List.of(new CartLine(product.getId(), 1, null)));
@@ -251,7 +253,7 @@ class OrderCreationBrowserlessTest extends SpringBrowserlessTest {
 
         long ordersBefore = orderRepository.count();
 
-        test(find(Button.class).withText("Save the order").single()).click();
+        test(find(Button.class).withText("Save").single()).click();
 
         assertEquals(ordersBefore, orderRepository.count(), "no order was placed without a chosen slot");
     }

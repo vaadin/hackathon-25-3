@@ -123,7 +123,7 @@ class PhoneOrderBrowserlessTest extends SpringBrowserlessTest {
         test(picker.datePicker()).setValue(date);
 
         long before = orders.count();
-        test(find(Button.class).withText("Save the order").single()).click();
+        test(find(Button.class).withText("Save").single()).click();
 
         assertEquals(before + 1, orders.count());
         var created = orders.findAll().stream()
@@ -159,7 +159,7 @@ class PhoneOrderBrowserlessTest extends SpringBrowserlessTest {
         long ordersBefore = orders.count();
         long customersBefore = customerRepository.count();
 
-        test(find(Button.class).withText("Save the order").single()).click();
+        test(find(Button.class).withText("Save").single()).click();
 
         assertEquals(ordersBefore, orders.count(), "no order was placed without a chosen slot");
         assertEquals(customersBefore, customerRepository.count(), "no customer was created either");

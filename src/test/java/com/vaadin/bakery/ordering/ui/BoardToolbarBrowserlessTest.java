@@ -13,7 +13,6 @@ import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
-import com.vaadin.flow.component.menubar.MenuBar;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,20 +98,23 @@ class BoardToolbarBrowserlessTest extends SpringBrowserlessTest {
     }
 
     /**
-     * The chooser is inside the table. It is reached through the grid rather
-     * than through the view, which is the whole point of moving it.
+     * The chooser is inside the table, and it is the grid's own context menu.
+     *
+     * It was a column of its own with a menu bar in its header, which is what
+     * this test asserted. There is no such column now: the chooser has to be
+     * reachable from the header, including the select all cell, and a context
+     * menu is the only thing a grid offers that reaches it. What makes it "the
+     * table's shape rather than a row's actions" is the dynamic content
+     * handler, which answers only when the menu was opened on no row at all.
      */
     @Test
     void theColumnChooserBelongsToTheGrid() {
         navigate(OrderBoardView.class);
+        var menu = find(OrderBoardView.class).single().chooserMenu();
 
-        var chooser = grid().getColumns().stream()
-                .filter(column -> "chooser".equals(column.getKey()))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("the grid has a column for the chooser"));
-
-        assertTrue(chooser.getHeaderComponent() instanceof MenuBar,
-                "and its header is the menu, not a button above the table");
-        assertTrue(chooser.isFrozenToEnd(), "kept at the end where settings are looked for");
+        assertEquals(grid(), menu.getTarget(), "the menu belongs to the table itself");
+        assertEquals(7, menu.getItems().size(), "one entry per column it can hide");
+        assertTrue(grid().getColumns().stream().noneMatch(column -> "chooser".equals(column.getKey())),
+                "and no column is spent on it");
     }
 }

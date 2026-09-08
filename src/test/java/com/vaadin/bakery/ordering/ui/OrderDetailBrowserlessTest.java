@@ -57,6 +57,34 @@ class OrderDetailBrowserlessTest extends SpringBrowserlessTest {
                 .anyMatch(heading -> heading.getText().contains(order.getReference())));
     }
 
+    /**
+     * The state is a field now, not a row of buttons.
+     *
+     * It used to be one button per legal transition, which is what these tests
+     * asserted. The panel offers a combo box of the states this order may move
+     * to, and Save is what commits the choice: a barista who picked the wrong
+     * one can pick again, which a button that acted on click never allowed.
+     */
+    @SuppressWarnings("unchecked")
+    private com.vaadin.flow.component.combobox.ComboBox<OrderState> stateField() {
+        return find(com.vaadin.flow.component.combobox.ComboBox.class).all().stream()
+                .filter(combo -> combo.getClassNames().contains("order-detail__state"))
+                .map(combo -> (com.vaadin.flow.component.combobox.ComboBox<OrderState>) combo)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("the panel has a state field"));
+    }
+
+    /** Which states this order may move to, as the field offers them. */
+    private java.util.List<OrderState> offered() {
+        return stateField().getListDataView().getItems().toList();
+    }
+
+    /** Picking a state and committing it, which is one gesture in the panel. */
+    private void moveTo(OrderState target) {
+        stateField().setValue(target);
+        test(find(Button.class).withText("Save").single()).click();
+    }
+
     @Test
     void onlyLegalTransitionsAreOffered() {
         var newOrder = orders.findAll().stream()
@@ -65,9 +93,12 @@ class OrderDetailBrowserlessTest extends SpringBrowserlessTest {
                 .orElseThrow();
         open(newOrder.getReference());
 
-        var labels = find(Button.class).all().stream().map(Button::getText).toList();
-        assertTrue(labels.contains("Confirm"), labels.toString());
-        assertFalse(labels.contains("Mark picked up"), "an order cannot skip straight to picked up");
+        // The order's own state is in the list as well, because a field has to
+        // show what it holds, so this asserts the targets around it.
+        assertTrue(offered().contains(OrderState.CONFIRMED), offered().toString());
+        assertTrue(offered().contains(OrderState.NEW), "and the state it is in now");
+        assertFalse(offered().contains(OrderState.PICKED_UP),
+                "an order cannot skip straight to picked up");
     }
 
     @Test
@@ -79,7 +110,7 @@ class OrderDetailBrowserlessTest extends SpringBrowserlessTest {
         int before = orderService.historyLines(order.getReference()).size();
 
         open(order.getReference());
-        test(find(Button.class).withText("Confirm").single()).click();
+        moveTo(OrderState.CONFIRMED);
 
         var history = orderService.historyLines(order.getReference());
         assertEquals(before + 1, history.size());
@@ -121,8 +152,8 @@ class OrderDetailBrowserlessTest extends SpringBrowserlessTest {
         TestLogin.asBaker();
         open(newOrder.getReference());
 
-        var labels = find(Button.class).all().stream().map(Button::getText).toList();
-        assertTrue(labels.contains("Confirm"), labels.toString());
+        assertTrue(offered().contains(OrderState.CONFIRMED), offered().toString());
+        assertFalse(stateField().isReadOnly(), "a baker may still move the state");
     }
 
     /** Taking an order decides its lines and its price, so it is closed too. */
@@ -131,20 +162,21 @@ class OrderDetailBrowserlessTest extends SpringBrowserlessTest {
         TestLogin.asBaker();
         UI.getCurrent().navigate(OrderBoardView.ROUTE);
 
-        assertTrue(find(Button.class).all().stream().noneMatch(button -> "New order".equals(button.getText())),
+        assertTrue(find(Button.class).all().stream()
+                        .noneMatch(button -> "New order".equals(button.getAriaLabel().orElse(""))),
                 "the board offers a baker no button that would only be refused");
     }
 
     /**
      * A state action used to call {@code Page.reload()}, which in a browser
      * throws away the list, its scroll position, the selection a bulk action
-     * was being assembled from and every expanded row. The panel now re-renders
-     * over a refreshed board instead, which is also the only version of this
-     * that is observable without a browser: a reload does nothing here, so
-     * before the change the panel still offered the action it had just taken.
+     * was being assembled from and every expanded row. Saving refreshes the
+     * board behind the panel and closes the panel instead, which is the whole
+     * of what one Save does: the barista is looking at the list again, with the
+     * order they just moved in it.
      */
     @Test
-    void aStateChangeRerendersThePanelAndKeepsTheList() {
+    void savingKeepsTheListAndClosesThePanel() {
         var newOrder = orders.findAll().stream()
                 .filter(order -> order.getState() == OrderState.NEW)
                 .findFirst()
@@ -152,12 +184,12 @@ class OrderDetailBrowserlessTest extends SpringBrowserlessTest {
         open(newOrder.getReference());
         var board = find(OrderBoardView.class).single();
 
-        test(find(Button.class).withText("Confirm").single()).click();
+        moveTo(OrderState.CONFIRMED);
 
         assertSame(board, find(OrderBoardView.class).single(), "the same list is still on screen");
-        var labels = find(Button.class).all().stream().map(Button::getText).toList();
-        assertTrue(labels.contains("Start baking"), "the panel shows the new state's actions: " + labels);
-        assertFalse(labels.contains("Confirm"), "and stops offering the one just taken: " + labels);
+        assertTrue(find(OrderDetailView.class).all().isEmpty(), "and the panel is done with");
+        assertEquals(OrderState.CONFIRMED, orders.findById(newOrder.getId()).orElseThrow().getState(),
+                "with the order moved");
     }
 
     @Test
@@ -169,7 +201,7 @@ class OrderDetailBrowserlessTest extends SpringBrowserlessTest {
                 .orElseThrow();
 
         open(ready.getReference());
-        test(find(Button.class).withText("Mark picked up").single()).click();
+        moveTo(OrderState.PICKED_UP);
 
         var updated = orders.findById(ready.getId()).orElseThrow();
         assertEquals(OrderState.PICKED_UP, updated.getState());

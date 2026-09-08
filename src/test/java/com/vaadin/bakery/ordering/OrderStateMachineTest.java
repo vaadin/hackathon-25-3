@@ -31,7 +31,12 @@ class OrderStateMachineTest {
         assertFalse(OrderState.NEW.canMoveTo(OrderState.READY), "an order cannot skip preparation");
         assertTrue(OrderState.PROBLEM.canMoveTo(OrderState.CONFIRMED), "a problem can be resolved");
         assertTrue(OrderState.PICKED_UP.allowedTargets().isEmpty(), "a picked up order is finished");
-        assertTrue(OrderState.CANCELLED.allowedTargets().isEmpty());
+        // A cancelled order is not finished, it is refused, and a customer who
+        // cancelled by mistake and rang back is a real morning at a bakery.
+        // Confirmed and nothing else: the order goes back to the queue rather
+        // than to whatever state it happened to be cancelled from.
+        assertEquals(java.util.Set.of(OrderState.CONFIRMED), OrderState.CANCELLED.allowedTargets(),
+                "a cancelled order can be reopened, and only into the queue");
     }
 
     @Test
