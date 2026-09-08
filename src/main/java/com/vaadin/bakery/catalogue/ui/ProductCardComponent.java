@@ -5,6 +5,7 @@ import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.HasAriaRole;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
@@ -18,10 +19,14 @@ import java.util.Locale;
  * {@code HtmlContainer}, so nothing nests inside it. The badge and the overlay
  * are siblings in a positioned wrapper instead of children of the image.
  */
-public class ProductCardComponent extends Div {
+public class ProductCardComponent extends Div implements HasAriaRole {
 
     public ProductCardComponent(ProductCard card, SerializableConsumer<ProductCard> onAdd) {
         addClassName("product-card");
+        // A card is an article rather than an anonymous box: it has a heading,
+        // a price and its own controls, and a screen reader that knows that can
+        // offer to skip from one product to the next.
+        setAriaRole("article");
 
         var href = "shop/" + ProductDetailView.SEGMENT + "/" + card.slug();
 

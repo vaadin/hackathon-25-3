@@ -6,6 +6,7 @@ import com.vaadin.bakery.base.validation.OnSubmit;
 import com.vaadin.bakery.ordering.CheckoutState;
 import com.vaadin.bakery.people.Customer;
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.InputMode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -48,6 +49,7 @@ public class CheckoutContactView extends VerticalLayout {
         var email = Fields.email("checkout.email");
         var phone = new TextField();
         Translations.bind(phone, phone::setLabel, "checkout.phone");
+        phone.setInputMode(InputMode.TEL);
         var note = new TextArea();
         Translations.bind(note, note::setLabel, "checkout.note");
         note.setMaxLength(500);

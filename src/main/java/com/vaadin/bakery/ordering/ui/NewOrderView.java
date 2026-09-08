@@ -10,6 +10,7 @@ import com.vaadin.bakery.ordering.OrderService;
 import com.vaadin.bakery.ordering.PickupLocationRepository;
 import com.vaadin.bakery.ordering.SlotService;
 import com.vaadin.bakery.people.Role;
+import com.vaadin.flow.component.InputMode;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -65,6 +66,7 @@ public class NewOrderView extends VerticalLayout implements BoardPanel {
         var email = Fields.email("checkout.email");
         var phone = new TextField();
         Translations.bind(phone, phone::setLabel, "checkout.phone");
+        phone.setInputMode(InputMode.TEL);
         add(new FormLayout(firstName, lastName, email, phone));
 
         var editor = new OrderLineEditor(catalogue);

@@ -7,6 +7,7 @@ import com.vaadin.bakery.catalogue.ProductCard;
 import com.vaadin.bakery.catalogue.ProductImageRepository;
 import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.InputMode;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -134,15 +135,25 @@ public class StorefrontView extends MasterDetailLayout implements HasUrlParamete
         Translations.bind(search, search::setPlaceholder, "catalogue.search.placeholder");
         search.setValueChangeMode(ValueChangeMode.EAGER);
         search.setClearButtonVisible(true);
-        search.addValueChangeListener(event -> filters.search().set(event.getValue()));
+        search.setInputMode(InputMode.SEARCH);
+        // Two way, rather than a listener that only writes. The filters are
+        // mirrored into the URL and read back out of it, so a shared link used
+        // to apply a filter the bar did not show: /shop?q=croissant narrowed
+        // the catalogue and left the search box empty, which reads as a field
+        // that failed to load rather than as a filter somebody chose.
+        search.bindValue(filters.search(), filters.search()::set);
 
         var category = new Select<String>();
         var categories = catalogue.categories().stream().map(item -> item.getName()).toList();
         category.setItems(categories);
         category.setEmptySelectionAllowed(true);
         Translations.bind(category, category::setEmptySelectionCaption, "catalogue.category.all");
-        category.addValueChangeListener(event ->
-                filters.category().set(event.getValue() == null ? "" : event.getValue()));
+        // The signal says "no category" with an empty string and the field says
+        // it with null, so the binding converts in both directions rather than
+        // teaching either side about the other's idea of empty.
+        category.bindValue(
+                Signal.computed(() -> filters.category().get().isBlank() ? null : filters.category().get()),
+                value -> filters.category().set(value == null ? "" : value));
 
         // The 25.3 change event semantics matter here: the value arrives once
         // per user action, so the catalogue refilters once and not once per chip.
@@ -158,15 +169,24 @@ public class StorefrontView extends MasterDetailLayout implements HasUrlParamete
         // selected chips in the old language.
         Translations.onLocale(allergens, locale ->
                 allergens.setItemLabelGenerator(item -> getTranslation(locale, item.translationKey())));
-        allergens.addValueChangeListener(event -> filters.excludedAllergens().set(
-                event.getValue().stream().map(Allergen::translationKey).collect(Collectors.toSet())));
+        // The signal holds translation keys, because that is what the URL
+        // carries and what survives a language change; the field holds the
+        // allergens themselves. Same conversion, both ways.
+        var allergenItems = catalogue.allergens();
+        allergens.bindValue(
+                Signal.computed(() -> allergenItems.stream()
+                        .filter(item -> filters.excludedAllergens().get().contains(item.translationKey()))
+                        .collect(Collectors.toSet())),
+                value -> filters.excludedAllergens().set(
+                        value.stream().map(Allergen::translationKey).collect(Collectors.toSet())));
 
         var sort = new Select<CatalogueFilters.Sort>();
         sort.setItems(CatalogueFilters.Sort.values());
         Translations.onLocale(sort, locale ->
                 sort.setItemLabelGenerator(value -> getTranslation(locale, value.translationKey())));
-        sort.setValue(CatalogueFilters.Sort.RELEVANCE);
-        sort.addValueChangeListener(event -> filters.sort().set(event.getValue()));
+        // No initial setValue: the signal already starts at RELEVANCE and the
+        // binding is what puts it on the screen.
+        sort.bindValue(filters.sort(), filters.sort()::set);
 
         var bar = new FormLayout();
         bar.addClassName("storefront-view__filters");
