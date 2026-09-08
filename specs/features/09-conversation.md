@@ -35,9 +35,9 @@ Covers C2, C3, B10.
 - [ ] The list uses the one to one bubble variant
 
 ### AC2: Attachments work
-- [ ] An uploaded image appears as a preview in the bubble
-- [ ] A pasted image behaves the same as an uploaded one
-- [ ] An oversized or wrong type file is rejected with a reason
+- [ ] An uploaded image appears as a preview in the bubble. **Withdrawn rather than untested:** the upload was in the composer, it did not work, and it is out. Attaching is what the counter order screen does with a photograph of a note, through the assistant, and that is where the working version of this lives
+- [ ] A pasted image behaves the same as an uploaded one. Same withdrawal
+- [ ] An oversized or wrong type file is rejected with a reason. Same withdrawal
 
 ### AC3: It is live
 - [x] A staff reply appears on the customer's open page without a reload
@@ -45,7 +45,7 @@ Covers C2, C3, B10.
 
 ### AC4: It is safe
 - [x] HTML in a message is rendered as text, never as markup
-- [x] The composer is disabled once the order is picked up
+- [x] The composer is disabled once the order is picked up, **on the customer's side only**. The bakery's side never closes: an order that cannot be changed can still be asked about, and the person asking is usually asking because it cannot be changed. An invoiced order is the case that settled it, where the lines and the state are read only and the conversation is not
 
 ### Still open
 

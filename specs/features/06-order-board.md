@@ -62,6 +62,10 @@ An order reaches the bakery two ways, and one of them has three doors. The appli
 - **A member of staff taking it.** Two screens, and how the order arrived is a field on both rather than a property of which screen was used: `PHONE`, `EMAIL` or `COUNTER`. The board offers to take one by hand, in the same panel, empty, with the same line editor. The counter order screen takes it from what the customer said or from a photograph of a scribbled note, worked out by the assistant.
 - Both staff screens use the same line editor. Somebody who has learned one has learned the other, which is the whole reason for not building two.
 
+### The panel's width
+
+The detail panel is a fixed 26rem, the width of a phone, with the master expanded beside it. Not a share of the window: the panel holds one order and a column that grows with the monitor holds the same order in a wider column, which is how a form of five fields ends up with a hundred millimetres of nothing down its right side. What the extra width is worth goes to the list, which has seven columns.
+
 ## Edge cases
 
 | Scenario | Behaviour |

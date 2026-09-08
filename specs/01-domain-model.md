@@ -165,10 +165,12 @@ State machine:
 
 ```
 NEW ──▶ CONFIRMED ──▶ IN_PREPARATION ──▶ READY ──▶ PICKED_UP
- │          │                │             │
- └──────────┴────────────────┴─────────────┴──▶ PROBLEM ──▶ CANCELLED or back to CONFIRMED
- └──▶ CANCELLED
+ │          ▲   │                │         │
+ │          │   └────────────────┴─────────┴──▶ PROBLEM ──▶ CANCELLED or back to CONFIRMED
+ └──▶ CANCELLED ──┘
 ```
+
+`CANCELLED` is not terminal, and only `CONFIRMED` leads out of it. A customer who cancelled by mistake and rings back is an ordinary morning at a bakery, and the order goes back to the queue rather than to whichever state it happened to be cancelled from. `PICKED_UP` is the only terminal state.
 
 Invariants: every transition appends an `OrderHistoryItem`. A `PICKED_UP` order is immutable except for messages, and reaching it issues the invoice. Cancelling frees the slot. Only `ADMIN` may move an order out of `PICKED_UP`. A customer may cancel only while the order is `NEW`.
 
