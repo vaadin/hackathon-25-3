@@ -570,6 +570,13 @@ vaadin-grid-cell-content:has(.order-board__edit) {
   padding: 0;
 }
 
+/* What the assistant wrote, in the flow of the page rather than as a badge on
+   each field, so it reads as one sentence and outlives the first keystroke. */
+.phone-order__filled {
+  font-size: var(--vaadin-font-size-s, .875rem);
+  color: var(--vaadin-text-color-secondary);
+}
+
 /* The marker's popover content: a confidence badge over the words the value
    was read from. */
 .phone-order__source {

@@ -2,6 +2,7 @@ package com.vaadin.bakery.assistant.ui;
 
 import com.vaadin.bakery.base.ui.Fields;
 import com.vaadin.bakery.assistant.AssistantConfiguration.AssistantStatus;
+import com.vaadin.bakery.assistant.AssistantHistory;
 import com.vaadin.bakery.assistant.AssistantPolicy;
 import com.vaadin.bakery.assistant.Controllers;
 import com.vaadin.bakery.assistant.OrderLineTool;
@@ -23,6 +24,8 @@ import com.vaadin.bakery.people.Customer;
 import com.vaadin.bakery.people.CustomerService;
 import com.vaadin.bakery.people.Role;
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.HasLabel;
+import com.vaadin.flow.component.InputMode;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -88,6 +91,9 @@ public class PhoneOrderView extends VerticalLayout {
 
     private static final Logger LOG = LoggerFactory.getLogger(PhoneOrderView.class);
 
+    /** This panel's name in the session's assistant history. */
+    private static final String PANEL = "phone-order";
+
     private final CatalogueService catalogue;
     private final TextField firstName = new TextField();
     private final TextField lastName = new TextField();
@@ -102,6 +108,9 @@ public class PhoneOrderView extends VerticalLayout {
     private final TurnMeter meter = new TurnMeter();
     private final Div aiForm = new Div();
     private Upload photo;
+    /** What the assistant wrote in the last turn, in the order it wrote it. */
+    private final java.util.List<String> written = new java.util.ArrayList<>();
+    private final Div filled = new Div();
     /** The photograph waiting to ride with the next prompt, if there is one. */
     private AIAttachment staged;
     private AIOrchestrator orchestrator;
@@ -111,7 +120,7 @@ public class PhoneOrderView extends VerticalLayout {
 
     public PhoneOrderView(CatalogueService catalogue, AssistantStatus assistant, AssistantPolicy policy,
             OrderService orders, PickupLocationRepository locations, SlotService slots, CurrentUser currentUser,
-            CustomerService customers) {
+            CustomerService customers, AssistantHistory history) {
         this.catalogue = catalogue;
         this.customerSearch = customers;
         this.slotService = slots;
@@ -120,6 +129,9 @@ public class PhoneOrderView extends VerticalLayout {
         Translations.bind(firstName, firstName::setLabel, "checkout.firstName");
         Translations.bind(lastName, lastName::setLabel, "checkout.lastName");
         Translations.bind(phone, phone::setLabel, "checkout.phone");
+        // A telephone keypad rather than a full keyboard: the field takes digits
+        // and spaces, and on a phone at the counter that is the whole difference.
+        phone.setInputMode(InputMode.TEL);
         firstName.setId("firstName");
         lastName.setId("lastName");
         phone.setId("phone");
@@ -207,7 +219,7 @@ public class PhoneOrderView extends VerticalLayout {
         var header = new Div(Translations.bindText(new H2(), "assistant.counterOrder"), channel);
         header.addClassName("phone-order__header");
 
-        add(header, assistantPanel(assistant, policy), aiForm, save, meter);
+        add(header, assistantPanel(assistant, policy, history), aiForm, save, meter);
     }
 
     /**
@@ -225,7 +237,7 @@ public class PhoneOrderView extends VerticalLayout {
      * every assistant repeated it without ever being the answer to a question
      * somebody had while taking an order.
      */
-    private Div assistantPanel(AssistantStatus assistant, AssistantPolicy policy) {
+    private Div assistantPanel(AssistantStatus assistant, AssistantPolicy policy, AssistantHistory history) {
         var panel = new Div();
         panel.addClassName("phone-order__assistant");
 
@@ -262,6 +274,10 @@ public class PhoneOrderView extends VerticalLayout {
             // button can carry the pasted words and the photograph together.
             orchestrator = AIOrchestrator.builder(assistant.newSession(), Prompts.of("phone-order"))
                     .withMessageList(messages)
+                    // What this panel said before the barista walked away from
+                    // the screen. The map is empty because attachments are not
+                    // kept: see AssistantHistory.
+                    .withHistory(history.of(PANEL), java.util.Map.of())
                     .withController(Controllers.of(controller, tools(UI.getCurrent())))
                     .withRequestInterceptor(policy.interceptor())
                     .withResponseListener(event -> {
@@ -269,10 +285,13 @@ public class PhoneOrderView extends VerticalLayout {
                                 metadata.tokenUsage() == null ? 0 : metadata.tokenUsage().totalTokens(),
                                 metadata.finishReason()));
                         UiWork.on(ui, this::sayIfTheSlotIsMissing);
+                        if (event.getError().isEmpty()) {
+                            history.keep(PANEL, orchestrator.getHistory());
+                        }
                     })
                     .withAssistantName(getTranslation("app.name"))
                     .build();
-            panel.add(whatTheySaid, actions(), messages);
+            panel.add(whatTheySaid, actions(), filled, messages);
         } catch (RuntimeException unavailable) {
             // A licence the machine does not have, or the components switched
             // off. Same treatment: say so where it can be seen.
@@ -314,6 +333,9 @@ public class PhoneOrderView extends VerticalLayout {
         Translations.bindText(pick, "assistant.photo");
         photo.setUploadButton(pick);
 
+        filled.addClassName("phone-order__filled");
+        filled.setVisible(false);
+
         var row = new Div(fill, photo);
         row.addClassName("phone-order__actions");
         return row;
@@ -334,6 +356,11 @@ public class PhoneOrderView extends VerticalLayout {
                     .addThemeVariants(NotificationVariant.LUMO_CONTRAST);
             return;
         }
+        // The record is of this turn, so the previous turn's is not left
+        // standing next to values it no longer describes.
+        written.clear();
+        showWhatWasFilled();
+
         var message = said.isBlank() ? getTranslation("assistant.fill.fromPhoto") : said;
         if (attachment == null) {
             orchestrator.prompt(message);
@@ -344,6 +371,26 @@ public class PhoneOrderView extends VerticalLayout {
         // note, and the same picture twice is a second bill for nothing.
         staged = null;
         photo.clearFileList();
+    }
+
+    /**
+     * Which fields the assistant wrote, as a line under the button.
+     *
+     * The marker on each field is the platform's answer to this and it is not
+     * the same answer: it clears itself the moment the barista edits the field,
+     * which is exactly when somebody wants to know what the assistant had done.
+     * This line is built from the controller's own change events rather than
+     * from the model's account of itself, so it says what actually happened to
+     * the form and it survives the first keystroke.
+     *
+     * Lines and the pickup are absent from it on purpose: they are not fields,
+     * they arrive through tools of ours, and the tools already report them.
+     */
+    private void showWhatWasFilled() {
+        filled.setVisible(!written.isEmpty());
+        if (!written.isEmpty()) {
+            filled.setText(getTranslation("assistant.filled", String.join(", ", written)));
+        }
     }
 
     /**
@@ -400,6 +447,16 @@ public class PhoneOrderView extends VerticalLayout {
         built.describeField(knownCustomer,
                 "An existing customer of the bakery. Search it before filling the name fields by hand. "
                         + "If nobody matches, leave it empty: only a person may add a customer.");
+
+        // One line per field the model wrote, after a successful turn, on the
+        // UI thread with the lock held, so it can touch components directly.
+        built.addFieldValueChangeListener(event -> {
+            if (event.getField() instanceof HasLabel labelled && labelled.getLabel() != null
+                    && !labelled.getLabel().isBlank()) {
+                written.add(labelled.getLabel());
+            }
+            showWhatWasFilled();
+        });
 
         // Every value comes back with the words it was read from and how sure
         // the model was, which is what the marker popover below shows.

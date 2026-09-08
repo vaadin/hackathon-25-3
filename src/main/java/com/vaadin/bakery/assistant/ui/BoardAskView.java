@@ -1,6 +1,7 @@
 package com.vaadin.bakery.assistant.ui;
 
 import com.vaadin.bakery.assistant.AssistantConfiguration.AssistantStatus;
+import com.vaadin.bakery.assistant.AssistantHistory;
 import com.vaadin.bakery.assistant.AssistantPolicy;
 import com.vaadin.bakery.assistant.BakeryDatabase;
 import com.vaadin.bakery.base.i18n.Translations;
@@ -43,7 +44,8 @@ public class BoardAskView extends VerticalLayout implements BoardPanel {
     private final Grid<AIDataRow> answers = new Grid<>();
     private final AskPanel ask;
 
-    public BoardAskView(AssistantStatus assistant, AssistantPolicy policy, BakeryDatabase database) {
+    public BoardAskView(AssistantStatus assistant, AssistantPolicy policy, BakeryDatabase database,
+            AssistantHistory history) {
         addClassName("board-ask");
 
         // A conversation and a table of results need more room than an order
@@ -64,7 +66,7 @@ public class BoardAskView extends VerticalLayout implements BoardPanel {
         answers.addClassName("board-ask__answers");
         answers.setSizeFull();
 
-        ask = new AskPanel(assistant, policy, "board.ask", "order-board", answers,
+        ask = new AskPanel(assistant, policy, history, "board.ask", "order-board", answers,
                 () -> new GridAIController(answers, database));
         add(ask);
     }

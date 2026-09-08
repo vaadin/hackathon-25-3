@@ -1,6 +1,7 @@
 package com.vaadin.bakery.ordering.ui;
 
 import com.vaadin.bakery.assistant.AssistantConfiguration.AssistantStatus;
+import com.vaadin.bakery.assistant.AssistantHistory;
 import com.vaadin.bakery.assistant.AssistantPolicy;
 import com.vaadin.bakery.assistant.BakeryDatabase;
 import com.vaadin.bakery.assistant.ui.AskPanel;
@@ -84,7 +85,7 @@ public class DashboardView extends VerticalLayout {
     private final AskPanel ask;
 
     public DashboardView(DashboardService dashboard, Clock clock, AssistantStatus assistant,
-            AssistantPolicy policy, BakeryDatabase database) {
+            AssistantPolicy policy, BakeryDatabase database, AssistantHistory history) {
         this.dashboard = dashboard;
         this.clock = clock;
         addClassName("dashboard");
@@ -111,7 +112,7 @@ public class DashboardView extends VerticalLayout {
         // the controller holds on to the one it was given.
         var asked = chart(ChartType.COLUMN);
         asked.addClassName("dashboard__asked");
-        ask = new AskPanel(assistant, policy, "dashboard.ask", "dashboard", asked,
+        ask = new AskPanel(assistant, policy, history, "dashboard.ask", "dashboard", asked,
                 () -> new ChartAIController(asked, database));
 
         add(Translations.bindText(new H2(), "dashboard.title"), selector, panels, ask);

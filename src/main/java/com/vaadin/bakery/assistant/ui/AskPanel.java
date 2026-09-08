@@ -1,6 +1,7 @@
 package com.vaadin.bakery.assistant.ui;
 
 import com.vaadin.bakery.assistant.AssistantConfiguration.AssistantStatus;
+import com.vaadin.bakery.assistant.AssistantHistory;
 import com.vaadin.bakery.assistant.AssistantPolicy;
 import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.Component;
@@ -42,8 +43,8 @@ public class AskPanel extends Div {
      * @param answer       the grid or chart the controller writes into
      * @param controllerFor a factory, so the licence check happens where it can be caught
      */
-    public AskPanel(AssistantStatus assistant, AssistantPolicy policy, String titleKey, String promptName,
-            Component answer, Supplier<AIController> controllerFor) {
+    public AskPanel(AssistantStatus assistant, AssistantPolicy policy, AssistantHistory history, String titleKey,
+            String promptName, Component answer, Supplier<AIController> controllerFor) {
         addClassName("ask-panel");
         add(Translations.bindText(new H3(), titleKey));
 
@@ -65,11 +66,19 @@ public class AskPanel extends Div {
                             com.vaadin.bakery.assistant.Prompts.of(promptName))
                     .withInput(input)
                     .withMessageList(messages)
+                    // The questions this panel has already answered, so leaving
+                    // the board and coming back does not lose the thread.
+                    .withHistory(history.of(promptName), java.util.Map.of())
                     .withController(controller)
                     .withRequestInterceptor(policy.interceptor())
-                    .withResponseListener(event -> event.getMetadata().ifPresent(metadata -> meter.record(
-                            metadata.tokenUsage() == null ? 0 : metadata.tokenUsage().totalTokens(),
-                            metadata.finishReason())))
+                    .withResponseListener(event -> {
+                        event.getMetadata().ifPresent(metadata -> meter.record(
+                                metadata.tokenUsage() == null ? 0 : metadata.tokenUsage().totalTokens(),
+                                metadata.finishReason()));
+                        if (event.getError().isEmpty()) {
+                            history.keep(promptName, orchestrator.getHistory());
+                        }
+                    })
                     .withAssistantName(getTranslation("app.name"))
                     .build();
             add(input, messages);
