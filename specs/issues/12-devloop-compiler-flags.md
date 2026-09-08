@@ -31,17 +31,37 @@ Until then, a warning when a pom edit triggers a full recompile would help.
 
 ### Reproduce
 
-Any Spring Boot project with a repository method like
+`10-devloop/` in this directory carries it: a `Ticket` entity, a `Tickets` repository with the query above, and a `/ticket` view that calls it. H2 in memory, no configuration.
 
-```java
-@Query("select o from Order o where o.reference = :reference")
-Optional<Order> findByReference(String reference);
+1. `mvn flow:install-dev-cli`, then `.vaadin/vaadin-dev start`
+2. `.vaadin/vaadin-dev apply` after any edit to those classes. The outcome is green: `compiling -> runtime -> Stable`
+3. Ask the bytecode who has the names:
+
+```
+javap -v -p target/classes/com/example/Tickets.class | grep -c MethodParameters
+0
 ```
 
-1. `.vaadin/vaadin-dev start`
-2. Touch `pom.xml`, then `.vaadin/vaadin-dev apply`
-3. Open a view that calls that method
+4. Open `http://localhost:8100/ticket`. The view fails, and `target/devloop/app.log` says
 
-Recovery: `stop`, `./mvnw clean compile`, `start`.
+```
+Caused by: java.lang.IllegalStateException: For queries with named parameters you need to
+provide names for method parameters; Use @Param for query method parameters, or when on
+Java 8+ use the javac flag -parameters
+```
+
+5. The same file compiled by Maven, for the contrast:
+
+```
+.vaadin/vaadin-dev stop && mvn -q clean compile
+javap -v -p target/classes/com/example/Tickets.class | grep -c MethodParameters
+2
+```
+
+The pom in that project inherits `-parameters` from `spring-boot-starter-parent` and never mentions it, which is the usual case.
+
+One correction to the paragraph above, from running this: editing a pom property alone prints `no changes (pom.xml changed; nothing to recompile or restart)`. It takes a change that moves the classpath, adding a dependency for instance, to make the daemon recompile the whole module. The single file path is enough on its own, and it is the one most people will hit.
+
+Recovery: `stop`, `mvn clean compile`, `start`.
 
 Found on 25.3.0-beta1.

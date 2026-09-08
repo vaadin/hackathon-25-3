@@ -101,20 +101,24 @@ public class OrderBoardView extends MasterDetailLayout {
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         var selection = (GridMultiSelectionModel<Order>) grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        // The board pages its rows from the database, so the grid cannot select
-        // all of them and says so, in a header sentence that is not translated
-        // and that sizes the column: 199 pixels of "Select All unavailable"
-        // above a checkbox. Hiding the checkbox is the honest answer, because
-        // there is no select all to offer.
+        // Left at its own default the grid puts a header sentence above the
+        // checkbox that is not translated and that sizes the column: 199 pixels
+        // of "Select All unavailable". Hidden is the honest answer for this
+        // board.
         selection.setSelectAllCheckboxVisibility(
                 GridMultiSelectionModel.SelectAllCheckboxVisibility.HIDDEN);
-        // The checkbox stays hidden, and that is not a preference. The board
-        // pages its rows, and a lazy grid cannot offer select all: the enum
-        // says so, VISIBLE "shows the select all checkbox, if in-memory data is
-        // used". Forcing it visible through the column itself is possible and
-        // is worse than nothing, because the click then selects no rows at all.
-        // The whole investigation, and what the toolbar does instead, is the
-        // select all row in specs/FEEDBACK-25.3.md.
+        // Hidden by choice, not by limitation. VISIBLE does work on a lazy
+        // grid, measured in specs/issues/20-grid-selectall-lazy/ on both lazy
+        // paths, and the enum's "if in-memory data is used" is what made this
+        // look impossible for a while. What it costs is the point: select all
+        // on this board means fetching every order the current filter matches
+        // into the session, and the toolbar's actions are meant for the handful
+        // of rows somebody picked. Turn it on the day a bulk action wants the
+        // whole filter.
+        //
+        // What is a platform bug is the opposite case, and it is why the
+        // default is not used here: a lazy grid at the default visibility
+        // renders the checkbox and ignores the click.
         grid.setSizeFull();
 
         // Accessible names for the checkboxes and the sorters. The grid takes

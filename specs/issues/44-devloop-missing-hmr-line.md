@@ -29,8 +29,26 @@ Report both halves of a mixed change set.
 
 ### Reproduce
 
-1. `.vaadin/vaadin-dev start`, open a page
-2. Edit one Java file and one CSS file under `META-INF/resources`
-3. `.vaadin/vaadin-dev apply`
+`specs/issues/10-devloop/`, which has one stylesheet and three views. With a page open at `/first`, so that there is a browser to push to:
+
+Edit only the colour in `src/main/resources/META-INF/resources/styles/app.css`, then apply:
+
+```
+change-set: 1 file(s): .../styles/app.css
+resources: copied 1 to the classpath
+frontend → Stable   (0.01s)
+hmr: 1 resource(s) copied, pushed 1 stylesheet(s) in place
+```
+
+Now edit the colour and one Java file together, and apply:
+
+```
+change-set: 2 file(s): .../FirstView.java, .../styles/app.css
+resources: copied 1 to the classpath
+compiling → runtime → Stable   (0.58s)
+hot-reload: redefineClasses(1); onHotswap completed=true
+```
+
+The push happened both times. Reading the open page after the second one gives the new colour, `rgb(173, 20, 87)`, with no reload. Only the reporting is missing.
 
 Found on 25.3.0-beta1 with `flow-devloop-daemon` 25.3.0-beta1.

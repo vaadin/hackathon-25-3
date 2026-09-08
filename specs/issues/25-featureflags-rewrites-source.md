@@ -26,4 +26,8 @@ Either keep a programmatic override in memory for the life of the process, or sa
 
 Commit the file with the flags the application needs, and never call `setEnabled` from code.
 
+### Reproduce
+
+`specs/issues/25-featureflags/`, then `mvn test`. The test asserts the project has no flags file, calls `setEnabled`, and finds one. It deletes it again afterwards.
+
 Found on 25.3.0-beta1.

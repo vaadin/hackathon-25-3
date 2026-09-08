@@ -30,4 +30,29 @@ Permit the directory explicitly:
 .requestMatchers("/styles/**").permitAll()
 ```
 
+### Reproduce
+
+`39-imported-css/` in this directory: a secured application with one user in memory, `@StyleSheet("styles/main.css")` on an anonymous view, and `main.css` importing `parts.css`. The security setup permits `/styles/main.css` and nothing else, which is the state an application reaches after somebody notices the declared sheet redirecting and adds a matcher for it.
+
+`mvn spring-boot:run`, then ask the server:
+
+```
+curl -o /dev/null -w "%{http_code} -> %{redirect_url}" http://localhost:8139/styles/main.css
+200
+curl -o /dev/null -w "%{http_code} -> %{redirect_url}" http://localhost:8139/styles/parts.css
+302 -> http://localhost:8139/login
+```
+
+Open `http://localhost:8139/`. `main.css` applied, its import did not: the body font is `sans-serif` from `main.css`, and the heading is the default colour instead of the pink `parts.css` sets.
+
+The console is the part worth fixing, whatever happens to the rest. It names the file that worked:
+
+```
+Failed to load resource: net::ERR_TOO_MANY_REDIRECTS   http://localhost:8139/login
+Error loading http://localhost:8139/styles/main.css
+'http://localhost:8139/styles/main.css' could not be loaded.
+```
+
+Comment the matcher out and the declared sheet fails the same way, which is the general form: with the default `VaadinSecurityConfigurer` no static CSS under `META-INF/resources` is permitted, entry point included.
+
 Found on 25.3.0-beta1.

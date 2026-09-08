@@ -28,12 +28,22 @@ Win on specificity instead of order: `html:root` beats the plain `html` both the
 
 ### Reproduce
 
+The re-add half is in `38-dark-mode/`, route `/swap`. `mvn spring-boot:run`, then `http://localhost:8138/swap` and press the buttons in order, listing `link[rel=stylesheet]` after each one:
+
+| After | Sheets on the page |
+| --- | --- |
+| load | `lumo.css aura.css` |
+| `remove()` and `addStyleSheet(same URL)` in one round trip | `aura.css` |
+| `remove()` alone | `aura.css` |
+| `addStyleSheet(same URL)` in its own round trip | `lumo.css aura.css` |
+
+Row two is the bug: the sheet is gone and the add that was meant to bring it back did nothing. Row four is the same call, one round trip later, working. Nothing is logged in either case.
+
 ```java
-page.addStyleSheet("/styles/one.css");
-var extra = page.addStyleSheet("/styles/two.css");
-// later, in one round trip:
-extra.remove();
-page.addStyleSheet("/styles/two.css");   // the page ends up with neither
+sheet.remove();
+sheet = page.addStyleSheet(Lumo.STYLESHEET);   // dropped as a duplicate
 ```
+
+The order half is not reduced. It is real in an application that swaps two sheets, and it depends on which sheet happens to land last, so there is nothing here that reproduces it on demand. Treat it as the observation that the API says nothing about order.
 
 Found on 25.3.0-beta1.

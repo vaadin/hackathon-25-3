@@ -20,9 +20,17 @@ One mechanism, or a page that says there are two and which theme reads which. If
 
 ### Reproduce
 
-```java
-ui.getElement().getThemeList().bind("dark", darkSignal);   // Lumo goes dark, Aura does not
-ui.getPage().setColorScheme(ColorScheme.DARK);             // both go dark
-```
+`38-dark-mode/` in this directory. `mvn spring-boot:run`, then `http://localhost:8138/`: a button per mechanism and a button per theme, with no theme declared on the app shell so neither leaks into the other.
+
+Load a theme, press a dark button, and read the computed style of the body. Measured:
+
+| Theme | `theme="dark"` on the body | `Page.setColorScheme(DARK)` |
+| --- | --- | --- |
+| Lumo | Dark. Background `rgb(35, 51, 72)`, text `rgba(235, 243, 255, 0.9)` | Text goes light, background stays transparent |
+| Aura | Nothing. Text stays `oklch(0.15 0.0038 248)` and `color-scheme` stays `normal` | Dark. Text `oklch(1 0.002 260)`, `color-scheme: dark` |
+
+The attribute is set either way, and under Aura it changes nothing on the page.
+
+The bottom right cell is worth a second look on its own: under Lumo the colour scheme moves the text and not the background, so an application that sets only the modern mechanism gets light text on a white page.
 
 Found on 25.3.0-beta1.

@@ -23,15 +23,19 @@ Five findings have been withdrawn so far, and every one was killed by building t
 
 When an issue is opened, put its link at the end of that row. A finding with no link is a finding nobody outside this repository has seen.
 
-## A lazy Grid cannot have a select all checkbox, and cannot be given one
+## A lazy Grid and its select all checkbox
 
-Asked for: the select all checkbox the [Grid selection docs](https://vaadin.com/docs/latest/components/grid/selection#multi-select-mode) show, on a board whose rows come from `setItemsPageable`. For a paged grid, "select all" has an obvious and useful meaning, every row the current filter matches, which is what somebody scrolling the list thinks they are selecting. There is no way to build it in the header. Every door was tried and measured on this application, on 25.3.0-beta1.
+**Corrected, and the correction is the interesting part.** This entry used to say that a lazy Grid cannot have a select all checkbox and cannot be given one, with six doors and all of them closed. A minimal project, `specs/issues/20-grid-selectall-lazy/`, showed that the first door is open: `setSelectAllCheckboxVisibility(VISIBLE)` is honoured for a lazy provider and selects the whole set, 500 of 500, through `setItems(fetch, count)` and through `setItemsPageable` alike. The enum's documentation says it shows the checkbox "if in-memory data is used", and that sentence is what sent this application down five more doors.
+
+What is real is smaller and points the other way: leave the visibility at its default on a lazy grid, which is the case where the framework has decided select all is not offered, and the checkbox is rendered anyway and does nothing. It ticks, no selection event arrives, and the selection stays empty. That is the issue draft, `20-grid-select-all-lazy.md`.
+
+Two consequences for this application. The board can offer select all, at the price of fetching every matching row into the session, which is a product decision and not a platform limit. And the rows below are kept because each was measured, with the first one now known to be wrong.
 
 | Door | What happens |
 | --- | --- |
-| `setSelectAllCheckboxVisibility(VISIBLE)` | Nothing. The enum documents it: VISIBLE "shows the select all checkbox, **if in-memory data is used**". DEFAULT is the same rule. With a lazy provider the checkbox stays hidden whatever you pass |
+| `setSelectAllCheckboxVisibility(VISIBLE)` | **This row was wrong.** It works: the checkbox appears and selects every row the count callback reports. Measured on both lazy paths in `specs/issues/20-grid-selectall-lazy/` |
 | The column's own switch | `GridSelectionColumn` is public, is the grid's first element child, and `setSelectAllCheckBoxVisibility(true)` on it **does** show the checkbox. Reachable as `grid.getElement().getChildren()` filtered to that type, and it has to be re-applied after every `setItems*` call because the model resets it |
-| Clicking that checkbox | **Ticks, and selects nothing.** Zero rows selected, no error, no log line. The client sends `$server.selectAll()` and the model's callback is guarded for in-memory data, so the control lies: it looks selected and the selection is empty. This is worse than the checkbox being absent |
+| Clicking that checkbox | **Ticks, and selects nothing.** Zero rows selected, no error, no log line. This is the part that survived, and it happens without touching the column at all: any lazy grid left at the default visibility renders the checkbox and ignores the click |
 | Substituting the callbacks | `GridSelectionColumn(SerializableRunnable selectAll, SerializableRunnable deselectAll)` is a public constructor, which is exactly the hook needed, but the instance is created inside the selection model and there is no setter, no getter for the callbacks, and no "select all requested" event on `GridMultiSelectionModel`. `addClientItemToggleListener` covers single rows only |
 | A header cell above the selection column | `grid.prependHeaderRow().getCells()` returns **8 cells for 8 data columns**, and the default header row the same: `rows=1 columns=7 cells=7`. No cell is created for the selection column in either. `HeaderRow` cells wrap `AbstractColumn`, and `GridSelectionColumn` extends `Component` rather than `AbstractColumn`, so it has no header API of its own and `getCell(Column)` cannot name it either. `HeaderCell.setComponent` cannot reach that header |
 | A checkbox in the first data column's header | Possible, but that column is sortable and the grid wraps header content in `vaadin-grid-sorter`, so one click both ticks the box and re-sorts the board |
@@ -133,7 +137,6 @@ Two rough edges worth passing on:
 
 | Finding | What happens | Why it matters | Suggestion |
 | --- | --- | --- | --- |
-| An exception inside `Signal.effect` is close to invisible | The effect body threw a `NullPointerException`. The only trace was one line on stderr, `Exception in thread "main" java.lang.NullPointerException`, with no stack, no component, no signal, and no entry in the Vaadin log. The view rendered with an empty grid and looked merely wrong rather than broken | This is the reactive equivalent of swallowing an exception in a listener. Finding it took a deliberate try and catch around the effect body | Route effect failures through the normal Vaadin error handler, and name the component and the effect in the message |
 
 ## Deprecations without an obvious replacement
 

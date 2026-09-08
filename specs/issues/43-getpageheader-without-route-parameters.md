@@ -22,6 +22,17 @@ Fall back to the parameter in `UI.getCurrent().getInternals().getActiveViewLocat
 
 ### Reproduce
 
-`specs/issues/08-pagetitlegenerator-bean/` has the shape already: a route with a parameter and a generator. Bind a header to `getPageHeader` and compare it with the browser tab.
+`08-pagetitlegenerator-bean/` in this directory carries it: a `product/:slug` route with `@DynamicPageTitle`, a generator that reads the slug, and a `Shell` whose navbar prints `MenuConfiguration.getPageHeader(getContent())` after every navigation.
+
+`mvn spring-boot:run`, then open `http://localhost:8098/product/sourdough`:
+
+| Where | What it says |
+| --- | --- |
+| Browser tab | `Product sourdough` |
+| Navbar header | `We cannot find that product` |
+
+One generator, one page, two answers. The second one is the generator's fallback for a slug it did not receive.
+
+That project also carries finding `08`, the generator being applied to every route because it is a `@Component`. The two are independent: this one shows on the product route, that one on `/`.
 
 Found on 25.3.0-beta1.

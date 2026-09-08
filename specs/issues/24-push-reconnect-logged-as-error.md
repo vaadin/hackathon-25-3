@@ -31,3 +31,7 @@ A connection arriving before `init()` is a normal race on any restart, not an er
 3. Restart the server
 
 Found on 25.3.0-beta1.
+
+### What reducing it produced
+
+Not ready to post as it stands. Three attempts in a minimal `@Push` application, all with `grep -c ERROR target/devloop/app.log` answering 0: a normal start, a start held back to 5.6 seconds by a bean sleeping in `@PostConstruct`, and a start with the dev tools panel open so the page held a real push connection. Reliable in the bakery, absent in the small one, so something about the bakery's client is doing the reconnecting and this report is missing it.

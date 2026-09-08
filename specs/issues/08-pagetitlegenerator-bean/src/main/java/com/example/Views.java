@@ -38,11 +38,14 @@ public final class Views {
         }
     }
 
-    @Route("product/:slug")
+    @Route(value = "product/:slug")
     @DynamicPageTitle(ProductTitle.class)
     public static class ProductView extends VerticalLayout {
         public ProductView() {
             add(new H2("A product"));
+            add(new Paragraph("The tab says \"Product sourdough\". The header above says "
+                    + "something else, from the same generator: getPageHeader calls it with "
+                    + "a context whose routeParameters() is empty."));
             add(new Anchor("", "Back to the route that has its own title"));
         }
     }
