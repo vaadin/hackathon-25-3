@@ -65,5 +65,25 @@
 .diagnostics__kit-note {
   color: var(--vaadin-text-color-secondary);
   font-size: var(--vaadin-font-size-s, .875rem);
-  max-width: 60ch;
+  /* Wide enough to look set rather than cut off in a panel that takes the
+     whole row, and still short of the width where the eye loses the line.
+     It was 60ch, which in a 1354 pixel panel wrapped every note at half the
+     width and read as text that had been truncated. */
+  max-width: 90ch;
 }
+
+/*
+ * The four answers, two by two. A paragraph wants a reading measure, which is
+ * what the 60ch below is for, and four paragraphs stacked at that measure in a
+ * panel of this width left the right half of the row empty: it read as text
+ * that had been cut off rather than as text somebody had set. The columns keep
+ * the measure and use the width, and they fold to one when the panel is narrow.
+ */
+.diagnostics__kit-answers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(30rem, 100%), 1fr));
+  gap: 0 var(--vaadin-gap-xl, 2rem);
+}
+
+/* Inside the grid the column already sets the measure, and the cap above is
+   what stops a very wide screen from stretching a line too far. */

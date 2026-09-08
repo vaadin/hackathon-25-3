@@ -181,10 +181,17 @@ public class DiagnosticsView extends VerticalLayout {
         // application that is not in it, how it knows where to look, and
         // whether it has to identify itself. Four short lines, because a
         // paragraph on a screen is a paragraph nobody reads.
-        panel.add(note(getTranslation(locale, "diagnostics.kit.pieces")),
+        // In a grid rather than one under another: each is a paragraph and a
+        // paragraph wants a reading measure, but four of them stacked in a
+        // panel this wide left the right half of the row empty and looked like
+        // text that had been cut off. Two columns keep the measure and use the
+        // space, and they fold into one when there is not enough of it.
+        var answers = new Div(note(getTranslation(locale, "diagnostics.kit.pieces")),
                 note(getTranslation(locale, "diagnostics.kit.reach")),
                 note(getTranslation(locale, "diagnostics.kit.url")),
                 note(getTranslation(locale, "diagnostics.kit.auth")));
+        answers.addClassName("diagnostics__kit-answers");
+        panel.add(answers);
         return panel;
     }
 
