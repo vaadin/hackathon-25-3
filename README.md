@@ -145,11 +145,70 @@ What each row answers, and where the metric names came from, is in `specs/07-obs
 
 The point of building a real application on a beta is what it finds. Everything is written down as it happened:
 
-- `specs/FEEDBACK-25.3.md`: missing APIs, awkward ones, bugs and workarounds in this release. The headline: `bindChildren` is documented for 25.3 and absent from the artifact, `peek()` on a computed signal throws, `LazyDataView.getItems()` divides by zero on a pageable grid, and static CSS imported from a stylesheet is redirected to the login view, which leaves the application unstyled with nothing in the log.
+- `specs/FEEDBACK-25.3.md`: missing APIs, awkward ones, bugs and workarounds in this release. The headline: a lazy Grid renders a select all checkbox that selects nothing, an AI turn can loop on one tool until the process is killed, `peek()` on a computed signal throws, and static CSS imported from a stylesheet is redirected to the login view, which leaves the application unstyled with nothing in the log.
 - `specs/FEEDBACK-PLATFORM.md`: the same, for things that predate this release.
 - `specs/CHANGELOG-RISK.md`: every preview API in use, with its flag and its fallback.
 - `REPORT.md`: how the build went, what it cost, and what is not done.
 
+## The issues this build opened
+
+Thirty nine reports, one per finding, each with the project that reproduces it attached as a zip under `specs/issues/projects/`. They carry the `Hackathon 25.3:` prefix and link the platform's tracking issue, https://github.com/vaadin/platform/issues/9204.
+
+**vaadin/flow**, 28
+
+- [#25557](https://github.com/vaadin/flow/issues/25557) A theme loaded with Page.addStyleSheet does not reach component shadow roots, so screen reader only text is painted
+- [#25556](https://github.com/vaadin/flow/issues/25556) Query with a null sort order list throws an NPE inside VaadinSpringDataHelpers
+- [#25558](https://github.com/vaadin/flow/issues/25558) A PageTitleGenerator annotated @Component silently becomes the whole application's generator
+- [#25559](https://github.com/vaadin/flow/issues/25559) Dev loop reports Stable for a new Spring bean, and the bean is not registered
+- [#25560](https://github.com/vaadin/flow/issues/25560) The dev loop daemon compiles without the project's compiler flags
+- [#25561](https://github.com/vaadin/flow/issues/25561) An invalid tool schema logs a Jackson error that never names the tool
+- [#25562](https://github.com/vaadin/flow/issues/25562) Browserless find() cannot see a component handed to another component
+- [#25563](https://github.com/vaadin/flow/issues/25563) UI.navigate(String) rejects a URL with a query string
+- [#25564](https://github.com/vaadin/flow/issues/25564) SignalOperation.result() never completes for a shared signal in a browserless test
+- [#25565](https://github.com/vaadin/flow/issues/25565) Four ways the browserless environment differs from a running application
+- [#25566](https://github.com/vaadin/flow/issues/25566) Page.addStyleSheet has two problems when sheets are swapped at runtime
+- [#25567](https://github.com/vaadin/flow/issues/25567) FeatureFlags.setEnabled rewrites the project's source file
+- [#25568](https://github.com/vaadin/flow/issues/25568) FormAIController does not walk into a Composite, so fields inside one are invisible to the model
+- [#25569](https://github.com/vaadin/flow/issues/25569) An AI turn that produces nothing leaves no trace on any surface
+- [#25570](https://github.com/vaadin/flow/issues/25570) Source tracking is enabled and no model ever reports a source
+- [#25571](https://github.com/vaadin/flow/issues/25571) Three deprecations that do not name a replacement
+- [#25572](https://github.com/vaadin/flow/issues/25572) Four small things about the dev loop CLI
+- [#25573](https://github.com/vaadin/flow/issues/25573) Three things the AI API cannot do that an application needs
+- [#25574](https://github.com/vaadin/flow/issues/25574) Two server side gaps: an absolute route URL, and asking what is licensed
+- [#25575](https://github.com/vaadin/flow/issues/25575) Dark mode has two mechanisms, and the older one fails silently under Aura
+- [#25576](https://github.com/vaadin/flow/issues/25576) CSS files pulled in with @import from a stylesheet are blocked by the default security setup
+- [#25577](https://github.com/vaadin/flow/issues/25577) GridAIController cannot render a SQL TIME column
+- [#25578](https://github.com/vaadin/flow/issues/25578) MenuConfiguration.getPageHeader calls a title generator with no route parameters
+- [#25579](https://github.com/vaadin/flow/issues/25579) The dev loop drops its hmr line when a change set mixes Java with a stylesheet
+- [#25580](https://github.com/vaadin/flow/issues/25580) Four older behaviours that cost a real application time
+- [#25581](https://github.com/vaadin/flow/issues/25581) A FormAIController turn can loop on get_form_state until the process is killed
+- [#25582](https://github.com/vaadin/flow/issues/25582) withResponseListener is called without a session lock, and the failure is swallowed
+- [#25583](https://github.com/vaadin/flow/issues/25583) fill_form blocks for ever when a provider calls it on the thread it was handed
+
+**vaadin/flow-components**, 3
+
+- [#10062](https://github.com/vaadin/flow-components/issues/10062) EmailField shows no message for a bean validation failure
+- [#10063](https://github.com/vaadin/flow-components/issues/10063) A lazy Grid renders a select all checkbox that selects nothing
+- [#10064](https://github.com/vaadin/flow-components/issues/10064) No non-deprecated way to learn that a file reached an Upload whose handler belongs to a library
+
+**vaadin/web-components**, 3
+
+- [#12699](https://github.com/vaadin/web-components/issues/12699) AppLayout paints its content at the full window width before reserving the drawer's space
+- [#12700](https://github.com/vaadin/web-components/issues/12700) A Chart ignores the theme until styled mode is turned on, and the docs that list the style properties do not say so
+- [#12701](https://github.com/vaadin/web-components/issues/12701) A field's colspan cannot vary across FormLayout responsive steps
+
+**vaadin/docs**, 4
+
+- [#5974](https://github.com/vaadin/docs/issues/5974) Say on the download pages that the callback holds no session lock
+- [#5975](https://github.com/vaadin/docs/issues/5975) Seven documentation gaps found while building a real application on 25.3
+- [#5976](https://github.com/vaadin/docs/issues/5976) Three things the Observability Kit pages do not say
+- [#5977](https://github.com/vaadin/docs/issues/5977) The container background tokens are not interchangeable between Lumo and Aura
+
+**vaadin/testbench**, 1
+
+- [#2305](https://github.com/vaadin/testbench/issues/2305) Say that the driver has to be unwrapped before CDP can be reached
+
+Two findings are not here. They are real in this application and did not reproduce in a minimal project, so they are not worth anybody else's time yet: a signal bound text that cannot be rebound, and a push reconnect logged as an application error during a restart. Both are described in `specs/FEEDBACK-25.3.md`.
 ## Hackathon
 
 - Platform version: 25.3.0-beta1
