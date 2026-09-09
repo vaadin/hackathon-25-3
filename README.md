@@ -152,7 +152,7 @@ The point of building a real application on a beta is what it finds. Everything 
 
 ## The issues this build opened
 
-Thirty nine reports, one per finding, each with the project that reproduces it attached as a zip under `specs/issues/projects/`. They carry the `Hackathon 25.3:` prefix and link the platform's tracking issue, https://github.com/vaadin/platform/issues/9204.
+Thirty nine reports, one per finding, each with the project that reproduces it attached as a zip under `specs/issues/projects/`. They carry the `Hackathon 25.3:` prefix, and the platform's tracking issue lists them under its own Hackathon heading: https://github.com/vaadin/platform/issues/9204.
 
 **vaadin/flow**, 28
 
