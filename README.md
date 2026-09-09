@@ -154,9 +154,8 @@ The point of building a real application on a beta is what it finds. Everything 
 
 Thirty nine reports, one per finding, each with the project that reproduces it attached as a zip under `specs/issues/projects/`. They carry the `Hackathon 25.3:` prefix, and the platform's tracking issue lists them under its own Hackathon heading: https://github.com/vaadin/platform/issues/9204.
 
-**vaadin/flow**, 28
+**vaadin/flow**, 27
 
-- [#25557](https://github.com/vaadin/flow/issues/25557) A theme loaded with Page.addStyleSheet does not reach component shadow roots, so screen reader only text is painted
 - [#25556](https://github.com/vaadin/flow/issues/25556) Query with a null sort order list throws an NPE inside VaadinSpringDataHelpers
 - [#25558](https://github.com/vaadin/flow/issues/25558) A PageTitleGenerator annotated @Component silently becomes the whole application's generator
 - [#25559](https://github.com/vaadin/flow/issues/25559) Dev loop reports Stable for a new Spring bean, and the bean is not registered
@@ -191,8 +190,9 @@ Thirty nine reports, one per finding, each with the project that reproduces it a
 - [#10063](https://github.com/vaadin/flow-components/issues/10063) A lazy Grid renders a select all checkbox that selects nothing
 - [#10064](https://github.com/vaadin/flow-components/issues/10064) No non-deprecated way to learn that a file reached an Upload whose handler belongs to a library
 
-**vaadin/web-components**, 3
+**vaadin/web-components**, 4
 
+- [#12706](https://github.com/vaadin/web-components/issues/12706) A theme loaded with Page.addStyleSheet does not reach component shadow roots, so screen reader only text is painted
 - [#12699](https://github.com/vaadin/web-components/issues/12699) AppLayout paints its content at the full window width before reserving the drawer's space
 - [#12700](https://github.com/vaadin/web-components/issues/12700) A Chart ignores the theme until styled mode is turned on, and the docs that list the style properties do not say so
 - [#12701](https://github.com/vaadin/web-components/issues/12701) A field's colspan cannot vary across FormLayout responsive steps
