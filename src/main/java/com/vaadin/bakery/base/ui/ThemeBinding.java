@@ -37,6 +37,11 @@ public final class ThemeBinding {
     public static Registration apply(Component owner, AppearanceSettings appearance) {
         var binding = new ThemeBinding();
         return owner.whenAttached(ui -> {
+            // Asked here rather than in the shell, because this is the one call
+            // both the shell and the login page make, and the login page is
+            // exactly where a visitor with no account arrives.
+            appearance.loadFromBrowser(ui);
+
             // Page.setColorScheme, not a theme attribute: Aura follows the CSS
             // color-scheme property, and so does every light-dark() value in our
             // own stylesheets. Setting theme="dark" on the body, which is what

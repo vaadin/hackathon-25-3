@@ -92,4 +92,30 @@ class AppearancePreferenceBrowserlessTest extends SpringBrowserlessTest {
         assertFalse(preferences.of("baker@bakery.test").isPresent(),
                 "never chosen is not the same as chose the default");
     }
+
+    /**
+     * The browser is told as well, because the row on the person dies with the
+     * session at logout and a visitor who never signs in has no row at all.
+     *
+     * What is asserted here is the call, not the storage: a browserless test
+     * has no browser to store anything in, so the write shows up as the
+     * pending JavaScript the UI would have sent. The round trip itself is the
+     * browser tier's job.
+     */
+    @Test
+    void choosingAlsoTellsTheBrowser() {
+        navigate(OpeningHoursView.class);
+
+        appearance().chooseTheme(Theme.DEFAULT_LUMO);
+
+        var pending = com.vaadin.flow.component.UI.getCurrent().getInternals()
+                .dumpPendingJavaScriptInvocations().stream()
+                .map(invocation -> invocation.getInvocation().getExpression()
+                        + " " + invocation.getInvocation().getParameters())
+                .toList()
+                .toString();
+        assertTrue(pending.contains("localStorage"), "it writes to local storage: " + pending);
+        assertTrue(pending.contains("bakery.theme"), pending);
+        assertTrue(pending.contains(Theme.DEFAULT_LUMO.name()), pending);
+    }
 }

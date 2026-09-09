@@ -26,6 +26,7 @@ The label names the palette first and the theme in brackets, because the palette
 - No theme is declared on the application shell. The shell loads exactly one at runtime, so neither theme leaks into the other.
 - Only the two bakery variants add the palette, and that stylesheet sets colour and nothing else.
 - The choice, and the light or dark scheme, live in a `@VaadinSessionScope` bean. In the layout they were lost on every navigation, which is not a preference.
+- Remembered in two places, and the order matters: a signed in person's row wins, because it follows them to another machine, and the browser's `localStorage` answers for everybody else. Without the browser half, logging out destroyed the session and the page jumped back to the factory theme, and a visitor who never signs in could not keep a choice at all. Reading the browser is a round trip, so the first paint is the default and the stored value arrives just after.
 - The selector is single choice. A checkable menu item does not clear its siblings, so the handler does it: without that it reads as a set of checkboxes and lets somebody appear to pick two themes at once.
 
 Application stylesheets are written against the shared `--vaadin-*` tokens rather than either theme's own names, which is why the same CSS looks right under both. The one exception is the accent colour, which has no shared name and therefore lives only in the palette.
