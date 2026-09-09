@@ -95,6 +95,24 @@ public final class PickupSlotTool implements LLMProvider.ToolSpec {
         return UiWork.on(ui, () -> propose(arguments));
     }
 
+    /**
+     * Why a day is closed, in words rather than in a marker.
+     *
+     * A closure's reason is whatever the barista typed, "Public holiday" for
+     * instance, and the seeded ones are plain text too. Passing that through
+     * getTranslation looked right and is not: a missing key comes back as
+     * "!en: Public holiday", and that marker travelled into the sentence the
+     * model was given. A reason that happens to be a key is still translated,
+     * and anything else is used as it was written.
+     */
+    private String reason(String closedReason) {
+        if (closedReason == null || closedReason.isBlank()) {
+            return "that day is full";
+        }
+        var translated = picker.getTranslation(closedReason);
+        return translated.isBlank() || translated.contains(closedReason) ? closedReason : translated;
+    }
+
     private String propose(JsonNode arguments) {
         var location = picker.getLocation();
         if (location == null) {
@@ -122,12 +140,8 @@ public final class PickupSlotTool implements LLMProvider.ToolSpec {
 
         var load = picker.loadFor(date);
         if (load != null && !load.isSelectable()) {
-            // closedReason is a translation key, and a key is not a sentence a
-            // model can pass on. Resolve it the way the screen would.
             throw new ToolException("The bakery cannot take a pickup on " + date + ": "
-                    + (load.closedReason() == null ? "that day is full"
-                            : picker.getTranslation(load.closedReason()))
-                    + ". Propose another day.");
+                    + reason(load.closedReason()) + ". Propose another day.");
         }
         if (!slots.hasCapacity(location, date, time)) {
             var next = slots.nextFreeTime(location, date)
