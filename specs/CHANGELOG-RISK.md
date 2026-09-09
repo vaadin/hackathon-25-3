@@ -15,7 +15,7 @@ Everything in this application that depends on an API that is preview, experimen
 | browserless test | 1.2.0-beta1, versioned independently of the platform | Every browserless test | Never hand pin. Let the BOM manage it |
 | Dev loop CLI | `install-dev-cli` is hidden by `vaadin-maven-plugin` in beta1 | Tooling | Drop the `flow-maven-plugin` workaround once beta2 ships the goal under the `vaadin` prefix |
 | Dev loop CLI, Kotlin | Compiles Java only, through `javax.tools.JavaCompiler` | Epic 14 about view | Whether Kotlin support arrived. Until then the Kotlin file needs a restart |
-| `bindChildren` on a container | **Documented for 25.3, absent from 25.3.0-beta1.** Not in flow-server, not on any layout | Every list rendering, through `base.signals.Children` | Whether it shipped. When it does, delete the adapter and inline the call |
+| `bindChildren` on a container | Present and working in 25.3.0-beta1. The earlier entry here said it was absent, which was wrong: the compile error that led to that conclusion was about the mapper's argument, a `ValueSignal<T>` rather than a `T` | Every list rendering, directly: `container.bindChildren(list, item -> component)`. The forty line adapter it replaced is deleted | Nothing |
 | `Crud` and `Dashboard` | Stable commercial components, not preview. Neither is a dependency yet | Feature 15, once the repair pass starts | Nothing to recheck at GA. Listed here so that adding two commercial dependencies is a decision somebody sees rather than a line in a pom |
 | Dev loop CLI, JBR discovery | Searches `~/.jdks`, `JAVA_HOME`, `JDK_HOME`, not `~/.vaadin/jdk` | Tooling | Whether `~/.vaadin/jdk` was added, which is where the IDE plugins install it |
 
