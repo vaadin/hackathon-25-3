@@ -158,4 +158,40 @@ class BakeryDatabaseTest {
                     view + " is offered, so it has to be allowed");
         }
     }
+
+    /**
+     * The query a real model wrote on CI, in PostgreSQL date syntax. H2 answers
+     * it with a NullPointerException about a TypeInfo, which told the model
+     * nothing, so it sent the same query three times and gave up with an empty
+     * grid. What the refusal has to carry is the dialect, so that a retry is a
+     * different query.
+     */
+    @Test
+    void aQueryInTheWrongDialectIsRefusedWithTheDialectNamed() {
+        var sql = "select customer_name as \"Customer\", sum(total_net_cents) as \"Total\" "
+                + "from ai_orders where pickup_date >= CURRENT_DATE - INTERVAL '7 DAYS' "
+                + "group by customer_name";
+
+        var refusal = assertThrows(RuntimeException.class, () -> database.executeQuery(sql));
+
+        assertTrue(refusal.getMessage().contains("H2"),
+                "the refusal names the database: " + refusal.getMessage());
+        assertTrue(refusal.getMessage().contains("DATEADD"),
+                "and the idiom that works here: " + refusal.getMessage());
+    }
+
+    /**
+     * The same shape in H2's own syntax runs. The window is five years wide on
+     * purpose: what is asserted is that the dialect parses, not where this
+     * dataset's pickup dates happen to fall.
+     */
+    @Test
+    void theSameQuestionInThisDialectIsAnswered() {
+        var rows = database.executeQuery(
+                "select customer_name as \"Customer\", sum(total_net_cents) as \"Total\" "
+                        + "from ai_orders where pickup_date >= DATEADD('YEAR', -5, CURRENT_DATE) "
+                        + "group by customer_name");
+
+        assertFalse(rows.isEmpty(), "DATEADD parsed and the orders came back");
+    }
 }

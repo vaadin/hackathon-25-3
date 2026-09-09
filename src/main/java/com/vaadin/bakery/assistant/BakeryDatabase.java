@@ -169,10 +169,30 @@ public class BakeryDatabase implements DatabaseProvider {
             // The database's own complaint, turned into something the model can
             // act on. Watching a real turn, it quoted the source column names,
             // got a bare syntax error back and sent the same query four times.
-            throw new ToolException("That query did not run: " + rootCause(broken)
+            throw new ToolException("That query did not run: " + explain(broken)
                     + " Quote the alias you invent and not the column you are reading, and use only the "
                     + "columns listed in the schema.");
         }
+    }
+
+    /**
+     * The database's complaint, and something to do about it when the complaint
+     * is useless.
+     *
+     * H2 does not answer PostgreSQL date syntax with a syntax error. It throws
+     * {@code NullPointerException: Cannot invoke "org.h2.value.TypeInfo.getValueType()"},
+     * and a model handed that sentence has nothing to change, so it sends the
+     * same query again. It did exactly that three times in one turn, on CI,
+     * and gave up with an empty grid. Naming the likely cause turns a retry
+     * into a different query rather than the same one.
+     */
+    private String explain(Throwable failure) {
+        var cause = rootCause(failure);
+        if (cause.contains("TypeInfo.getValueType") || cause.contains("NullPointerException")) {
+            return cause + " That usually means the SQL is not valid for this database rather than "
+                    + "wrong about the data. " + dateArithmetic().strip();
+        }
+        return cause;
     }
 
     private static String rootCause(Throwable failure) {
