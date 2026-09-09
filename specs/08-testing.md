@@ -108,7 +108,7 @@ Three gates, and each one names itself in the test report rather than being sile
 | A commercial key on the machine | Tests that assert on a commercial component | `@EnabledIf("com.vaadin.bakery.base.CommercialLicence#isPresent")`, on the class or on the one method |
 | A browser | The `IT` tier | The `it` profile, which is not the default |
 
-The live tests run in a workflow of their own, `Live AI`, which needs both secrets and reruns a failing test once. That rerun is not there to hide flakiness: it separates a model that was unlucky from a schema description that is wrong, and the second kind fails twice. The gate job never reruns anything.
+The live tests run in a second job of the same workflow, after the gate and only if the gate passed, with both secrets and one rerun of a failing test. That rerun is not there to hide flakiness: it separates a model that was unlucky from a schema description that is wrong, and the second kind fails twice. The gate job never reruns anything.
 
 In CI the commercial key comes from the `TB_LICENSE` secret, which the workflow writes into `~/.vaadin/proKey` before the build. Without the secret, on a fork for instance, the step is skipped and the run still passes with those tests reporting themselves as skipped.
 
