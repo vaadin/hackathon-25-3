@@ -6,7 +6,7 @@ Everything in this application that depends on an API that is preview, experimen
 | --- | --- | --- | --- |
 | Breadcrumbs | Preview, flag `breadcrumbsComponent`, requires server restart | Epic 05 checkout trail, epic 06 order detail | Flag removal, router mode API, item API |
 | Switch | Preview, flag `switchComponent`, requires server restart | Epic 07 product and user grids | Flag removal, value change semantics |
-| AI components | Flag `aiComponents`. Core free, controllers commercial | Epic 12 | Flag removal, whether the split of free and commercial moved |
+| AI components | Flag `aiComponents`. Core free, controllers commercial, and the commercial half validates its licence inside its constructor with a five minute blocking call, so `base/CommercialLicence.java` asks first and the view does without the controller when there is no key | Epic 12 | Flag removal, whether the split of free and commercial moved, and whether the licence check still blocks |
 | Table, TableRow, TableCell | New in 25.3, replaces NativeTable | Epic 08 summaries, epic 10 print view | API shape of `bindChildren` on table sections |
 | Date metadata provider | New in 25.3 | Epic 04 | Part naming, `refreshDateMetadata` signature |
 | ComboBox partial match mode | Verified in beta1: `setPartialMatchMode(PartialMatchMode)` with `NONE`, `FIRST_MATCH`, `ONLY_MATCH` | Epic 07 | Nothing, the spike passed |
