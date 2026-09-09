@@ -98,6 +98,18 @@ The interesting number is that every acceptance criterion has a test, and that i
 
 JaCoCo holds a floor rather than a vanity number: 70 percent of lines, failing the build, measured over everything except `**/ui/**`. The views are excluded because a view is exercised by a browser, and counting them would measure how much of the application has a browser test, which is the question the `IT` list answers. The suite sits at 77 percent.
 
+## Tests that cannot run everywhere
+
+Three gates, and each one names itself in the test report rather than being silently absent.
+
+| Gate | What it protects | How it is written |
+| --- | --- | --- |
+| `live-ai` tag plus `OPENAI_API_KEY` | Tests that really call a model | `@Tag("live-ai")` and `@EnabledIfEnvironmentVariable`, excluded by `surefire.excludedGroups` |
+| A commercial key on the machine | Tests that assert on a commercial component | `@EnabledIf("com.vaadin.bakery.base.CommercialLicence#isPresent")`, on the class or on the one method |
+| A browser | The `IT` tier | The `it` profile, which is not the default |
+
+The commercial gate is not a preference. `FormAIController` validates its licence inside its own constructor, over HTTP, and with no key that call blocks for five minutes and then throws, so a view that builds one fails and every test that opens that view fails with it. `CommercialLicence` answers the cheap half of the question from a file, the view skips the controller when there is no key, and the tests that need it skip themselves. Without that, `./mvnw verify` on a machine with no key takes over an hour and fails.
+
 ## What we run when
 
 | Command | Contents |

@@ -1,5 +1,6 @@
 package com.vaadin.bakery.assistant.ui;
 
+import com.vaadin.bakery.base.CommercialLicence;
 import com.vaadin.bakery.base.ui.Fields;
 import com.vaadin.bakery.assistant.AssistantConfiguration.AssistantStatus;
 import com.vaadin.bakery.assistant.AssistantHistory;
@@ -245,7 +246,15 @@ public class PhoneOrderView extends VerticalLayout {
         // It is what decides which fields the model may see and what it may
         // write, and those rules are worth having, and worth asserting, on a
         // machine with no key.
-        controller = formController();
+        //
+        // What it does need is a commercial key, and not because of what it
+        // does: `FormAIController`'s constructor validates the licence over
+        // HTTP, and with no key that call blocks for five minutes and then
+        // throws, which takes this whole view down with it. So the question is
+        // asked first, from a file rather than from the network, and the view
+        // works without it minus the form filling. That is in
+        // specs/FEEDBACK-25.3.md and it is why CommercialLicence exists.
+        controller = CommercialLicence.isPresent() ? formController() : null;
 
         if (!assistant.isAvailable()) {
             // And nothing to paste into either: an input that cannot reach a

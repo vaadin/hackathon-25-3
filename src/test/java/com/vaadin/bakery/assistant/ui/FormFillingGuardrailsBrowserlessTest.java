@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -43,6 +44,10 @@ import tools.jackson.databind.ObjectMapper;
 // Filling a slot to prove it can be full means placing real orders, which a
 // test transaction cannot roll back, so the context is rebuilt afterwards.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@EnabledIf(value = "com.vaadin.bakery.base.CommercialLicence#isPresent",
+        disabledReason = "FormAIController is commercial and its constructor validates the "
+                + "licence over the network, so with no key on the machine there is no "
+                + "controller to assert on")
 class FormFillingGuardrailsBrowserlessTest extends SpringBrowserlessTest {
 
     private static final ObjectMapper JSON = new ObjectMapper();

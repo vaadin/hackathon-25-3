@@ -27,18 +27,28 @@ public record Controllers(AIController delegate, List<LLMProvider.ToolSpec> extr
         return new Controllers(delegate, List.of(extra));
     }
 
+    /**
+     * A null delegate is a real case and not a defect: the form controller is a
+     * commercial component and is not built on a machine with no key, and the
+     * tools of our own still work without it.
+     */
     @Override
     public List<LLMProvider.ToolSpec> getTools() {
-        return Stream.concat(delegate.getTools().stream(), extra.stream()).toList();
+        return delegate == null ? extra
+                : Stream.concat(delegate.getTools().stream(), extra.stream()).toList();
     }
 
     @Override
     public void onRequest() {
-        delegate.onRequest();
+        if (delegate != null) {
+            delegate.onRequest();
+        }
     }
 
     @Override
     public void onResponse(ResponseListener.ResponseEvent event) {
-        delegate.onResponse(event);
+        if (delegate != null) {
+            delegate.onResponse(event);
+        }
     }
 }

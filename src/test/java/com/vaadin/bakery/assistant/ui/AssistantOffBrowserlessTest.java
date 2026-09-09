@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -82,6 +83,9 @@ class AssistantOffBrowserlessTest extends SpringBrowserlessTest {
      * one. They are the part worth asserting on a machine with no key.
      */
     @Test
+    @EnabledIf(value = "com.vaadin.bakery.base.CommercialLicence#isPresent",
+            disabledReason = "the tools this asserts on come from the commercial form "
+                    + "controller, which is not built without a key")
     void theGuardrailsExistWithNoModelBehindThem() {
         navigate(PhoneOrderView.class);
         var view = find(PhoneOrderView.class).single();
