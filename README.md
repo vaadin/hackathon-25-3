@@ -152,7 +152,7 @@ The point of building a real application on a beta is what it finds. Everything 
 
 ## The issues this build opened
 
-Thirty nine reports, one per finding, each with the project that reproduces it attached as a zip under `specs/issues/projects/`. Ten have been transferred since, four by the teams and six by us, so the repository beside a number is where the issue lives now rather than where it was filed. They carry the `Hackathon 25.3:` prefix, and the platform's tracking issue lists them under its own Hackathon heading: https://github.com/vaadin/platform/issues/9204.
+Forty reports, one per finding, each with the project that reproduces it attached as a zip under `specs/issues/projects/`. Ten have been transferred since, four by the teams and six by us, so the repository beside a number is where the issue lives now rather than where it was filed. They carry the `Hackathon 25.3:` prefix, and the platform's tracking issue lists them under its own Hackathon heading: https://github.com/vaadin/platform/issues/9204.
 
 **vaadin/flow**, 18
 
@@ -175,7 +175,7 @@ Thirty nine reports, one per finding, each with the project that reproduces it a
 - [#25579](https://github.com/vaadin/flow/issues/25579) The dev loop drops its hmr line when a change set mixes Java with a stylesheet
 - [#25580](https://github.com/vaadin/flow/issues/25580) Four older behaviours that cost a real application time
 
-**vaadin/flow-components**, 9
+**vaadin/flow-components**, 10
 
 - [#10062](https://github.com/vaadin/flow-components/issues/10062) EmailField shows no message for a bean validation failure
 - [#10063](https://github.com/vaadin/flow-components/issues/10063) A lazy Grid renders a select all checkbox that selects nothing
@@ -185,6 +185,7 @@ Thirty nine reports, one per finding, each with the project that reproduces it a
 - [#10073](https://github.com/vaadin/flow-components/issues/10073) GridAIController cannot render a SQL TIME column
 - [#10074](https://github.com/vaadin/flow-components/issues/10074) A FormAIController turn can loop on get_form_state until the process is killed
 - [#10075](https://github.com/vaadin/flow-components/issues/10075) withResponseListener is called without a session lock, and the failure is swallowed
+- [#10078](https://github.com/vaadin/flow-components/issues/10078) restoreFieldSource restores the source and not the marker
 - [#10076](https://github.com/vaadin/flow-components/issues/10076) fill_form blocks for ever when a provider calls it on the thread it was handed
 
 **vaadin/web-components**, 4
