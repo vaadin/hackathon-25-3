@@ -145,7 +145,7 @@ What each row answers, and where the metric names came from, is in `specs/07-obs
 
 The point of building a real application on a beta is what it finds. Everything is written down as it happened:
 
-- `specs/FEEDBACK-25.3.md`: missing APIs, awkward ones, bugs and workarounds in this release. The headline: a lazy Grid renders a select all checkbox that selects nothing, an AI turn can loop on one tool until the process is killed, `peek()` on a computed signal throws, and static CSS imported from a stylesheet is redirected to the login view, which leaves the application unstyled with nothing in the log.
+- `specs/FEEDBACK-25.3.md`: missing APIs, awkward ones, bugs and workarounds in this release. The headline: an AI turn can loop on one tool until the process is killed, `fill_form` on the provider's own thread never returns, `peek()` on a computed signal throws, and static CSS imported from a stylesheet is redirected to the login view, which leaves the application unstyled with nothing in the log.
 - `specs/FEEDBACK-PLATFORM.md`: the same, for things that predate this release.
 - `specs/CHANGELOG-RISK.md`: every preview API in use, with its flag and its fallback.
 - `REPORT.md`: how the build went, what it cost, and what is not done.

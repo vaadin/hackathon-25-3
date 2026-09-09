@@ -101,18 +101,22 @@ public class OrderBoardView extends MasterDetailLayout {
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         var selection = (GridMultiSelectionModel<Order>) grid.setSelectionMode(Grid.SelectionMode.MULTI);
-        // Visible, and that is not a preference either: HIDDEN is not
-        // honoured. The board ran with HIDDEN for a while and the checkbox was
-        // in the header the whole time, 26 by 26 pixels, ticking when clicked
-        // and selecting nothing. Measured on this screen and reduced in
-        // the select all report this build produced, linked from README.md.
+        // Visible on purpose, and worth knowing because the opposite was
+        // assumed here for a long time: VISIBLE is honoured on a lazy grid,
+        // including through setItemsPageable, and selects every row the count
+        // callback reports, 265 orders on this dataset.
         //
-        // VISIBLE is what makes the control tell the truth: it works on a lazy
-        // grid, including through setItemsPageable, and selects every row the
-        // count callback reports. Which is also what it costs, and the reason
-        // this line deserves a second thought before it is copied: select all
-        // here means every order the current filter matches, fetched into the
-        // session in one go.
+        // Which is what it costs, and the reason this line deserves a second
+        // thought before it is copied: select all means every order the current
+        // filter matches, fetched into the session in one go. That is why the
+        // bulk actions ask first above 25 rows.
+        //
+        // The board ran with HIDDEN before this, and the reason first given for
+        // the change was wrong: the checkbox was not rendered and ignored, it
+        // was hidden with `visibility: hidden`, which keeps the element's
+        // layout box. Measuring getBoundingClientRect and clicking it from a
+        // script made it look like an inert control, and a user could never
+        // click it at all. The withdrawal is in specs/FEEDBACK-25.3.md.
         selection.setSelectAllCheckboxVisibility(
                 GridMultiSelectionModel.SelectAllCheckboxVisibility.VISIBLE);
         grid.setSizeFull();

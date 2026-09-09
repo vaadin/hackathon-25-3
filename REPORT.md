@@ -87,7 +87,6 @@ All of them, with the workaround and the file it lives in, are in `specs/FEEDBAC
 
 | Problem | Impact |
 | --- | --- |
-| A lazy Grid renders a select all checkbox that selects nothing | The board carried a control that ticked and did nothing, for as long as it asked for the checkbox to be hidden |
 | `peek()` on a computed signal throws | Reading a computed value outside a reactive context needs `Signal.untracked` at every call site |
 | Static CSS imported from a stylesheet is redirected to the login view | The application renders completely unstyled and nothing appears in the log |
 | The dev loop daemon compiles without the project's compiler flags | Parameter names are lost, and a Spring Data query fails naming a helper nobody called. Recovery is a clean build |
@@ -99,7 +98,7 @@ All of them, with the workaround and the file it lives in, are in `specs/FEEDBAC
 | A `GridAIController` grid renders nothing for a SQL TIME column | `java.sql.Time.toInstant` throws by contract, and the application is told nothing: the assistant says it listed the rows |
 | `mvn vaadin:install-dev-cli` does not exist | Declare `flow-maven-plugin` and use `mvn flow:install-dev-cli` |
 
-Five problems this table used to name are gone, because somebody built a project to reproduce them and they did not survive it. `bindChildren` exists and this application now calls it. `LazyDataView.getItems()` counts correctly. An exception inside `Signal.effect` is logged at error level with its stack. And two were about a gesture nobody performed: the AI field marker's badge opens its popover and a GridPro cell enters edit mode, both from a real mouse rather than a synthesised event. Every finding, the corrections included, is in `specs/issues/`, one file per report with the project that reproduces it attached.
+Six problems this table used to name are gone, because somebody built a project to reproduce them and they did not survive it. The sixth was killed by a maintainer rather than by us: a lazy Grid's select all checkbox is hidden with `visibility: hidden`, which keeps its layout box, so the measurement that called it an inert control was measuring geometry and clicking from a script. `bindChildren` exists and this application now calls it. `LazyDataView.getItems()` counts correctly. An exception inside `Signal.effect` is logged at error level with its stack. And two were about a gesture nobody performed: the AI field marker's badge opens its popover and a GridPro cell enters edit mode, both from a real mouse rather than a synthesised event. Every finding, the corrections included, is in `specs/issues/`, one file per report with the project that reproduces it attached.
 
 `specs/FEEDBACK-25.3.md` also lists what worked exactly as advertised, which is most of it.
 

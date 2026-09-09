@@ -56,11 +56,12 @@ class BoardToolbarBrowserlessTest extends SpringBrowserlessTest {
      * The select all checkbox is offered, and it works.
      *
      * This test used to assert the opposite, that the checkbox was not offered
-     * and the sentence explaining its absence was emptied. Both halves were
-     * wrong: the component renders the checkbox whatever the visibility says,
-     * so hiding it only made it inert, and the sentence is never written while
-     * a checkbox is there. Reduced in
-     * the select all report, linked from README.md.
+     * and the sentence explaining its absence was emptied. The first half is a
+     * choice this board changed: a lazy grid can offer select all, and this one
+     * does, over the whole filter. The second half was a misreading, corrected
+     * in specs/FEEDBACK-25.3.md: hidden means `visibility: hidden`, which keeps
+     * the layout box, so what looked like an inert control was a control no
+     * user could reach.
      */
     @Test
     void theSelectionHeaderOffersSelectAllAndSaysSoInTheReadersLanguage() {

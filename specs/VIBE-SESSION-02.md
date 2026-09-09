@@ -10,7 +10,7 @@ The same as session 01: the dev loop running, a headed Chrome driven through Pla
 
 Nineteen reproducer projects, one or two classes each, and thirty nine issue drafts. Every draft that can be reproduced links a zip of its project, so a reader downloads one file and runs one command.
 
-The interesting number is the other one. **Ten findings died and five were corrected**, and every single one of them was killed or corrected by building the project, never by rereading the row.
+The interesting number is the other one. **Eleven findings died and four were corrected**, and every single one of them was killed or corrected by building the project, never by rereading the row.
 
 | Finding | What the project showed |
 | --- | --- |
@@ -29,7 +29,7 @@ And the three corrections, which changed the application as well as the report:
 
 | Finding | The correction |
 | --- | --- |
-| A lazy Grid cannot have a select all checkbox | `VISIBLE` works, through `setItems` and through `setItemsPageable`, and selects every row the count callback reports. `HIDDEN` is the setting that is not honoured: the checkbox is rendered anyway and ticks without selecting. The board offered exactly that inert control for as long as it asked for it to be hidden |
+| A lazy Grid cannot have a select all checkbox | Half right, and the half we got wrong was ours. `VISIBLE` does work, through `setItems` and through `setItemsPageable`, and selects every row the count callback reports, so the board offers select all now. The rest, that `HIDDEN` renders an inert checkbox, was closed by a maintainer as works as designed: hidden means `visibility: hidden`, which keeps the layout box, so what we measured was geometry and what we clicked was a script clicking something no user can reach. https://github.com/vaadin/flow-components/issues/10063 |
 | `Upload` has no non-deprecated arrival event | Three listeners are not deprecated, and one of them, `ProgressUpdateEvent`, carries the file name and the byte counts, so `readBytes == contentLength` is a working arrival signal. Poor, and not nothing |
 | Dark mode: the theme attribute does nothing | It does nothing under Aura. Under Lumo it is the mechanism that works, and the colour scheme moves only the text |
 | A tool whose schema is not valid JSON is dropped | It is not. Both tools were offered and both were called, and the turn answered correctly. What is real is that the error names Jackson and never names the tool |
@@ -57,4 +57,4 @@ Nothing has been posted. Thirty nine drafts, each with a repository and a title,
 
 ## The lesson, in one line
 
-A finding that has never been reproduced is a hypothesis, and roughly a quarter of ours were wrong.
+A finding that has never been reproduced is a hypothesis, and roughly a quarter of ours were wrong. The one that got through the pipeline anyway died the same way as three of the others: a gesture nobody performed. A layout box is not visibility, and a scripted click is not a click.
