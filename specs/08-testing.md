@@ -108,6 +108,8 @@ Three gates, and each one names itself in the test report rather than being sile
 | A commercial key on the machine | Tests that assert on a commercial component | `@EnabledIf("com.vaadin.bakery.base.CommercialLicence#isPresent")`, on the class or on the one method |
 | A browser | The `IT` tier | The `it` profile, which is not the default |
 
+The live tests run in a workflow of their own, `Live AI`, which needs both secrets and reruns a failing test once. That rerun is not there to hide flakiness: it separates a model that was unlucky from a schema description that is wrong, and the second kind fails twice. The gate job never reruns anything.
+
 In CI the commercial key comes from the `TB_LICENSE` secret, which the workflow writes into `~/.vaadin/proKey` before the build. Without the secret, on a fork for instance, the step is skipped and the run still passes with those tests reporting themselves as skipped.
 
 The commercial gate is not a preference. `FormAIController` validates its licence inside its own constructor, over HTTP, and with no key that call blocks for five minutes and then throws, so a view that builds one fails and every test that opens that view fails with it. `CommercialLicence` answers the cheap half of the question from a file, the view skips the controller when there is no key, and the tests that need it skip themselves. Without that, `./mvnw verify` on a machine with no key takes over an hour and fails.

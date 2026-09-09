@@ -39,9 +39,16 @@ jobs:
       # -Pai puts Spring AI on the classpath, and the empty excludedGroups
       # lifts the live-ai exclusion the pom sets by default. Both are needed:
       # either one alone leaves the twelve tests out.
+      # One rerun, and only here. These tests ask a model a question in English
+      # and assert on the SQL it writes, so a failure is evidence and not proof:
+      # a rerun tells the difference between "the model was unlucky once" and
+      # "the schema we hand it is wrong". The gate job has no reruns.
       - name: Verify with a model behind it
         if: env.OPENAI_API_KEY != '' && env.TB_LICENSE != ''
-        run: ./mvnw --batch-mode verify -Pai -Dsurefire.excludedGroups=
+        run: >
+          ./mvnw --batch-mode verify -Pai
+          -Dsurefire.excludedGroups=
+          -Dsurefire.rerunFailingTestsCount=1
 
       - name: Say why nothing ran
         if: env.OPENAI_API_KEY == '' || env.TB_LICENSE == ''

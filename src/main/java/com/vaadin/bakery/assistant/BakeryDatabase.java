@@ -130,14 +130,17 @@ public class BakeryDatabase implements DatabaseProvider {
         return postgres
                 ? """
 
-                        The database is PostgreSQL. For date arithmetic write
-                        CURRENT_DATE - INTERVAL '7 days'.
+                        The database is PostgreSQL. Date arithmetic is CURRENT_DATE + INTERVAL
+                        '3 days' for the future and CURRENT_DATE - INTERVAL '3 days' for the past.
+                        Do not add a date filter the question did not ask for.
                         """
                 : """
 
-                        The database is H2. For date arithmetic write
-                        DATEADD('DAY', -7, CURRENT_DATE), never INTERVAL '7 DAYS', which is not
-                        valid here and fails with a message about a null rather than a syntax error.
+                        The database is H2. Date arithmetic is DATEADD(unit, count, date), with a
+                        negative count for the past and a positive one for the future, for instance
+                        DATEADD('DAY', 3, CURRENT_DATE) for three days from now. INTERVAL '3 DAYS'
+                        is not valid here and fails with a message about a null rather than a syntax
+                        error. Do not add a date filter the question did not ask for.
                         """;
     }
 
