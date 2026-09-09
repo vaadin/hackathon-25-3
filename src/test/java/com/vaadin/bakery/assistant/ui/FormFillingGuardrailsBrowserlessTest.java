@@ -283,4 +283,26 @@ class FormFillingGuardrailsBrowserlessTest extends SpringBrowserlessTest {
         assertTrue(markers.isEmpty(),
                 "no marker is rendered for a field the controller did not discover: " + markers);
     }
+
+    /**
+     * The same call on a field the controller did discover, to tell a
+     * discovery gap from an API that never renders anything.
+     */
+    @Test
+    void restoringASourceOnADiscoveredFieldDoesNotMarkItEither() {
+        var view = open();
+        var first = view.firstNameField();
+        first.setValue("Manuel");
+
+        view.controller().restoreFieldSource(first,
+                new com.vaadin.flow.component.ai.common.ValueSource(
+                        com.vaadin.flow.component.ai.common.ConfidenceLevel.HIGH, java.util.List.of()));
+
+        var remembered = view.controller().getFieldSource(first).isPresent();
+        var marked = first.getElement().getChildren()
+                .anyMatch(child -> child.getTag().contains("ai-field-marker"));
+
+        assertTrue(remembered, "the source is remembered on a discovered field");
+        assertFalse(marked, "and still no marker element: " + marked);
+    }
 }
