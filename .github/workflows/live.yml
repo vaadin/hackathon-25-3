@@ -1,0 +1,50 @@
+name: Live AI
+
+# The twelve tests that really call a model, plus the eight that need a
+# commercial component. Not in the Verify job on purpose: that job's whole
+# point is that the build passes with no key of any kind, and these cost money
+# every time they run.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ manolo ]
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+      - '.github/workflows/live.yml'
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    env:
+      TB_LICENSE: ${{ secrets.TB_LICENSE }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Write the Vaadin pro key
+        if: env.TB_LICENSE != ''
+        run: |
+          mkdir -p ~/.vaadin
+          printf '{"username": "%s", "proKey": "%s"}' \
+            "${TB_LICENSE%%/*}" "${TB_LICENSE##*/}" > ~/.vaadin/proKey
+          chmod 600 ~/.vaadin/proKey
+
+      # -Pai puts Spring AI on the classpath, and the empty excludedGroups
+      # lifts the live-ai exclusion the pom sets by default. Both are needed:
+      # either one alone leaves the twelve tests out.
+      - name: Verify with a model behind it
+        if: env.OPENAI_API_KEY != '' && env.TB_LICENSE != ''
+        run: ./mvnw --batch-mode verify -Pai -Dsurefire.excludedGroups=
+
+      - name: Say why nothing ran
+        if: env.OPENAI_API_KEY == '' || env.TB_LICENSE == ''
+        run: |
+          echo "Needs both secrets: OPENAI_API_KEY for the live tests and"
+          echo "TB_LICENSE for the commercial components they exercise."
