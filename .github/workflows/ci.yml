@@ -9,6 +9,11 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      # Mapped here rather than read in the step's `if`, because the secrets
+      # context is not available there. Empty on a fork, which is the point of
+      # the condition below.
+      TB_LICENSE: ${{ secrets.TB_LICENSE }}
     steps:
       - uses: actions/checkout@v5
 
@@ -18,9 +23,24 @@ jobs:
           java-version: '21'
           cache: maven
 
+      # The key the license checker reads from ~/.vaadin/proKey, in the shape it
+      # expects: {"username": "...", "proKey": "pro-..."}. The secret carries
+      # both halves as `email/pro-key`, so it is split here.
+      #
+      # Without this the run still passes: the commercial components skip
+      # themselves and say so. What the key adds is the eight tests that assert
+      # on the AI form controller, which is the only commercial component in
+      # this application that validates its licence inside its constructor.
+      - name: Write the Vaadin pro key
+        if: env.TB_LICENSE != ''
+        run: |
+          mkdir -p ~/.vaadin
+          printf '{"username": "%s", "proKey": "%s"}' \
+            "${TB_LICENSE%%/*}" "${TB_LICENSE##*/}" > ~/.vaadin/proKey
+          chmod 600 ~/.vaadin/proKey
+
       # The default profile on purpose: this job proves the application builds
-      # and passes with no commercial licence, no OpenAI key and no browser.
-      # The tests that need a commercial component skip themselves here, and
-      # say so in the report: see CommercialLicence.
+      # and passes with no OpenAI key and no browser. It also passes with no
+      # commercial key at all, which is what the condition above is for.
       - name: Verify
         run: ./mvnw --batch-mode verify
