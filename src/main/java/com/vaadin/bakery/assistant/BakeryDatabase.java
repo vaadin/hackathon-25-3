@@ -69,6 +69,9 @@ public class BakeryDatabase implements DatabaseProvider {
 
     private final JdbcTemplate jdbc;
 
+    /** The database's own name, for the one sentence that has to name it. */
+    private volatile String product;
+
     public BakeryDatabase(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
@@ -107,7 +110,49 @@ public class BakeryDatabase implements DatabaseProvider {
                   select "reference" as "Reference"        wrong, and finds nothing
                 An unquoted alias comes back upper cased and the name you chose is lost. A quoted
                 column name is matched exactly, and the columns above are not stored in lower case.
-                """;
+                """ + dateArithmetic();
+    }
+
+    /**
+     * The one sentence that has to name the database, because date arithmetic
+     * is where the dialects part company and the model cannot guess which one
+     * it is talking to.
+     *
+     * A model asked for "this week" writes {@code INTERVAL '7 DAYS'}, which is
+     * PostgreSQL. H2 does not answer that with a syntax error: it throws
+     * {@code NullPointerException: Cannot invoke "org.h2.value.TypeInfo.getValueType()"},
+     * which reaches the model as a sentence about a null and tells it nothing,
+     * so it retries the same query until it gives up. Naming the dialect costs
+     * one line and removes the whole loop.
+     */
+    private String dateArithmetic() {
+        var postgres = "postgresql".equalsIgnoreCase(product());
+        return postgres
+                ? """
+
+                        The database is PostgreSQL. For date arithmetic write
+                        CURRENT_DATE - INTERVAL '7 days'.
+                        """
+                : """
+
+                        The database is H2. For date arithmetic write
+                        DATEADD('DAY', -7, CURRENT_DATE), never INTERVAL '7 DAYS', which is not
+                        valid here and fails with a message about a null rather than a syntax error.
+                        """;
+    }
+
+    /** Asked once: the schema text is built for every question. */
+    private String product() {
+        if (product == null) {
+            try {
+                product = jdbc.execute((org.springframework.jdbc.core.ConnectionCallback<String>) connection ->
+                        connection.getMetaData().getDatabaseProductName());
+            } catch (RuntimeException unavailable) {
+                LOG.debug("Could not read the database product name", unavailable);
+                product = "";
+            }
+        }
+        return product;
     }
 
     @Override
