@@ -21,7 +21,7 @@ A test that passes for the wrong reason is worse than no test. Two rules, both l
 
 A grid assertion on columns alone proves nothing. `grid.getColumns()` answers after `addColumn`, whether or not any data was ever fetched, so a test that counts columns passes against a grid that renders nothing. Assert through the data view: the item count, and the value of a cell.
 
-A component that another component holds is not in the tree the finder walks, so an empty `find()` is not evidence that the component is missing. Check `specs/issues/14-browserless-find/` before believing one.
+A component that another component holds is not in the tree the finder walks, so an empty `find()` is not evidence that the component is missing. Check `specs/issues/projects/14-browserless-find.zip` before believing one.
 
 ## The boundary
 
@@ -35,7 +35,7 @@ TestBench owns, and this list is closed at about ten classes:
 | `ClipboardPasteIT` | Real clipboard paste of an image |
 | `GridProEditIT` | Cell editing behaviour |
 | `DatePickerMetadataIT` | Rendering of disabled days and custom part names in the calendar overlay |
-| `InvoicePrintIT` | Print stylesheet, checked with an emulated print media. Print media is a CDP call, and `getDriver()` answers a TestBench proxy that implements neither `ChromeDriver` nor any CDP interface. Unwrap it: `while (driver instanceof WrapsDriver w) driver = w.getWrappedDriver();` and then `executeCdpCommand`. Nothing in the TestBench documentation says so, which is `specs/issues/37-testbench-cdp-blocked.md` |
+| `InvoicePrintIT` | Print stylesheet, checked with an emulated print media. Print media is a CDP call, and `getDriver()` answers a TestBench proxy that implements neither `ChromeDriver` nor any CDP interface. Unwrap it: `while (driver instanceof WrapsDriver w) driver = w.getWrappedDriver();` and then `executeCdpCommand`. Nothing in the TestBench documentation says so, which is one of the reports this build produced, linked from `README.md` |
 | `PwaInstallIT` | Service worker registration and the offline page |
 | `ChartsRenderIT` | Charts actually draw |
 | `AuraDarkModeIT` | Both colour schemes render and contrast holds |

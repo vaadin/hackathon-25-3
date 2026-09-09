@@ -1,6 +1,12 @@
-# The reproducer projects ship as zips under projects/. An unzipped working
-# copy is scratch: it must not come back into the repository, because a reader
-# who opens an issue wants one file to download, not a tree to browse.
+# The issue drafts are not part of this repository: they are the bodies of
+# tickets that live in the Vaadin repositories, and the links to them go in the
+# root README when they are opened. They stay here on disk while they are being
+# posted, and out of git either way.
+*.md
+
+# The reproducer projects ship as zips under projects/, because a reader who
+# opens an issue wants one file to download. An unzipped working copy is scratch
+# and must not come back into the repository.
 */
 !projects/
 projects/*

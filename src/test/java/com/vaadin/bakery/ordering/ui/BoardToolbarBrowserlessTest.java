@@ -60,7 +60,7 @@ class BoardToolbarBrowserlessTest extends SpringBrowserlessTest {
      * wrong: the component renders the checkbox whatever the visibility says,
      * so hiding it only made it inert, and the sentence is never written while
      * a checkbox is there. Reduced in
-     * specs/issues/20-grid-select-all-lazy.md.
+     * the select all report, linked from README.md.
      */
     @Test
     void theSelectionHeaderOffersSelectAllAndSaysSoInTheReadersLanguage() {

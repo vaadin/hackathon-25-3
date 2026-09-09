@@ -105,7 +105,7 @@ public class OrderBoardView extends MasterDetailLayout {
         // honoured. The board ran with HIDDEN for a while and the checkbox was
         // in the header the whole time, 26 by 26 pixels, ticking when clicked
         // and selecting nothing. Measured on this screen and reduced in
-        // specs/issues/20-grid-select-all-lazy.md.
+        // the select all report this build produced, linked from README.md.
         //
         // VISIBLE is what makes the control tell the truth: it works on a lazy
         // grid, including through setItemsPageable, and selects every row the
@@ -130,7 +130,7 @@ public class OrderBoardView extends MasterDetailLayout {
             // sr-only, a declared theme makes that span one pixel square, and
             // a theme added with addStyleSheet never reaches a component's
             // shadow root, so the span came out 140 pixels wide and took the
-            // column with it. That is specs/issues/01-runtime-theme-shadow-dom.md
+            // column with it. That is the runtime theme report, linked from README.md,
             // and it is still true. Emptying the string is no longer the price
             // of a narrow column, so the string is a string again.
             i18n.setSelectAllUnavailable(getTranslation(locale, "board.i18n.selectAllUnavailable"));
