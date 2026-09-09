@@ -249,4 +249,38 @@ class FormFillingGuardrailsBrowserlessTest extends SpringBrowserlessTest {
         }
         throw new AssertionError("The customer field is not in the form state: " + state);
     }
+
+    /**
+     * The lines are written by a tool of ours, through fields the controller
+     * never discovered, so the question is whether the controller will accept
+     * being told about them afterwards. If it will not, the marker cannot be
+     * shown and this test says so rather than the screen saying nothing.
+     */
+    @Test
+    void aLineWrittenByOurToolIsMarkedAsTheAssistantsWork() {
+        var view = open();
+
+        var add = tool(view, "add_order_line");
+        add.execute(JSON.createObjectNode().put("product", "Focaccia").put("quantity", 2));
+
+        var marked = new java.util.ArrayList<String>();
+        view.editor().forEachLineField(field -> view.controller().getFieldSource(field)
+                .ifPresent(source -> marked.add(field.getClass().getSimpleName() + "=" + source.confidence())));
+
+        assertFalse(marked.isEmpty(), "the controller kept a source for the fields the tool wrote");
+
+        // And the half a person can see, which does not happen. The marker is
+        // an element the controller adds to a field it filled itself, and
+        // restoreFieldSource does not add one, so a line written by our tool
+        // is remembered and stays invisible. Asserted as it is rather than as
+        // it should be: the day the platform starts marking these, this fails
+        // and the assertion below is the thing to delete.
+        var markers = new java.util.ArrayList<String>();
+        view.editor().forEachLineField(field -> ((com.vaadin.flow.component.Component) field).getElement()
+                .getChildren()
+                .filter(child -> child.getTag().contains("ai-field-marker"))
+                .forEach(child -> markers.add(child.getTag())));
+        assertTrue(markers.isEmpty(),
+                "no marker is rendered for a field the controller did not discover: " + markers);
+    }
 }

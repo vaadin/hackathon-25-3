@@ -51,6 +51,8 @@ import com.vaadin.flow.component.ai.common.ConfidenceLevel;
 import com.vaadin.flow.component.ai.common.SourceExtract;
 import com.vaadin.flow.component.ai.form.FieldMarkerI18n;
 import com.vaadin.flow.component.ai.form.FieldValueChangeEvent;
+import com.vaadin.flow.component.ai.common.ConfidenceLevel;
+import com.vaadin.flow.component.ai.common.ValueSource;
 import com.vaadin.flow.component.ai.form.FormAIController;
 import com.vaadin.flow.component.ai.form.ValueOptions;
 import com.vaadin.flow.component.ai.orchestrator.AIOrchestrator;
@@ -530,6 +532,24 @@ public class PhoneOrderView extends VerticalLayout {
         };
     }
 
+    /**
+     * The fields our own tools write, marked as the assistant's work.
+     *
+     * `FormAIController` marks what it filled itself. The order lines and the
+     * pickup slot are written by tools of ours, through components the
+     * controller never discovered, so without this they look like something
+     * the barista typed. `restoreFieldSource` is the API for saying otherwise.
+     */
+    private void markWhatOurToolsWrote() {
+        if (controller == null) {
+            return;
+        }
+        var source = new ValueSource(ConfidenceLevel.HIGH, java.util.List.of());
+        editor.forEachLineField(field -> controller.restoreFieldSource(field, source));
+        controller.restoreFieldSource(picker.datePicker(), source);
+        controller.restoreFieldSource(picker.timeSelect(), source);
+    }
+
     /** The controller, for the tests that assert on what the model may do. */
     FormAIController controller() {
         return controller;
@@ -545,7 +565,8 @@ public class PhoneOrderView extends VerticalLayout {
      */
     private com.vaadin.flow.component.ai.provider.LLMProvider.ToolSpec[] tools(com.vaadin.flow.component.UI ui) {
         return new com.vaadin.flow.component.ai.provider.LLMProvider.ToolSpec[] {
-                new OrderLineTool(catalogue, editor, ui), new PickupSlotTool(slotService, picker, ui) };
+                new OrderLineTool(catalogue, editor, ui).onWrite(this::markWhatOurToolsWrote),
+                new PickupSlotTool(slotService, picker, ui) };
     }
 
     /** Exactly what the model is handed, for the tests that assert on it. */

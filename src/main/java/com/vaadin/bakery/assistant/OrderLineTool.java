@@ -34,6 +34,15 @@ public final class OrderLineTool implements LLMProvider.ToolSpec {
     private final OrderLineEditor editor;
     private final com.vaadin.flow.component.UI ui;
 
+    /** Told about every field this tool writes, so somebody can mark them. */
+    private java.lang.Runnable onWrite = () -> {
+    };
+
+    public OrderLineTool onWrite(java.lang.Runnable action) {
+        this.onWrite = action;
+        return this;
+    }
+
     public OrderLineTool(CatalogueService catalogue, OrderLineEditor editor, com.vaadin.flow.component.UI ui) {
         this.catalogue = catalogue;
         this.editor = editor;
@@ -89,6 +98,9 @@ public final class OrderLineTool implements LLMProvider.ToolSpec {
             var lines = new ArrayList<>(editor.getLines());
             lines.add(new CartLine(product.getId(), quantity, null));
             editor.setLines(List.copyOf(lines));
+            // The lines are ours, not the controller's, so nothing would mark
+            // them as written by the assistant unless we say so.
+            onWrite.run();
             return "Added " + quantity + " x " + product.getName() + ".";
         });
     }

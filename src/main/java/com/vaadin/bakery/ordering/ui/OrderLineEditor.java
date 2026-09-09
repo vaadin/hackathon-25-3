@@ -95,6 +95,22 @@ public class OrderLineEditor extends Composite<Div> implements HasEnabled {
         changed();
     }
 
+    /**
+     * Every field of every row that holds a line, handed to whoever wants to
+     * say something about them.
+     *
+     * The assistant writes lines through a tool of its own rather than through
+     * the form controller, so the controller never sees these fields and never
+     * marks them. This is how the tool tells it afterwards.
+     */
+    public void forEachLineField(java.util.function.Consumer<com.vaadin.flow.component.HasValue<?, ?>> visitor) {
+        live.forEach(row -> {
+            visitor.accept(row.product);
+            visitor.accept(row.quantity);
+            visitor.accept(row.comment);
+        });
+    }
+
     /** Only rows somebody actually filled in. */
     public List<CartLine> getLines() {
         return live.stream()
