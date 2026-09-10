@@ -49,13 +49,23 @@ class OrderDetailsBandIT extends BrowserIT {
         long wide = tilesPerRow();
         assertTrue(wide >= 2, "the band lays its tiles out in a row, found " + wide + " at " + whereAmI());
 
-        // The panel takes half the table and the window does not move.
-        script("var g = document.querySelector('vaadin-grid');"
-                + "var cells = [...g.querySelectorAll('vaadin-grid-cell-content')];"
-                + "var reference = cells.filter(function (c) {"
-                + "  return /^ORD-/.test(c.innerText.trim()); })[0];"
-                + "reference.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));");
+        // The panel takes half the table and the window does not move. It opens
+        // from the edit column, which is the only way the board opens it: this
+        // used to dispatch a double click on a reference cell, from the days
+        // when the board listened for one, and it went on dispatching it into a
+        // board that had stopped listening. Nothing failed for a while because
+        // the wait that follows it was the assertion.
+        script("var button = document.querySelector("
+                + "'vaadin-grid-cell-content .order-board__edit');"
+                + "button.click();");
         waitUntil("return document.querySelectorAll('.order-detail').length === 1;");
+
+        // Opening the panel closes the band on purpose: the panel says
+        // everything the band says and more, and two views of one order at once
+        // is one of them wasting half the board. So the band is opened again,
+        // now inside a table half the width, which is the whole measurement.
+        expandTheFirstRow();
+        waitUntil("return document.querySelectorAll('.order-board__tile').length > 0;");
 
         assertTrue(script("return window.innerWidth;").equals(windowWidth),
                 "the browser window never moved");
