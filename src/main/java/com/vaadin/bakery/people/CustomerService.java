@@ -24,6 +24,18 @@ public class CustomerService {
         return customers.search(term.trim().replace(" ", ""), PageRequest.of(0, limit));
     }
 
+    /**
+     * Who to offer when nobody has typed anything yet: the customers who appear
+     * on existing orders, the most recent first. {@link #search} answers an
+     * empty term with an empty list, which is right for a search and wrong for
+     * an open dropdown, and an open dropdown with nothing in it reads as a
+     * bakery that knows nobody.
+     */
+    @Transactional(readOnly = true)
+    public List<Customer> servedRecently(int limit) {
+        return customers.servedRecently(PageRequest.of(0, limit));
+    }
+
     @Transactional(readOnly = true)
     public Optional<Customer> byEmail(String email) {
         return customers.findByEmailIgnoreCase(email);

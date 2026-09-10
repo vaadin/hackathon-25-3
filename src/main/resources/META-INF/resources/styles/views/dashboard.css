@@ -6,6 +6,10 @@
 .dashboard__panels {
   width: 100%;
   margin-block-start: var(--vaadin-gap-m, 1rem);
+  /* A row is as tall as what is in it. The default floor made the banner, whose
+     content is two lines, as tall as a chart panel and left a hand's width of
+     nothing under it. The charts set their own height and no longer need it. */
+  --vaadin-dashboard-row-min-height: 0;
 }
 
 /* Four numbers in one widget. They wrap instead of shrinking, because half a
@@ -50,4 +54,51 @@
 .dashboard__empty {
   opacity: .6;
   font-style: italic;
+}
+
+/*
+ * The banner. It is a widget like the others so that the dashboard keeps
+ * placing it, and it wears a different surface so that it does not read as one:
+ * the whole width of the page, the bakery's own colour behind it, and the day's
+ * numbers large enough to be read from the doorway.
+ */
+.dashboard__banner-widget {
+  --vaadin-dashboard-widget-background: var(--bakery-surface-sunken,
+      var(--vaadin-background-container, rgba(0, 0, 0, .04)));
+  --vaadin-dashboard-widget-border-width: 0;
+}
+
+.dashboard__banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vaadin-gap-l, 1.5rem) var(--vaadin-gap-xl, 2rem);
+  padding-block: var(--vaadin-gap-xs, .25rem);
+  background: var(--bakery-surface-sunken, var(--vaadin-background-container, rgba(0, 0, 0, .04)));
+  border-radius: var(--vaadin-radius-l, 14px);
+  padding: var(--vaadin-gap-m, 1rem);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* The heading and the date, stacked, with the numbers running away from them. */
+.dashboard__banner-headline {
+  display: grid;
+  gap: .1rem;
+  margin-inline-end: auto;
+}
+
+.dashboard__banner-headline h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.dashboard__banner-headline span {
+  opacity: .7;
+  font-size: .9em;
+}
+
+/* Bigger here than in a panel: this is the block somebody reads first. */
+.dashboard__banner .dashboard__counter span:first-child {
+  font-size: 2.4rem;
 }

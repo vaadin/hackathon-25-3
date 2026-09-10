@@ -74,8 +74,22 @@ public class DiagnosticsView extends VerticalLayout {
         var deferred = Translations.bindText(new Button("", event -> scheduleDeferredCheck()),
                 "diagnostics.deferred");
 
+        // The subtitle used to say "no licence and no monitoring backend
+        // needed", which was true of the panels below and stopped being true of
+        // the application: it now asks whether a commercial key is on the
+        // machine, because a component that validates its licence in its own
+        // constructor blocks for five minutes without one. So the claim is
+        // narrowed to what it is about, the build and the tests, and the answer
+        // for this machine is stated the way the kit panel states its own.
+        var licence = Translations.bindText(new Paragraph(),
+                com.vaadin.bakery.base.CommercialLicence.isPresent()
+                        ? "diagnostics.licence.found"
+                        : "diagnostics.licence.absent");
+        licence.addClassName("diagnostics__licence");
+
         add(Translations.bindText(new H2(), "diagnostics.title"),
                 Translations.bindText(new Paragraph(), "diagnostics.subtitle"),
+                licence,
                 new Div(refresh, reset, deferred), panels);
         // Every counter carries a translated label, so the panels are rebuilt
         // when the language changes as well as when somebody presses refresh.

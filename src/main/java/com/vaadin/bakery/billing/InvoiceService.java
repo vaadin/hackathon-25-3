@@ -19,12 +19,42 @@ public class InvoiceService {
 
     private final InvoiceRepository invoices;
     private final OrderRepository orders;
+    private final BakeryDetailsRepository details;
     private final Clock clock;
 
-    public InvoiceService(InvoiceRepository invoices, OrderRepository orders, Clock clock) {
+    public InvoiceService(InvoiceRepository invoices, OrderRepository orders,
+            BakeryDetailsRepository details, Clock clock) {
         this.invoices = invoices;
         this.orders = orders;
+        this.details = details;
         this.clock = clock;
+    }
+
+    /**
+     * The letterhead every invoice prints, as the markdown somebody wrote.
+     *
+     * Empty rather than absent when nobody has written it: the document then
+     * falls back to the bakery's name, which is what it always printed.
+     */
+    @Transactional(readOnly = true)
+    public String bakeryHeader() {
+        return details.findAll().stream()
+                .findFirst()
+                .map(BakeryDetails::getHeaderMarkdown)
+                .orElse("");
+    }
+
+    /**
+     * Writes the letterhead. The row is whichever one is there, and a bakery
+     * that has never had one gets it created here rather than by a migration
+     * nobody would run. The id is left to the sequence: a hand-assigned one is
+     * how a merge quietly turns into a second row.
+     */
+    @Transactional
+    public void saveBakeryHeader(String markdown) {
+        var row = details.findAll().stream().findFirst().orElseGet(BakeryDetails::new);
+        row.setHeaderMarkdown(markdown);
+        details.save(row);
     }
 
     @Transactional(readOnly = true)

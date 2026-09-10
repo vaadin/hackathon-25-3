@@ -141,6 +141,10 @@ The detail panel is a fixed 26rem, the width of a phone, with the master expande
 - An order placed by a customer being recorded as an online order is not asserted anywhere. The counter and the telephone both are, which makes this the only channel taken on trust.
 - Keyboard operability of the column menu, the panel and the editor is unproven. Browserless cannot press Tab, so this needs either a browser test or removing the claim.
 
+## Changed by the second polish pass
+
+The board's shape moved in `16-polish-02.md`, which is where the reasons are. What is different here: the toolbar answers to the board's own width and puts its filters on a row of their own when the board is narrow; the row's edit control is a bare icon under both themes rather than a Lumo variant Aura does not know; the details band's allergen chips are the platform's `Badge`; the internal note has the vertical rhythm of the blocks around it; Confirmed and Cancelled are told apart by hue and by a line through the cancelled word; and a line's comment waits for the row to have focus unless somebody has written one.
+
 ## Test cases
 
 | Id | Given | When | Then | Tier | Verified by |

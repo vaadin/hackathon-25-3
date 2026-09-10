@@ -133,19 +133,53 @@ public class DashboardView extends VerticalLayout {
         var comparisonFrom = comparisonTo.minusDays(selected.days());
 
         // The order is the order a baker asks in: what is happening today,
-        // then what is going wrong, then the trends underneath.
+        // then what the range came to, then what is going wrong, then the
+        // trends underneath.
+        //
+        // Today is a banner rather than one panel among five. It is the only
+        // block on the screen about right now rather than about a period, it is
+        // the one a person opens this page to read first, and a card the size
+        // of the pie chart beside it said so to nobody.
         var today = dashboard.today();
+        var headline = new Div(
+                Translations.bindText(new H3(), "dashboard.today"),
+                new Span(LocalDate.now(clock).format(BANNER_DAY.withLocale(locale))));
+        headline.addClassName("dashboard__banner-headline");
+
         var counters = new Div(
                 counter(getTranslation(locale, "dashboard.today.due"), String.valueOf(today.due())),
                 counter(getTranslation(locale, "dashboard.today.ready"), String.valueOf(today.ready())),
                 counter(getTranslation(locale, "dashboard.today.problems"), String.valueOf(today.problems())),
                 counter(getTranslation(locale, "dashboard.today.next"),
-                        today.nextPickup().isBlank() ? "-" : today.nextPickup()));
+                        today.nextPickup().isBlank() ? "-" : today.nextPickup()),
+                counter(getTranslation(locale, "dashboard.today.takings"), today.takings().format(locale)));
         counters.addClassName("dashboard__counters");
-        panels.add(widget(getTranslation(locale, "dashboard.today"), 2, counters));
+
+        var banner = new Div(headline, counters);
+        banner.addClassName("dashboard__banner");
+        var bannerWidget = widget(getTranslation(locale, "dashboard.today"), 4, banner);
+        // The title is inside the banner, where it can sit beside the date.
+        bannerWidget.setTitle(null);
+        bannerWidget.addClassName("dashboard__banner-widget");
+        panels.add(bannerWidget);
+
+        // What the chosen range came to, as three numbers. The charts under it
+        // show the shape; this says the size, which no chart on the page does.
+        var period = dashboard.period(from, to);
+        var totals = new Div(
+                counter(getTranslation(locale, "dashboard.period.orders"), String.valueOf(period.orders())),
+                counter(getTranslation(locale, "dashboard.period.takings"), period.gross().format(locale)),
+                counter(getTranslation(locale, "dashboard.period.average"), period.average().format(locale)));
+        totals.addClassName("dashboard__counters");
+        panels.add(widget(getTranslation(locale, "dashboard.period"), 2, totals));
 
         panels.add(widget(getTranslation(locale, "dashboard.states"), 2,
                 statesChart(dashboard.byState(from, to), locale)));
+
+        // When the counter is busy, which is a staffing question and the one
+        // thing the other panels cannot answer: they are all about days.
+        panels.add(widget(getTranslation(locale, "dashboard.hours"), 4,
+                pickupHoursChart(period.byHour(), locale)));
 
         // The widest, because a series over ninety days needs the room and a
         // number does not.
@@ -157,6 +191,39 @@ public class DashboardView extends VerticalLayout {
         // for the same reason.
         panels.add(widget(getTranslation(locale, "dashboard.topProducts"), 4,
                 topProductsChart(dashboard.topProducts(from, to, 10), locale)));
+    }
+
+    /** The banner's date, spelled out, because a banner has room for words. */
+    private static final DateTimeFormatter BANNER_DAY = DateTimeFormatter.ofPattern("EEEE d MMMM");
+
+    /**
+     * Orders per hour of the day over the range. A bakery's counter is busy in
+     * bursts and every other panel here is measured in days, so this is the one
+     * that answers when to have somebody on the till.
+     */
+    Component pickupHoursChart(List<DashboardService.HourLoad> hours, Locale locale) {
+        if (hours.isEmpty()) {
+            return emptyState(locale);
+        }
+        var chart = chart(ChartType.COLUMN);
+        var configuration = chart.getConfiguration();
+
+        var clock = new XAxis();
+        clock.setCategories(hours.stream()
+                .map(hour -> String.format("%02d:00", hour.hour()))
+                .toArray(String[]::new));
+        configuration.addxAxis(clock);
+
+        var count = new YAxis();
+        count.setTitle(getTranslation(locale, "dashboard.axis.orders"));
+        count.setMin(0);
+        configuration.addyAxis(count);
+
+        var series = new ListSeries(getTranslation(locale, "dashboard.series.orders"));
+        hours.forEach(hour -> series.addData(hour.orders()));
+        configuration.addSeries(series);
+        configuration.getLegend().setEnabled(false);
+        return chart;
     }
 
     /** Gross per day, with the period before it drawn behind as a plain spline. */

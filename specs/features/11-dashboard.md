@@ -63,6 +63,10 @@ The dashboard is the heaviest page in the application and it is the one the obse
 - The Attention and Slot utilisation panels described above do not exist yet. The four that do are the ones the acceptance criteria name.
 - Panels stacking at phone width was checked in a browser, at 390 pixels, and holds. There is still no test for it in either tier: the browserless tier cannot measure a layout and the browser tier is unwritten.
 
+## Changed by the second polish pass
+
+The first widget is a banner: the width of the page, a different surface from the widgets under it, its heading inside it beside the date, and today's takings on it. The range gained a totals panel, how many orders and what they came to and what the average one is worth, and a panel saying when the counter is busy as orders per hour of the day. See `16-polish-02.md`.
+
 ## Test cases
 
 | Id | Given | When | Then | Tier | Verified by |

@@ -82,6 +82,10 @@ And it cannot fail silently. A download has no screen to fail on, so an exceptio
 - AC3 is measured by `InvoicePrintIT` under emulated print media, which needs CDP: there is no Selenium API for a medium, and TestBench hands back a proxy that has to be unwrapped before Chrome will take the command.
 - Voiding has no test of its own. That a voided number is never reused is covered by `InvoiceNumberingTest`; that only an admin may void, that a reason is required, and that the watermark prints are not.
 
+## Changed by the second polish pass
+
+Print and Mark as paid are icons with a tooltip and an accessible name each. The bakery's own details are a stored setting, written once in markdown from the invoice list by an administrator, and printed at the top of every invoice; with none written the document prints the bakery's name, which is what it always printed. The domain gained one entity for it, `BakeryDetails`, and `InvoiceService` reads and writes it. See `16-polish-02.md`.
+
 ## Test cases
 
 | Id | Given | When | Then | Tier | Verified by |

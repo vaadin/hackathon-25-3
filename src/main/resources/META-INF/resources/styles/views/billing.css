@@ -82,3 +82,58 @@
     margin: 18mm;
   }
 }
+
+/* The filters, the export and the letterhead button on one line. */
+.invoice-list__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vaadin-gap-m, 1rem);
+}
+
+/* A row action with no word on it sits on the line like the buttons beside
+   it rather than on the text baseline of the cell. */
+.invoice-list__icon {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+}
+
+/* The letterhead editor: what is typed and what will print, side by side. */
+.invoice-list__details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vaadin-gap-m, 1rem);
+}
+
+.invoice-list__details > * {
+  min-width: 0;
+}
+
+.invoice-list__preview {
+  padding: var(--vaadin-gap-m, 1rem);
+  border-radius: var(--vaadin-radius-m, 8px);
+  background: var(--vaadin-background-container, rgba(0, 0, 0, .04));
+  margin-block-start: 1.6rem;
+  overflow: auto;
+}
+
+@media (max-width: 34rem) {
+  .invoice-list__details {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-list__preview {
+    margin-block-start: 0;
+  }
+}
+
+/* The bakery's own block at the top of the document. Markdown, so it brings
+   whatever headings and lines somebody wrote. */
+.invoice-print__letterhead :is(h1, h2, h3) {
+  margin: 0;
+}
+
+.invoice-print__letterhead p {
+  margin: 0;
+}

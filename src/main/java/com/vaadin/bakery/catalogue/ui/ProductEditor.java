@@ -5,6 +5,7 @@ import com.vaadin.bakery.catalogue.CatalogueService;
 import com.vaadin.bakery.catalogue.Category;
 import com.vaadin.bakery.catalogue.Product;
 import com.vaadin.bakery.catalogue.ProductImages;
+import com.vaadin.bakery.base.Money;
 import com.vaadin.bakery.catalogue.VatRate;
 import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.button.Button;
@@ -49,17 +50,31 @@ public class ProductEditor extends Dialog {
     private final com.vaadin.flow.component.textfield.TextArea descriptionArea =
             new com.vaadin.flow.component.textfield.TextArea();
     private final CatalogueService catalogue;
+    /**
+     * The photo, held here rather than made inside the image area, because
+     * opening the editor has to show the picture the product already has. It
+     * only ever had a source after somebody uploaded one, so an existing
+     * product opened with an empty frame and looked like a product with no
+     * photograph.
+     */
+    private final Image image = new Image();
     private Product product;
 
     public ProductEditor(CatalogueService catalogue, List<Category> categories, List<Allergen> allergens,
             SerializableConsumer<Product> onSaved) {
         this.catalogue = catalogue;
         Translations.bind(this, this::setHeaderTitle, "admin.product.edit");
-        setWidth("52rem");
+        setWidth("62rem");
 
         var name = new TextField();
         Translations.bind(name, name::setLabel, "admin.product.name");
-        var price = new IntegerField();
+        // Money, not cents. The column beside it reads "2,90 €" and a field
+        // that answers "290" to the same question is a field somebody will
+        // eventually type 2.9 into. The storage is unchanged: the converter is
+        // the only place the two representations meet.
+        var price = new com.vaadin.flow.component.textfield.BigDecimalField();
+        price.setSuffixComponent(new com.vaadin.flow.component.html.Span(
+                Money.CURRENCY.getSymbol(java.util.Locale.of("es", "ES"))));
         Translations.bind(price, price::setLabel, "admin.product.price");
         Translations.bind(price, price::setHelperText, "admin.product.price.helper");
         var stock = new IntegerField();
@@ -104,7 +119,13 @@ public class ProductEditor extends Dialog {
         markdown.addValueChangeListener(event -> description.set(SafeHtml.clean(event.getValue())));
 
         binder.bind(name, "name");
-        binder.bind(price, "priceCents");
+        binder.forField(price)
+                .withConverter(
+                        amount -> amount == null ? null
+                                : amount.movePointRight(2)
+                                        .setScale(0, java.math.RoundingMode.HALF_UP).intValue(),
+                        cents -> cents == null ? null : java.math.BigDecimal.valueOf(cents, 2))
+                .bind("priceCents");
         binder.bind(stock, "stockToday");
         binder.bind(leadTime, "leadTimeDays");
         binder.bind(category, "category");
@@ -116,13 +137,32 @@ public class ProductEditor extends Dialog {
                 item -> item.getAllergens(),
                 (item, value) -> item.setAllergens(new java.util.LinkedHashSet<>(value)));
 
+        // Four narrow columns rather than two wide ones, so that the fields
+        // that belong together can share a line: what it is called and what it
+        // is, then what it costs, then the four small facts about a day's
+        // baking. A price and its VAT rate on separate lines read as two
+        // unrelated numbers.
         var form = new FormLayout(name, category, price, vat, stock, leadTime, available, featured);
-        var editorSide = new Div(form, markdown);
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("22rem", 2),
+                new FormLayout.ResponsiveStep("32rem", 4));
+        form.setColspan(name, 2);
+        form.setColspan(category, 2);
+        form.setColspan(price, 2);
+        form.setColspan(vat, 2);
+
+        var editorSide = new Div(form);
         editorSide.addClassName("product-editor__form");
-        var previewSide = new Div(imageArea(), preview);
+        var previewSide = new Div(imageArea());
         previewSide.addClassName("product-editor__preview-side");
 
-        var content = new Div(editorSide, previewSide);
+        // The words and what they will look like, side by side and across the
+        // whole editor. A preview under a picture in a two fifths column was
+        // narrower than the text it was previewing.
+        var describe = new Div(markdown, preview);
+        describe.addClassName("product-editor__description");
+
+        var content = new Div(editorSide, previewSide, describe);
         content.addClassName("product-editor__layout");
         add(content);
 
@@ -147,8 +187,12 @@ public class ProductEditor extends Dialog {
         return description.peek();
     }
 
+    /** Test seam: where the photo frame is pointing, if anywhere. */
+    String photoSource() {
+        return image.getSrc();
+    }
+
     private Div imageArea() {
-        var image = new Image();
         image.addClassName("product-editor__image");
 
         var handler = UploadHandler.inMemory((metadata, data) ->
@@ -190,7 +234,23 @@ public class ProductEditor extends Dialog {
         Translations.bind(this, this::setHeaderTitle, "admin.product.edit");
         binder.readBean(toEdit);
         description.set(toEdit.getDescriptionMarkdown() == null ? "" : toEdit.getDescriptionMarkdown());
+        showPhoto(toEdit);
         open();
+    }
+
+    /**
+     * Whatever this product's picture already is: an uploaded one, the seeded
+     * file, or the category placeholder. Same order the catalogue uses, so the
+     * editor shows what the shop shows.
+     */
+    private void showPhoto(Product shown) {
+        if (shown == null || shown.getId() == null) {
+            image.setSrc(ProductImages.PLACEHOLDER);
+            return;
+        }
+        image.setSrc(ProductImages.url(shown, catalogue.image(shown).isPresent())
+                + "?v=" + System.nanoTime());
+        image.setAlt(shown.getName() == null ? "" : shown.getName());
     }
 
     /**
@@ -205,6 +265,7 @@ public class ProductEditor extends Dialog {
         Translations.bind(this, this::setHeaderTitle, "admin.product.new");
         binder.readBean(blank);
         description.set("");
+        showPhoto(blank);
         open();
     }
 }

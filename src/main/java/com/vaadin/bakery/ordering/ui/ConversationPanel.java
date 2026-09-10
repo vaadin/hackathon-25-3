@@ -107,6 +107,16 @@ public class ConversationPanel extends Composite<Div> {
      */
     private Div composer() {
         var input = new MessageInput();
+        // The component's own default calls the field "Message", which names
+        // what the box is about rather than what writing in it does, and it is
+        // English whatever language the page is in. Both halves of the i18n
+        // object have to be set together: it is one object, not two setters.
+        Translations.onLocale(input, locale -> {
+            var i18n = new com.vaadin.flow.component.messages.MessageInputI18n();
+            i18n.setMessage(getTranslation(locale, "conversation.newMessage"));
+            i18n.setSend(getTranslation(locale, "conversation.send"));
+            input.setI18n(i18n);
+        });
         input.addSubmitListener(event -> {
             try {
                 orders.post(reference, authorName, staffSide, staffUser, event.getValue(), List.of());

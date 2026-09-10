@@ -3,6 +3,8 @@ package com.vaadin.bakery.ordering.ui;
 import com.vaadin.bakery.base.SafeHtml;
 import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.bakery.ordering.OrderService;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 
@@ -48,8 +50,12 @@ public class OrderDetailsBand extends Div {
                 .flatMap(line -> line.allergenKeys().stream())
                 .distinct()
                 .forEach(key -> {
-                    var chip = Translations.bindText(new Span(), key);
-                    chip.getElement().getThemeList().add("badge small");
+                    // The real component, not a Span wearing theme="badge".
+                    // That attribute is a Lumo convention and Aura knows
+                    // nothing about it, so the same chips came out coloured
+                    // under one theme and as bare words under the other.
+                    var chip = Translations.bindText(new Badge(), key);
+                    chip.addThemeVariants(BadgeVariant.SMALL);
                     allergens.add(chip);
                 });
 

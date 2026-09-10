@@ -11,8 +11,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.bakery.base.ui.RowActions;
+import com.vaadin.bakery.base.security.CurrentUser;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -50,6 +53,7 @@ public class InvoiceListView extends VerticalLayout {
 
     private final InvoiceRepository invoices;
     private final InvoiceService invoiceService;
+    private final CurrentUser currentUser;
     private final Grid<Invoice> grid = new Grid<>();
     private final ValueSignal<String> search = new ValueSignal<>("");
     private final ValueSignal<InvoiceStatus> status = new ValueSignal<>(null);
@@ -69,9 +73,11 @@ public class InvoiceListView extends VerticalLayout {
     private volatile InvoiceStatus exportStatus;
     private volatile Locale exportLocale = Locale.ENGLISH;
 
-    public InvoiceListView(InvoiceRepository invoices, InvoiceService invoiceService) {
+    public InvoiceListView(InvoiceRepository invoices, InvoiceService invoiceService,
+            CurrentUser currentUser) {
         this.invoices = invoices;
         this.invoiceService = invoiceService;
+        this.currentUser = currentUser;
         addClassName("invoice-list");
         setSizeFull();
 
@@ -115,7 +121,19 @@ public class InvoiceListView extends VerticalLayout {
         export.getElement().setAttribute("download", true);
         export.addClassName("invoice-list__export");
 
-        add(new Div(searchField, statusFilter, export), grid);
+        // Administrators only: the letterhead is the bakery's own identity on a
+        // document, not something a barista changes between two orders.
+        var toolbar = new Div(searchField, statusFilter, export);
+        toolbar.addClassName("invoice-list__toolbar");
+        if (currentUser.get().map(user -> user.getRole() == Role.ADMIN).orElse(false)) {
+            var details = Translations.bindText(new Button("", event -> openBakeryDetails()),
+                    "billing.details.open");
+            details.setIcon(new Icon(VaadinIcon.BUILDING));
+            details.addThemeVariants(ButtonVariant.TERTIARY);
+            toolbar.add(details);
+        }
+
+        add(toolbar, grid);
         // Re-running the load on a locale change is what redraws the cells whose
         // value provider formats a date or an amount.
         // One effect, because `onLocale` registers one: reading the two filter
@@ -141,25 +159,93 @@ public class InvoiceListView extends VerticalLayout {
         return badge;
     }
 
+    /**
+     * The two things anybody does to one invoice, as icons.
+     *
+     * Words in a row of a table are read once and then never again, and these
+     * two are on every row. The name goes where the board's bulk actions keep
+     * theirs: in the accessible name and the tooltip, so nothing is lost to a
+     * screen reader or to somebody who has not met the icon before.
+     */
     private Div actions(Invoice invoice) {
-        var print = Translations.bindText(new Anchor("invoices/" + invoice.getNumber() + "/print?t="
-                + invoice.getOrder().getTrackingToken(), ""), "billing.invoice.print");
+        var print = new Anchor("invoices/" + invoice.getNumber() + "/print?t="
+                + invoice.getOrder().getTrackingToken(), new Icon(VaadinIcon.PRINT));
         print.setTarget("_blank");
+        print.addClassName("invoice-list__icon");
+        named(print, print::setAriaLabel, "billing.invoice.print");
 
         var actions = RowActions.of(print);
         if (invoice.getStatus() == InvoiceStatus.ISSUED) {
-            var markPaid = Translations.bindText(new Button("", event -> {
+            var markPaid = new Button(new Icon(VaadinIcon.CHECK), event -> {
                 try {
                     invoiceService.markPaid(invoice);
                     reload(search.peek(), status.peek());
                 } catch (DomainException failure) {
                     Notification.show(getTranslation(failure.translationKey(), failure.arguments()));
                 }
-            }), "billing.invoice.markPaid");
-            markPaid.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+            });
+            markPaid.addThemeVariants(ButtonVariant.TERTIARY);
+            named(markPaid, markPaid::setAriaLabel, "billing.invoice.markPaid");
             actions.add(markPaid);
         }
         return actions;
+    }
+
+    /** One name, in both places an icon has to carry it. */
+    private <C extends com.vaadin.flow.component.Component> void named(C component,
+            com.vaadin.flow.function.SerializableConsumer<String> ariaLabel, String key) {
+        var tooltip = com.vaadin.flow.component.shared.Tooltip.forComponent(component);
+        Translations.bind(grid, text -> {
+            ariaLabel.accept(text);
+            tooltip.setText(text);
+        }, key);
+    }
+
+    /**
+     * The bakery's own details, in one place, for every invoice it will ever
+     * print. Markdown rather than a form: what belongs in a letterhead is a
+     * company number here and a registration number there, and a set of boxes
+     * would be the wrong set of boxes somewhere.
+     */
+    private void openBakeryDetails() {
+        var dialog = new com.vaadin.flow.component.dialog.Dialog();
+        Translations.bind(dialog, dialog::setHeaderTitle, "billing.details.title");
+        dialog.setWidth("42rem");
+
+        var written = new ValueSignal<>(invoiceService.bakeryHeader());
+        var markdown = new com.vaadin.flow.component.textfield.TextArea();
+        Translations.bind(markdown, markdown::setLabel, "billing.details.header");
+        Translations.bind(markdown, markdown::setHelperText, "billing.details.helper");
+        Translations.bind(markdown, markdown::setPlaceholder, "billing.details.placeholder");
+        markdown.setValueChangeMode(ValueChangeMode.LAZY);
+        markdown.setWidthFull();
+        markdown.setHeight("11rem");
+        markdown.setValue(written.peek());
+        // Cleaned on the way to the preview, because that is what the printed
+        // document renders: the same safelist, so nothing looks right here and
+        // disappears on paper.
+        markdown.addValueChangeListener(event ->
+                written.set(com.vaadin.bakery.base.SafeHtml.clean(event.getValue())));
+
+        var preview = new com.vaadin.flow.component.markdown.Markdown(written);
+        // Same as the printed document: a line break somebody typed is a line
+        // break, or the preview is not a preview.
+        preview.setLineBreaks(true);
+        preview.addClassName("invoice-list__preview");
+
+        var body = new Div(markdown, preview);
+        body.addClassName("invoice-list__details");
+        dialog.add(body);
+
+        var save = Translations.bindText(new Button("", event -> {
+            invoiceService.saveBakeryHeader(markdown.getValue());
+            Notification.show(getTranslation("admin.saved"));
+            dialog.close();
+        }), "admin.save");
+        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        dialog.getFooter().add(Translations.bindText(new Button("", event -> dialog.close()), "admin.cancel"),
+                save);
+        dialog.open();
     }
 
     private List<Invoice> filtered(String term, InvoiceStatus wanted) {

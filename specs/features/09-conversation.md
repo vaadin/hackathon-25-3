@@ -53,6 +53,10 @@ Covers C2, C3, B10.
 - The uploads are built, the drop zone, the button and the file list, and none of the three attachment criteria has a test. The preview inside a bubble is the part worth proving first.
 - The conversation is live. Posting moves a shared signal for that order, `Conversations`, and every panel with it open redraws from the database. The signal carries a count and nothing else: the messages stay in the database because that is where the attachments, the ordering and the read marks are, and a second copy of them in a signal would be a second truth. The signal is per order, so a message about one conversation does not stir another.
 
+## Changed by the second polish pass
+
+The message box is called "New message" and follows the reader's language, rather than carrying `MessageInput`'s own English default. See `16-polish-02.md`.
+
 ## Test cases
 
 | Id | Given | When | Then | Tier | Verified by |

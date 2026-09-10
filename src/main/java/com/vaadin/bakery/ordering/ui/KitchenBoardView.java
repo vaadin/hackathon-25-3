@@ -10,6 +10,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dnd.DragSource;
+import com.vaadin.flow.component.dnd.DropTarget;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -62,6 +64,8 @@ public class KitchenBoardView extends VerticalLayout {
 
     private final KitchenBoard board;
     private final CurrentUser currentUser;
+    /** Who a ticket can be given to, which is a question about people. */
+    private final com.vaadin.bakery.people.UserService people;
     private final Duration staleAfter;
     /** Checked more often than the threshold, so the marker is never a whole
      * period late in appearing. */
@@ -86,9 +90,11 @@ public class KitchenBoardView extends VerticalLayout {
     private final Set<Long> movedHere = new HashSet<>();
 
     public KitchenBoardView(KitchenBoard board, CurrentUser currentUser,
+            com.vaadin.bakery.people.UserService people,
             @Value("${bakery.kitchen.stale-after:PT2M}") Duration staleAfter) {
         this.board = board;
         this.currentUser = currentUser;
+        this.people = people;
         this.staleAfter = staleAfter;
         this.staleCheckEvery = staleAfter.dividedBy(4);
         addClassName("kitchen-board");
@@ -220,6 +226,7 @@ public class KitchenBoardView extends VerticalLayout {
             // where the baker last looked for it.
             var scroller = new Div();
             scroller.addClassName("kitchen-board__scroller");
+            dropInto(scroller, state, locale);
             if (inState.isEmpty()) {
                 var empty = new Span(getTranslation(locale, "kitchen.empty"));
                 empty.addClassName("kitchen-board__empty");
@@ -238,9 +245,60 @@ public class KitchenBoardView extends VerticalLayout {
         movedHere.clear();
     }
 
+    /**
+     * A column that accepts a card dragged onto it.
+     *
+     * The drop is the same move the buttons on the card make, refused the same
+     * way and written to the same signal, so the two gestures cannot disagree.
+     * The buttons stay: dragging is a mouse gesture and a kitchen board has to
+     * be usable from a keyboard, so this is the shortcut and they are the path.
+     */
+    private void dropInto(Div scroller, OrderState target, Locale locale) {
+        var drop = DropTarget.create(scroller);
+        drop.setDropEffect(com.vaadin.flow.component.dnd.DropEffect.MOVE);
+        drop.addDropListener(event -> {
+            var dragged = event.getDragData().orElse(null);
+            if (dragged instanceof KitchenTicket ticket && !dropOnto(ticket, target)) {
+                Notification.show(getTranslation(locale, "kitchen.move.refused",
+                        getTranslation(locale, target.translationKey())));
+            }
+        });
+    }
+
+    /**
+     * What a drop decides, with no gesture in it.
+     *
+     * The rules are the ones the buttons obey, and a column is not permission:
+     * a ticket only moves where its state allows and where this person's role
+     * allows. Separate from the listener because the gesture cannot be made in
+     * a test and the decision can, and because the two must not be allowed to
+     * drift into two different sets of rules.
+     *
+     * @return whether the ticket moved
+     */
+    boolean dropOnto(KitchenTicket ticket, OrderState target) {
+        if (ticket.state() == target) {
+            return true;
+        }
+        var actor = currentUser.get().orElse(null);
+        if (!ticket.state().canMoveTo(target)
+                || (actor != null && !target.settableBy(actor.getRole()))) {
+            return false;
+        }
+        moveHere(ticket, target);
+        return true;
+    }
+
     private Component card(KitchenTicket ticket, Locale locale) {
         var card = new Div();
         card.addClassName("kitchen-board__ticket");
+        // The whole card is the handle: it is what a baker points at, and on a
+        // wall tablet there is no room for a grip of its own.
+        var drag = DragSource.create(card);
+        drag.setDragData(ticket);
+        drag.setEffectAllowed(com.vaadin.flow.component.dnd.EffectAllowed.MOVE);
+        drag.addDragStartListener(event -> columns.addClassName("kitchen-board__columns--dragging"));
+        drag.addDragEndListener(event -> columns.removeClassName("kitchen-board__columns--dragging"));
         if (movedElsewhere(ticket)) {
             // The class rides on a freshly built card and a CSS animation ends
             // it, so nothing has to be scheduled to take it off again: the next
@@ -275,12 +333,7 @@ public class KitchenBoardView extends VerticalLayout {
 
         var actions = new Div();
         actions.addClassName("kitchen-board__ticket-actions");
-
-        var claim = new Button(ticket.isClaimed()
-                ? getTranslation(locale, "kitchen.claimedBy", ticket.assignedBakerName())
-                : getTranslation(locale, "kitchen.claim"), event -> claim(ticket));
-        claim.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        actions.add(claim);
+        actions.add(assignment(ticket, locale));
 
         ticket.state().allowedTargets().stream()
                 .filter(OrderState::isActiveInKitchen)
@@ -302,8 +355,46 @@ public class KitchenBoardView extends VerticalLayout {
         return card;
     }
 
-    private void claim(KitchenTicket ticket) {
-        var baker = currentUser.get().orElse(null);
+    /**
+     * Who is making this one, as a picker rather than as a button.
+     *
+     * "Claim this" only ever meant one thing, which is right for a baker at the
+     * oven and wrong for everybody else: an administrator pressing it was
+     * assigning the ticket to an administrator. So the control names a person.
+     * The current user comes first when they are a baker, and is ticked when
+     * the ticket is already theirs, so claiming your own work is still the top
+     * of the list; anybody else assigns freely from the same list.
+     */
+    private Component assignment(KitchenTicket ticket, Locale locale) {
+        var menu = new com.vaadin.flow.component.menubar.MenuBar();
+        menu.addThemeVariants(com.vaadin.flow.component.menubar.MenuBarVariant.LUMO_TERTIARY);
+        menu.addClassName("kitchen-board__assign");
+        var root = menu.addItem(ticket.isClaimed()
+                ? getTranslation(locale, "kitchen.claimedBy", ticket.assignedBakerName())
+                : getTranslation(locale, "kitchen.claim"));
+        root.setAriaLabel(getTranslation(locale, "kitchen.assign"));
+
+        var me = currentUser.get().orElse(null);
+        var candidates = new java.util.ArrayList<>(people.bakers());
+        if (me != null && me.getRole() == Role.BAKER) {
+            candidates.removeIf(baker -> baker.getId().equals(me.getId()));
+            candidates.addFirst(me);
+        }
+        if (candidates.isEmpty()) {
+            root.setEnabled(false);
+            return menu;
+        }
+        for (var baker : candidates) {
+            var entry = root.getSubMenu().addItem(baker.getFullName(),
+                    event -> assign(ticket, baker));
+            entry.setCheckable(true);
+            entry.setChecked(baker.getId().equals(ticket.assignedBakerId()));
+        }
+        return menu;
+    }
+
+    /** Package private so a test can assign without opening a menu. */
+    void assign(KitchenTicket ticket, com.vaadin.bakery.people.User baker) {
         if (baker == null) {
             return;
         }

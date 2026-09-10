@@ -72,3 +72,11 @@
   max-width: none;
 }
 
+
+/* The licence sentence sits under the subtitle as a second, quieter line: it
+   is about this machine rather than about the screen. */
+.diagnostics__licence {
+  margin-block-start: 0;
+  color: var(--vaadin-text-color-secondary);
+  font-size: var(--vaadin-font-size-s, .875rem);
+}

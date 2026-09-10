@@ -16,15 +16,17 @@
 }
 
 .order-board__browse,
-.order-board__selected {
+.order-board__selected,
+.order-board__actions,
+.order-board__commands {
   display: flex;
   flex-wrap: wrap;
   gap: var(--vaadin-gap-s, .5rem);
   align-items: center;
 }
 
-/* The browse group takes the row so that the actions inside it have something
-   to be pushed to the end of. */
+/* The browse group takes the row so that the commands have something to be
+   pushed to the end of. */
 .order-board__browse {
   flex: 1 1 auto;
 }
@@ -33,12 +35,36 @@
   min-width: 18rem;
 }
 
-/* The actions sit at the end of the row, whatever is in front of them. */
-.order-board__actions {
-  display: flex;
-  gap: var(--vaadin-gap-s, .5rem);
-  align-items: center;
+/* The four buttons sit at the end of the row, whatever is in front of them. */
+.order-board__commands {
   margin-inline-start: auto;
+  gap: var(--vaadin-gap-m, 1rem);
+}
+
+/*
+ * A phone. The row of six controls does not fit one line and the search field
+ * is the one that pays for it, so the two halves become two rows: the buttons
+ * on top, what you are looking at underneath. The breakpoint is the board's own
+ * width, not the window's, because opening the order panel narrows the board
+ * while the window never moves.
+ */
+@container board (max-width: 38rem) {
+  .order-board__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .order-board__commands {
+    order: -1;
+    margin-inline-start: 0;
+    justify-content: flex-end;
+  }
+
+  /* No floor on the field here: 18rem is wider than the screen. */
+  .order-board__browse vaadin-text-field {
+    min-width: 0;
+    flex: 1 1 10rem;
+  }
 }
 
 /*
@@ -198,6 +224,9 @@ vaadin-grid-cell-content:has(.order-board__edit) {
   min-height: 0;
   padding: var(--vaadin-gap-m, 1rem);
   box-sizing: border-box;
+  /* Named, so the toolbar's query cannot be answered by some other container
+     that happens to be nearer, and so the editor's own query is unaffected. */
+  container: board / inline-size;
 }
 
 /*
@@ -293,6 +322,15 @@ vaadin-grid-cell-content:has(.order-board__edit) {
   margin-block-start: .25em;
 }
 
+/*
+ * The note is a block like the facts above it and the lines below it, so it
+ * gets the same air. Without this it sat straight on the first product row and
+ * the two read as one control.
+ */
+.order-detail__note {
+  margin-block: var(--vaadin-gap-s, .5rem) var(--vaadin-gap-m, 1rem);
+}
+
 .order-detail__footer {
   width: 100%;
   box-sizing: border-box;
@@ -345,9 +383,16 @@ vaadin-grid-cell-content:has(.order-board__edit) {
   --state-ink: light-dark(#1f4e8c, #b9d3f7);
 }
 
+/*
+ * Teal, and not the warm neutral it used to be. Confirmed and Cancelled are
+ * the two states that mean opposite things, and as two warm greys three points
+ * apart they were the same chip at a glance: #eceae4 accepted, #f0eeec dead.
+ * A hue of its own is what makes accepted read as accepted, and it is far
+ * enough from the green of Ready to stay its own colour.
+ */
 [data-state="CONFIRMED"] {
-  --state-fill: light-dark(#eceae4, rgba(230, 220, 205, .14));
-  --state-ink: light-dark(#4a4034, #e2d7c6);
+  --state-fill: light-dark(#d9ecec, rgba(90, 200, 200, .16));
+  --state-ink: light-dark(#16585c, #9dd6da);
 }
 
 [data-state="IN_PREPARATION"] {
@@ -370,9 +415,20 @@ vaadin-grid-cell-content:has(.order-board__edit) {
   --state-ink: light-dark(#97231c, #f3b4ae);
 }
 
+/*
+ * Grey, and struck through. The colour alone was never going to carry this:
+ * whatever grey is chosen it is one of seven quiet chips, and the reader has to
+ * be sure. A line through the word says cancelled in any theme, in either
+ * colour scheme, and to anybody who cannot tell the two greys apart at all.
+ */
 [data-state="CANCELLED"] {
-  --state-fill: light-dark(#f0eeec, rgba(220, 210, 205, .10));
-  --state-ink: light-dark(#6b625b, #cdc4bd);
+  --state-fill: light-dark(#e4e0dd, rgba(190, 180, 175, .14));
+  --state-ink: light-dark(#5d534c, #c3b9b2);
+}
+
+.state-chip[data-state="CANCELLED"] {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
 }
 
 .state-chip {
@@ -425,13 +481,39 @@ vaadin-grid-cell-content:has(.order-board__edit) {
  */
 .order-editor__row {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) 5.5rem minmax(0, 2fr) 4.5rem 2.25rem;
+  grid-template-columns: minmax(0, 2fr) 5.5rem 4.5rem 2.25rem;
   gap: var(--vaadin-gap-s, .5rem);
   align-items: end;
 }
 
 .order-editor__row > * {
   min-width: 0;
+}
+
+/*
+ * The comment is the least used field on the row and it was the one costing a
+ * line of every order. Hidden until the row has focus, and the track it sits in
+ * goes with it; a row that already carries a comment keeps both, because a
+ * written note that only appears when you happen to be standing on it is a note
+ * nobody will read.
+ *
+ * display:none rather than a width of zero, and revealed by the row rather than
+ * by the field: an element with no box cannot take focus, so the field has to
+ * already be there by the time Tab reaches it. Focus entering anywhere in the
+ * row is what puts it there.
+ */
+.order-editor__comment {
+  display: none;
+}
+
+.order-editor__row:focus-within .order-editor__comment,
+.order-editor__row--commented .order-editor__comment {
+  display: block;
+}
+
+.order-editor__row:focus-within,
+.order-editor__row--commented {
+  grid-template-columns: minmax(0, 2fr) 5.5rem minmax(0, 2fr) 4.5rem 2.25rem;
 }
 
 /* A placeholder holding its column open, not a price. */
@@ -460,8 +542,13 @@ vaadin-grid-cell-content:has(.order-board__edit) {
  * form per item rather than as a list of items.
  */
 @container (max-width: 34rem) {
+  /*
+   * One line per item while the comment is away: product, quantity, price, the
+   * way out. The second line arrives with the comment and takes the price down
+   * with it, which is what leaves the comment the width of the panel.
+   */
   .order-editor__row {
-    grid-template-columns: minmax(0, 1fr) 5.5rem 1.75rem;
+    grid-template-columns: minmax(0, 1fr) 5.5rem auto 1.75rem;
     column-gap: var(--vaadin-gap-xs, .25rem);
     /* Two pixels, so the comment reads as its own field rather than as the
        bottom half of the product above it. */
@@ -470,6 +557,10 @@ vaadin-grid-cell-content:has(.order-board__edit) {
     padding-block-end: var(--vaadin-gap-s, .5rem);
   }
 
+  .order-editor__row:focus-within,
+  .order-editor__row--commented {
+    grid-template-columns: minmax(0, 1fr) 5.5rem 1.75rem;
+  }
 
   .order-editor__row .order-editor__product {
     grid-column: 1;
@@ -481,24 +572,36 @@ vaadin-grid-cell-content:has(.order-board__edit) {
     grid-row: 1;
   }
 
-  .order-editor__row .order-editor__remove {
+  .order-editor__row .order-editor__price {
     grid-column: 3;
+    grid-row: 1;
+    text-align: end;
+    align-self: center;
+  }
+
+  .order-editor__row .order-editor__remove {
+    grid-column: 4;
     grid-row: 1;
     /* Every field is one input tall now, so the cross belongs on their line
        rather than at the bottom of a cell that is taller than they are. */
     align-self: center;
   }
 
-  .order-editor__row .order-editor__comment {
+  .order-editor__row:focus-within .order-editor__remove,
+  .order-editor__row--commented .order-editor__remove {
+    grid-column: 3;
+  }
+
+  .order-editor__row:focus-within .order-editor__comment,
+  .order-editor__row--commented .order-editor__comment {
     grid-column: 1;
     grid-row: 2;
   }
 
-  .order-editor__row .order-editor__price {
+  .order-editor__row:focus-within .order-editor__price,
+  .order-editor__row--commented .order-editor__price {
     grid-column: 2 / -1;
     grid-row: 2;
-    text-align: end;
-    align-self: center;
   }
 
   /* A stepper does not need room for four digits. */
@@ -517,6 +620,64 @@ vaadin-grid-cell-content:has(.order-board__edit) {
   .order-editor__row vaadin-text-field {
     padding-block: 0;
   }
+}
+
+/*
+ * The counter screen is a master detail: the order form is the page and the
+ * assistant is a panel beside it. Both sides scroll on their own, so a long
+ * conversation never pushes the Save button off the bottom of the form.
+ */
+.phone-order {
+  height: 100%;
+}
+
+.phone-order__master,
+.phone-order__panel {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--vaadin-gap-m, 1rem);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vaadin-gap-m, 1rem);
+}
+
+.phone-order__panel {
+  gap: var(--vaadin-gap-s, .5rem);
+  background: var(--bakery-raised, var(--vaadin-background-color, #fff));
+}
+
+.phone-order__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vaadin-gap-m, 1rem);
+}
+
+.phone-order__panel-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+/* The way back in, at the end of the title row. */
+.phone-order__open {
+  flex: 0 0 auto;
+}
+
+/* A column stretches its children, and Save is a button rather than a band
+   across the bottom of the form. */
+.phone-order__master > vaadin-button {
+  align-self: flex-start;
+}
+
+/* What is waiting to be sent, and the way to change your mind about it. */
+.phone-order__staged {
+  display: flex;
+  align-items: center;
+  gap: var(--vaadin-gap-xs, .25rem);
+  font-size: var(--vaadin-font-size-s, .875rem);
+  color: var(--vaadin-text-color-secondary);
 }
 
 .phone-order__ai-form {

@@ -37,10 +37,10 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.masterdetaillayout.MasterDetailLayout;
 import com.vaadin.flow.component.messages.MessageList;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -90,7 +90,7 @@ import org.slf4j.LoggerFactory;
 @PageTitle("Counter order")
 @Menu(order = 11, title = "Counter order", icon = "vaadin:cart-o")
 @RolesAllowed({ Role.ADMIN_NAME, Role.BARISTA_NAME })
-public class PhoneOrderView extends VerticalLayout {
+public class PhoneOrderView extends MasterDetailLayout {
 
     private static final Logger LOG = LoggerFactory.getLogger(PhoneOrderView.class);
 
@@ -110,7 +110,15 @@ public class PhoneOrderView extends VerticalLayout {
     private final SlotPicker picker;
     private final TurnMeter meter = new TurnMeter();
     private final Div aiForm = new Div();
+    /** The two ways in: a file from this machine, and the camera on the phone. */
     private Upload photo;
+    private Upload camera;
+    /** What is waiting to ride with the next prompt, said in words. */
+    private final Div stagedPhoto = new Div();
+    /** The assistant's side of the layout, or null while it is closed. */
+    private Div detail;
+    /** Whether there is a model behind the panel at all. */
+    private boolean assistantReady;
     /** What the assistant wrote in the last turn, in the order it wrote it. */
     private final java.util.List<String> written = new java.util.ArrayList<>();
     private final Div filled = new Div();
@@ -144,10 +152,15 @@ public class PhoneOrderView extends VerticalLayout {
         // The model may search this list and it cannot add to it, because the
         // only values the field accepts are rows that already exist. That is
         // the whole of "the model may search but not create".
-        knownCustomer.setItems(query -> customers
-                .search(query.getFilter().orElse(""), query.getOffset() + query.getLimit()).stream()
-                .skip(query.getOffset())
-                .limit(query.getLimit()));
+        knownCustomer.setItems(query -> {
+            var term = query.getFilter().orElse("");
+            var wanted = query.getOffset() + query.getLimit();
+            // Opened rather than typed into: offer the people the bakery has
+            // served, most recent first. A search of nothing is nothing, which
+            // left the field looking as though it knew nobody at all.
+            var found = term.isBlank() ? customers.servedRecently(wanted) : customers.search(term, wanted);
+            return found.stream().skip(query.getOffset()).limit(query.getLimit());
+        });
         knownCustomer.addValueChangeListener(event -> {
             if (event.getValue() != null) {
                 firstName.setValue(event.getValue().getFirstName());
@@ -222,7 +235,78 @@ public class PhoneOrderView extends VerticalLayout {
         var header = new Div(Translations.bindText(new H2(), "assistant.counterOrder"), channel);
         header.addClassName("phone-order__header");
 
-        add(header, assistantPanel(assistant, policy, history), aiForm, save, meter);
+        // Built before the master, because it is what decides whether the
+        // master carries a button that opens it or the red panel itself.
+        var assistantPanel = assistantPanel(assistant, policy, history);
+
+        var master = new Div(header);
+        master.addClassName("phone-order__master");
+        if (assistantReady) {
+            var open = Translations.bindText(new Button("", event -> openAssistant()),
+                    "assistant.open");
+            open.setIcon(new Icon(VaadinIcon.MAGIC));
+            open.addClassName("phone-order__open");
+            header.add(open);
+
+            // The assistant sits beside the form and never inside it: what it
+            // writes lands in fields the barista is looking at, and closing it
+            // takes the whole conversation, the photograph and the cost line
+            // off the screen in one gesture.
+            detail = new Div();
+            detail.addClassName("phone-order__panel");
+            var close = new Button(new Icon(VaadinIcon.CLOSE_SMALL), event -> closeAssistant());
+            close.addThemeVariants(ButtonVariant.TERTIARY);
+            Translations.bind(close, text -> {
+                close.setAriaLabel(text);
+                close.setTooltipText(text);
+            }, "assistant.close");
+            var panelHeader = new Div(Translations.bindText(new H2(), "assistant.panel.title"), close);
+            panelHeader.addClassName("phone-order__panel-header");
+            detail.add(panelHeader, assistantPanel, meter);
+        } else {
+            // Nothing to open, so the panel says why on the page rather than
+            // behind a button that would lead to an explanation of itself. The
+            // meter goes with it: a turn counter under a form nothing can fill
+            // is a number that will always be nought.
+            master.add(assistantPanel);
+        }
+        master.add(aiForm, save);
+        setMaster(master);
+
+        setSizeFull();
+        setDetailSize(ASSISTANT_WIDTH);
+        setExpandMaster(true);
+        setOverlayContainment(OverlayContainment.LAYOUT);
+        // The two gestures everybody already knows, for the width where the
+        // panel arrives over the form rather than beside it.
+        addBackdropClickListener(event -> closeAssistant());
+        addDetailEscapePressListener(event -> closeAssistant());
+
+        // Open on arrival when there is a model: taking an order by talking to
+        // the assistant is what this screen is for, and a barista who wants the
+        // form on its own closes it and it stays closed for that order.
+        if (assistantReady) {
+            openAssistant();
+        }
+    }
+
+    /** What the assistant gets when it is beside the form rather than over it. */
+    private static final String ASSISTANT_WIDTH = "24rem";
+
+    /** Package private: a test opens and closes it without a mouse. */
+    void openAssistant() {
+        if (detail != null) {
+            setDetail(detail);
+        }
+    }
+
+    void closeAssistant() {
+        setDetail(null);
+    }
+
+    /** Whether there is a model behind the panel, which decides the shape. */
+    boolean hasAssistant() {
+        return assistantReady;
     }
 
     /**
@@ -302,7 +386,8 @@ public class PhoneOrderView extends VerticalLayout {
                     })
                     .withAssistantName(getTranslation("app.name"))
                     .build();
-            panel.add(whatTheySaid, actions(), filled, messages);
+            panel.add(whatTheySaid, actions(), stagedPhoto, filled, messages);
+            assistantReady = true;
         } catch (RuntimeException unavailable) {
             // A licence the machine does not have, or the components switched
             // off. Same treatment: say so where it can be seen.
@@ -328,28 +413,83 @@ public class PhoneOrderView extends VerticalLayout {
         fill.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         Translations.bindText(fill, "assistant.fill");
 
-        photo = new Upload(UploadHandler.inMemory((metadata, data) -> staged = new AIAttachment(
-                metadata.fileName(), metadata.contentType(), data)));
-        photo.setMaxFiles(1);
-        photo.setAcceptedMimeTypes("image/*");
-        photo.setMaxFileSize(8 * 1024 * 1024);
-        // Nothing to drop onto: the drop target is a box the size of the form,
-        // and this sits on one line beside a button.
-        photo.setDropAllowed(false);
-        photo.addFileRemovedListener(event -> staged = null);
-        photo.addClassName("phone-order__photo");
+        photo = attachment(VaadinIcon.FILE_PICTURE, "assistant.photo", null);
+        // The camera, which is the whole point at a counter: the barista takes
+        // the picture of the scribbled note there and then rather than finding
+        // a file on a machine they are not standing at. `capture` is a
+        // pass-through to the file input, and a browser with no camera ignores
+        // it and opens the chooser, so this is never a dead button.
+        camera = attachment(VaadinIcon.CAMERA, "assistant.photo.camera", "environment");
 
-        var pick = new Button(new Icon(VaadinIcon.CAMERA));
-        pick.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        Translations.bindText(pick, "assistant.photo");
-        photo.setUploadButton(pick);
+        stagedPhoto.addClassName("phone-order__staged");
+        stagedPhoto.setVisible(false);
 
         filled.addClassName("phone-order__filled");
         filled.setVisible(false);
 
-        var row = new Div(fill, photo);
+        var row = new Div(fill, photo, camera);
         row.addClassName("phone-order__actions");
         return row;
+    }
+
+    /**
+     * One way of handing the assistant a picture.
+     *
+     * The file list is emptied the moment the bytes are ours, and that is the
+     * repair rather than a tidy-up. `vaadin-upload` counts what is in its list
+     * against {@code maxFiles} and disables its own add button when the count
+     * is reached: with a limit of one, the second click did nothing at all,
+     * while a browser that had not taken a picture yet opened the chooser
+     * normally. Same screen, two behaviours, and neither of them said why. With
+     * the list cleared the control never reaches its limit, so it opens the
+     * chooser every time, everywhere; what is attached is said in words beside
+     * it instead, which is also the only place it was ever legible.
+     */
+    private Upload attachment(VaadinIcon icon, String labelKey, String capture) {
+        var upload = new Upload(UploadHandler.inMemory((metadata, data) -> staged = new AIAttachment(
+                metadata.fileName(), metadata.contentType(), data)));
+        upload.setMaxFiles(1);
+        upload.setAcceptedMimeTypes("image/*");
+        upload.setMaxFileSize(8 * 1024 * 1024);
+        // Nothing to drop onto: the drop target is a box the size of the form,
+        // and this sits on one line beside a button.
+        upload.setDropAllowed(false);
+        upload.addClassName("phone-order__photo");
+        if (capture != null) {
+            // No Java setter for it in 25.3, so the property is set by name.
+            // See specs/FEEDBACK-25.3.md.
+            upload.getElement().setProperty("capture", capture);
+        }
+        upload.addAllFinishedListener(event -> {
+            upload.clearFileList();
+            showStagedPhoto();
+        });
+
+        var button = new Button(new Icon(icon));
+        button.addThemeVariants(ButtonVariant.TERTIARY);
+        Translations.bindText(button, labelKey);
+        upload.setUploadButton(button);
+        return upload;
+    }
+
+    /** What is waiting to be sent, and the way to change your mind about it. */
+    private void showStagedPhoto() {
+        stagedPhoto.removeAll();
+        stagedPhoto.setVisible(staged != null);
+        if (staged == null) {
+            return;
+        }
+        var name = new Span(staged.name());
+        var drop = new Button(new Icon(VaadinIcon.CLOSE_SMALL), event -> {
+            staged = null;
+            showStagedPhoto();
+        });
+        drop.addThemeVariants(ButtonVariant.TERTIARY);
+        Translations.bind(drop, text -> {
+            drop.setAriaLabel(text);
+            drop.setTooltipText(text);
+        }, "assistant.photo.remove");
+        stagedPhoto.add(Translations.bindText(new Span(), "assistant.photo.staged"), name, drop);
     }
 
     /**
@@ -381,7 +521,7 @@ public class PhoneOrderView extends VerticalLayout {
         // Sent, so it is no longer waiting. The next turn is about the next
         // note, and the same picture twice is a second bill for nothing.
         staged = null;
-        photo.clearFileList();
+        showStagedPhoto();
     }
 
     /**
@@ -447,8 +587,15 @@ public class PhoneOrderView extends VerticalLayout {
         // knows and accepts nothing else, so "search but do not create" is a
         // property of the option set rather than an instruction in a prompt.
         built.fieldValueOptions(ValueOptions.forField(knownCustomer)
-                .options((filter, limit) -> customerSearch.search(filter == null ? "" : filter,
-                        limit == null ? 20 : limit))
+                .options((filter, limit) -> {
+                    var wanted = limit == null ? 20 : limit;
+                    // Same rule as the field itself: with nothing to search
+                    // for, the option set is the customers on existing orders
+                    // rather than the empty list a blank search returns.
+                    return filter == null || filter.isBlank()
+                            ? customerSearch.servedRecently(wanted)
+                            : customerSearch.search(filter, wanted);
+                })
                 .itemLabelGenerator(customer -> customer.getFullName() + " <" + customer.getEmail() + ">"));
 
         built.describeField(firstName, "The caller's first name, as they said it.");

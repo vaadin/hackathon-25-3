@@ -23,6 +23,22 @@ public class UserService {
     }
 
     /**
+     * Who can be given a ticket, for the kitchen board's assignment picker.
+     *
+     * A locked account is somebody who cannot sign in, and a ticket assigned to
+     * one is a ticket nobody is making. The order is the order the picker
+     * offers them in, which is why it is decided here rather than on screen.
+     */
+    @Transactional(readOnly = true)
+    public List<User> bakers() {
+        return users.findAll().stream()
+                .filter(user -> user.getRole() == Role.BAKER)
+                .filter(user -> !user.isLocked())
+                .sorted(java.util.Comparator.comparing(User::getFullName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
+    }
+
+    /**
      * The password field is empty when an editor opens, so an empty value means
      * "leave it alone" and only a typed value is re encoded.
      */

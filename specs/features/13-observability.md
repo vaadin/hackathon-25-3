@@ -56,6 +56,10 @@ Both are written as assertions, not as screenshots.
 - Interaction Insights has nothing to show without a deliberately slow interaction. Whatever demonstrates it has to stage one, and no screen here does.
 - AC4 needs rereading rather than testing. `Application` is now annotated `@Push`, because the assistant streams its answer token by token and those tokens reach the browser no other way. The premise of both criteria, a deferred callback delivered with no push connection, no longer describes this application. The button in the diagnostics view still schedules the callback and still reports what it cost, so the interesting part survives, but the undelivered counter now needs a UI that has actually gone rather than one that merely cannot be reached.
 
+## Changed by the second polish pass
+
+The subtitle no longer claims that nothing needs a licence. It claims what is true, that the build and the tests do not, and a second line names whether a commercial key was found on this machine and what follows from the answer, the way the observability panel already names why it is off. See `16-polish-02.md`.
+
 ## Test cases
 
 | Id | Given | When | Then | Tier | Verified by |

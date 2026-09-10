@@ -95,6 +95,10 @@ A `ComboBox` in partial match mode over customers, matching on any part of name,
 - Two of the three upload routes wait on the browser tier: drag and drop, `UploadDropZoneIT`, and clipboard paste, `ClipboardPasteIT`. The validation half is covered browserless, including a file that only claims to be an image.
 - Changing a location's slot length changing the offered times is untested. Closures are covered.
 
+## Changed by the second polish pass
+
+The products screen moved in `16-polish-02.md`: edit and delete are two named icons in the first column, the product column has a floor, the search spans the columns that carry no filter of their own, the price column reads and is edited as money while the storage stays in integer cents, and "New product" is under the table at the end of the row. The editor opens showing the product's own photo, puts price beside VAT, puts stock, days of notice, on sale and featured on one line, and gives the description and its preview the full width of the dialog.
+
 ## Test cases
 
 | Id | Given | When | Then | Tier | Verified by |

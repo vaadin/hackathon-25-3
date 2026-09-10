@@ -158,6 +158,15 @@ public class OrderLineEditor extends Composite<Div> implements HasEnabled {
         return live.get(index).quantity.isEnabled();
     }
 
+    /**
+     * Test seam: whether this row shows its comment whether or not it has
+     * focus. Focus itself is the stylesheet's half of the rule and cannot be
+     * asserted without a browser; this is the half that is decided here.
+     */
+    public boolean alwaysShowsComment(int index) {
+        return live.get(index).layout.hasClassName("order-editor__row--commented");
+    }
+
     public Registration addLinesChangeListener(ComponentEventListener<LinesChangeEvent> listener) {
         return addListener(LinesChangeEvent.class, listener);
     }
@@ -276,11 +285,25 @@ public class OrderLineEditor extends Composite<Div> implements HasEnabled {
                 }
                 changed();
             });
-            comment.addValueChangeListener(event -> changed());
+            comment.addValueChangeListener(event -> {
+                showComment();
+                changed();
+            });
             remove.addClickListener(event -> removeRow());
 
             layout = new Div(product, quantity, comment, price, remove);
             layout.addClassName("order-editor__row");
+        }
+
+        /**
+         * A row that already carries a comment shows it whether or not anybody
+         * is in the row. The rest reveal theirs on focus, which the stylesheet
+         * does on its own: a comment nobody has written is worth a line of the
+         * panel only while somebody is looking at that line.
+         */
+        private void showComment() {
+            var written = comment.getValue() != null && !comment.getValue().isBlank();
+            layout.setClassName("order-editor__row--commented", written);
         }
 
         private void setEnabled(boolean enabled) {

@@ -73,8 +73,23 @@ public class InvoicePrintView extends VerticalLayout implements BeforeEnterObser
 
         var header = new Div();
         header.addClassName("invoice-print__header");
-        header.add(new H1(getTranslation("app.name")),
-                new Paragraph(getTranslation("billing.print.number", invoice.number())),
+        // The bakery's own details, written once in the invoice screen and
+        // printed on every document. The name on its own is what this said
+        // before, and it is still what it says when nobody has written any.
+        var letterhead = invoices.bakeryHeader();
+        if (letterhead == null || letterhead.isBlank()) {
+            header.add(new H1(getTranslation("app.name")));
+        } else {
+            var written = new com.vaadin.flow.component.markdown.Markdown(
+                    com.vaadin.bakery.base.SafeHtml.clean(letterhead));
+            // A letterhead is written as lines and has to print as lines. Plain
+            // markdown folds a single line break into a space, so an address
+            // typed on three lines came out as one sentence.
+            written.setLineBreaks(true);
+            written.addClassName("invoice-print__letterhead");
+            header.add(written);
+        }
+        header.add(new Paragraph(getTranslation("billing.print.number", invoice.number())),
                 new Paragraph(getTranslation("billing.print.issued",
                         invoice.issuedAt().format(DATE.withLocale(getLocale())),
                         invoice.dueAt().format(DATE.withLocale(getLocale())))));

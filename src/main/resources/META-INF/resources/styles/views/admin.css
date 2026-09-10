@@ -11,10 +11,28 @@
   margin-block-end: var(--vaadin-gap-m, 1rem);
 }
 
+/*
+ * The fields on the left, the photo on the right, and the description across
+ * the bottom of both. The description is the one thing on this form whose
+ * width is worth having: markdown is written in lines, and a preview beside it
+ * is only useful if it is the same shape as what it previews.
+ */
 .product-editor__layout {
   display: grid;
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: 2fr 1fr;
   gap: var(--vaadin-gap-l, 1.5rem);
+}
+
+.product-editor__description {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vaadin-gap-m, 1rem);
+  align-items: stretch;
+}
+
+.product-editor__description > * {
+  min-width: 0;
 }
 
 .product-editor__image {
@@ -43,14 +61,34 @@
   overflow: auto;
 }
 
+/* The preview sits beside the field now, so it starts level with it rather
+   than under a picture. */
+.product-editor__description .product-editor__preview {
+  margin-block-start: 0;
+  /* The label above the field is what the preview has to clear to line up. */
+  margin-block-start: 1.6rem;
+  max-height: none;
+}
+
 @media (max-width: 900px) {
-  .product-editor__layout {
+  .product-editor__layout,
+  .product-editor__description {
     grid-template-columns: 1fr;
+  }
+
+  .product-editor__description .product-editor__preview {
+    margin-block-start: 0;
   }
 }
 
+/* Under the table and at the end of the row, the way the Crud screens put
+   theirs. */
 .product-admin__toolbar {
   display: flex;
+  justify-content: flex-end;
   gap: var(--vaadin-gap-m, 1rem);
-  margin-block-end: var(--vaadin-gap-s, .5rem);
+  margin-block-start: var(--vaadin-gap-s, .5rem);
+  /* A vertical layout aligns its children to the start, so without this the
+     row is as wide as the button and there is no end to push it to. */
+  align-self: stretch;
 }

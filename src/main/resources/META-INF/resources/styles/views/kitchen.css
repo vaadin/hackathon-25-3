@@ -221,3 +221,37 @@
     outline: 2px solid var(--vaadin-border-color, rgba(0, 0, 0, .2));
   }
 }
+
+/*
+ * Dragging a ticket from one column to the next.
+ *
+ * The cursor says the card can be picked up before anybody tries, and while one
+ * is in the air every column shows where it could land. Both states are Flow's
+ * own drag attributes, so nothing here has to be scheduled or cleared: the
+ * browser sets them for the length of the gesture.
+ */
+.kitchen-board__ticket[draggable="true"] {
+  cursor: grab;
+}
+
+.kitchen-board__ticket[dragsource] {
+  opacity: .5;
+}
+
+.kitchen-board__columns--dragging .kitchen-board__scroller {
+  outline: 2px dashed var(--vaadin-border-color-secondary, rgba(0, 0, 0, .2));
+  outline-offset: -6px;
+  border-radius: var(--vaadin-radius-m, 8px);
+}
+
+/* The one under the pointer, which is the only one that will take it. */
+.kitchen-board__scroller[dragover] {
+  outline: 2px solid var(--bakery-accent, currentColor);
+  background: var(--vaadin-background-container-strong, rgba(0, 0, 0, .06));
+}
+
+/* The assignment picker is a menu bar, and a menu bar in a row of buttons has
+   to be the same height as they are. */
+.kitchen-board__assign vaadin-menu-bar-button {
+  min-height: 44px;
+}

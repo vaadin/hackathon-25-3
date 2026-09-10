@@ -195,8 +195,18 @@ public class MainLayout extends AppLayout {
         var item = menu.addItem(new Icon(VaadinIcon.GLOBE));
         Translations.bind(menu, item::setAriaLabel, "app.language");
         var submenu = item.getSubMenu();
-        submenu.addItem("English", event -> setLocale(Locale.ENGLISH));
-        submenu.addItem("Espanol", event -> setLocale(Locale.of("es")));
+        // Checkable, like the theme menu next to it: a menu that offers four
+        // choices and says nothing about which one is in force makes the reader
+        // work out the answer from the page behind it.
+        var entries = new java.util.LinkedHashMap<Locale, com.vaadin.flow.component.contextmenu.MenuItem>();
+        entries.put(Locale.ENGLISH, submenu.addItem("English", event -> setLocale(Locale.ENGLISH)));
+        entries.put(Locale.of("es"), submenu.addItem("Espanol", event -> setLocale(Locale.of("es"))));
+        entries.values().forEach(entry -> entry.setCheckable(true));
+        // One tick at a time, and it follows the locale rather than the click:
+        // the language can also change from somewhere else, and a menu that
+        // ticked itself on click would then be lying.
+        Translations.onLocale(menu, locale -> entries.forEach((candidate, entry) ->
+                entry.setChecked(candidate.getLanguage().equals(locale.getLanguage()))));
         return menu;
     }
 

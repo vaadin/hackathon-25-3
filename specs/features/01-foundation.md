@@ -100,6 +100,10 @@ Any component that subscribes to something outside itself registers in `Componen
 - The navigation filter is asserted in the browser tier, inside `SmokeIT`, and not browserless. The drawer is built from `MenuConfiguration.getMenuEntries`, which filters by the current user, on the thread holding the session lock: a browserless test that sets the security context from the test thread sees only the public entries however it signs in. The blind spot is in `FEEDBACK-25.3.md`.
 - The four locale test classes named below for derived text, transient text and titles are not written. Until they are, the language criteria they cover stay unticked even though the behaviour appears to work.
 
+## Changed by the second polish pass
+
+The language menu ticks the language in force, one at a time, the way the theme menu beside it always has. It follows the locale rather than the click, because the language can be changed from somewhere other than that menu. See `16-polish-02.md`.
+
 ## Test cases
 
 | Id | Given | When | Then | Tier | Verified by |

@@ -25,7 +25,22 @@ public class DashboardService {
         this.clock = clock;
     }
 
-    public record Today(long due, long ready, long problems, String nextPickup, int slotUtilisationPercent) {
+    public record Today(long due, long ready, long problems, String nextPickup, int slotUtilisationPercent,
+            Money takings) {
+    }
+
+    /**
+     * What a whole range came to, and when in the day it happened.
+     *
+     * One record and one query, on purpose: the totals and the hourly load are
+     * the same rows counted two ways, and the dashboard has a query budget a
+     * test enforces.
+     */
+    public record Period(long orders, Money gross, Money average, List<HourLoad> byHour) {
+    }
+
+    /** Orders collected in one hour of the day, over the whole range. */
+    public record HourLoad(int hour, long orders) {
     }
 
     public record RevenuePoint(LocalDate date, Money gross) {
@@ -55,7 +70,33 @@ public class DashboardService {
         // Rough utilisation: booked against what the open locations could take.
         int capacity = Math.max(1, all.size());
         int utilisation = (int) Math.min(100, Math.round(all.size() * 100.0 / capacity));
-        return new Today(all.size(), ready, problems, next, utilisation);
+        // What the day is worth, cancellations excluded because the state list
+        // above already leaves them out.
+        var takings = Money.ofCents(all.stream().mapToInt(Order::getTotalGrossCents).sum());
+        return new Today(all.size(), ready, problems, next, utilisation, takings);
+    }
+
+    /**
+     * The range as one number each: how many orders, what they came to, and
+     * what the average one is worth. The hourly load rides along because it is
+     * the same rows grouped a second way.
+     */
+    @Transactional(readOnly = true)
+    public Period period(LocalDate from, LocalDate to) {
+        var all = orders.findByPickupDateBetweenAndStateInOrderByPickupDateAscPickupTimeAsc(from, to,
+                List.of(OrderState.NEW, OrderState.CONFIRMED, OrderState.IN_PREPARATION,
+                        OrderState.READY, OrderState.PICKED_UP));
+
+        var gross = Money.ofCents(all.stream().mapToInt(Order::getTotalGrossCents).sum());
+        var average = all.isEmpty() ? Money.ZERO : Money.ofCents(gross.cents() / all.size());
+
+        var perHour = new java.util.TreeMap<Integer, Long>();
+        all.forEach(order -> perHour.merge(order.getPickupTime().getHour(), 1L, Long::sum));
+        var hours = perHour.entrySet().stream()
+                .map(entry -> new HourLoad(entry.getKey(), entry.getValue()))
+                .toList();
+
+        return new Period(all.size(), gross, average, hours);
     }
 
     @Transactional(readOnly = true)

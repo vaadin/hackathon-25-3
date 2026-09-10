@@ -312,12 +312,13 @@ public class OrderBoardView extends MasterDetailLayout {
                 () -> getUI().ifPresent(ui -> ui.navigate(
                         ROUTE + "/" + com.vaadin.bakery.assistant.ui.BoardAskView.SEGMENT)));
 
-        // The two actions go last and are pushed to the end of the row, so the
-        // row reads as what you are looking at first and what you can do second.
         var actions = new Div(question, take);
         actions.addClassName("order-board__actions");
 
-        var browse = new Div(field, past, actions);
+        // Filtering is one group and it stays one group: at phone width the
+        // whole of it drops to a row of its own under the buttons rather than
+        // squeezing the search field to nothing beside them.
+        var browse = new Div(field, past);
         browse.addClassName("order-board__browse");
 
         var confirm = bulkAction(VaadinIcon.CHECK, "board.bulk.confirm",
@@ -334,7 +335,14 @@ public class OrderBoardView extends MasterDetailLayout {
             cancel.setEnabled(any);
         });
 
-        var toolbar = new Div(browse, selected);
+        // The buttons live in one wrapper so that the narrow layout can lift
+        // all four of them onto the same row: what acts on the board and what
+        // acts on the ticked rows read as one set of commands, and the row
+        // under them is what you are looking at.
+        var commands = new Div(actions, selected);
+        commands.addClassName("order-board__commands");
+
+        var toolbar = new Div(browse, commands);
         toolbar.addClassName("order-board__toolbar");
         return toolbar;
     }
@@ -392,7 +400,10 @@ public class OrderBoardView extends MasterDetailLayout {
             collapseExpanded();
             getUI().ifPresent(ui -> ui.navigate(ROUTE + "/" + order.getReference()));
         });
-        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        // The theme neutral variant, not the Lumo one: "tertiary-inline" means
+        // nothing to Aura, which drew the pencil in a bordered box of its own
+        // while Lumo drew a bare icon. "tertiary" is a name both themes know.
+        button.addThemeVariants(ButtonVariant.TERTIARY);
         button.addClassName("order-board__edit");
         Translations.bind(grid, text -> {
             button.setAriaLabel(text);

@@ -86,6 +86,10 @@ The board is used on a tablet with flour on it. Targets are at least 44 pixels, 
 - The highlight for a ticket that has been in preparation longer than expected, KIT-06, is still not built, and it is not an acceptance criterion here. It needs a notion of expected preparation time that the domain does not have: no product carries one, and inventing a constant would be a rule nobody agreed.
 - The two width criteria in AC6 are measured by `KitchenSummaryOverlayIT`, and how they are measured took several attempts: the shell opens its drawer a moment after the first render, which moves every column and has nothing to do with the summary. The test compares the share of the board its columns occupy, read in one call so both numbers describe the same frame.
 
+## Changed by the second polish pass
+
+A ticket can be dragged from one column to the next, obeying exactly the rules the buttons obey and writing to the same signal; the buttons stay, because dragging is a mouse gesture and this board has to be usable from a keyboard. "Claim this" is a picker of bakers rather than a button that means "me": the current user comes first when they are a baker, and an administrator assigns freely. See `16-polish-02.md`.
+
 ## Test cases
 
 | Id | Given | When | Then | Tier | Verified by |
