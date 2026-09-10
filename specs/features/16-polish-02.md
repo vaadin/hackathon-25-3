@@ -2,7 +2,7 @@
 
 ## Overview
 
-The second pass of using the running application and writing down what is wrong with it. The list came from `specs/PolishUI-01.md`, which is the report; this document is the contract that report became.
+The second pass of using the running application and writing down what is wrong with it. The list came from the report at the bottom of `specs/VIBE-SESSION-03.md`; this document is the contract that report became.
 
 Nothing here adds a capability the application did not have. Three items are close to one: the counter order screen becomes a master detail, the kitchen board accepts a dragged ticket, and the invoice grows a letterhead that somebody writes once. Those three were marked in the report as questions for the product owner and were approved before they were built, which is why they are here rather than in a **Left for the product owner** section.
 
