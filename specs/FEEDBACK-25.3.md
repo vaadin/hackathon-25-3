@@ -165,18 +165,25 @@ It is a convincing failure because the report is green and the change is real ev
 
 Either push the runtime added sheets too, or say `pushed 1 of 2` and name the one that was not pushed. A reload fixes it, but only if you know you need one.
 
-## The container tokens are not interchangeable between themes
+## The container tokens do not follow the background the way their own page says
 
-`--vaadin-background-container` and `--vaadin-background-container-strong` are in the shared layer, so an application reasonably writes `background: var(--vaadin-background-container)` and expects a sunken surface under either theme. They do not behave the same way:
+Filed as [vaadin/docs#5977](https://github.com/vaadin/docs/issues/5977), closed as not understood, and **reduced afterwards, which corrected it**. The reply is drafted in `specs/issues/33b-reply-to-jouni.md` and the reproducer is `specs/issues/projects/33-container-tokens.zip`.
 
-| Theme | Value |
-| --- | --- |
-| Lumo | `light-dark(rgba(25,59,103,.05), ...)`, a fixed cold blue grey wash |
-| Aura | `color-mix(... from the background colour ...)`, derived from whatever the background actually is |
+The Base Styles page says `--vaadin-background-container` is "computed from `--vaadin-text-color` and `--vaadin-background-color` by default". That holds for the base styles and for neither theme: both replace the derivation with their own scale, so an application that recolours the page through the two shared tokens does not move the wash at all.
 
-On a warm background Aura's stays warm and Lumo's reads as a dirty grey white, so the same stylesheet looks deliberate in one theme and broken in the other. It is the one token pair we found where writing against the shared layer is not enough, and it took a side by side comparison to see: each looks plausible on its own.
+Set only those two, on `html:root`, and read back what the browser paints, as `page / container / strong`:
 
-Deriving Lumo's from `--vaadin-background-color` the way Aura does would make the shared layer mean the same thing in both.
+| Stylesheet | light, `#fbf7f2` on `#2a2119` | dark, `#16130f` on `#f3ece4` |
+| --- | --- | --- |
+| Base styles, no theme | `#fbf7f2 / #efebe6 / #e4dfd9` | `#16130f / #1f1c17 / #282520` |
+| Lumo | `#fbf7f2 / #efedea / #e4e3e3` | `#16130f / #151513 / #161717` |
+| Aura | `#fbf7f2 / #f1ede8 / #e5e1dd` | `#16130f / #15120e / #14110d` |
+
+In light, Lumo's `strong` lands on a flat grey where the base formula keeps the page's hue, which is what we saw on the bakery palette: sunken surfaces read as dirty grey under Lumo and deliberate under Aura, from one stylesheet. In dark, both themes paint the container darker than the page and the panels disappear, and `color-scheme: dark` is what fixes that, not the tokens.
+
+Three things the first version of this row got wrong, all found by reducing it: nothing is invisible in the default palettes, the two themes give these tokens the same role rather than different ones, and Aura does not derive its wash from `--vaadin-background-color` either. It derives from `--aura-background-color-light/dark`, which our own theme file happens to set, which is the only reason Aura looked right. Under Lumo neither `--lumo-base-color` nor `--lumo-shade` moves it, because `--lumo-shade-5pct` is a literal `rgba(25, 59, 103, .05)` rather than a mix of `--lumo-shade`; the handles are `--lumo-contrast-5pct` and `-10pct`, or the shared token itself, which is what `styles/themes/bakery.css` does.
+
+So the ask is a documentation one: say on the Base Styles page that the derivation is the base layer's own, and give the Lumo color page the mapping the Aura color page already has.
 
 ## Missing pieces in the shared token layer
 

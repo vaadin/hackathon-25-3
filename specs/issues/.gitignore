@@ -11,3 +11,7 @@
 !projects/
 projects/*
 !projects/*.zip
+
+# A screenshot a reply links to has to be reachable from the repository, because
+# the API cannot attach a file to an issue or a comment.
+!projects/*.png
