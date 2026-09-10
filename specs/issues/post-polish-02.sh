@@ -24,6 +24,26 @@ cd "$(dirname "$0")/../.."
 CONFIRM=no
 [ "${1:-}" = "--confirm" ] && CONFIRM=yes
 
+# Every hackathon issue also gets a line in the platform PiT tracking issue,
+# which is where somebody looks to see what this release's testing produced.
+# The Hackathon section runs to the end of that body, so a new entry appends.
+TRACKER=9204
+
+add_to_tracker() {
+    local url=$1
+    local body
+    body=$(mktemp)
+    gh issue view "$TRACKER" --repo vaadin/platform --json body --jq .body > "$body"
+    if grep -qF "$url" "$body"; then
+        echo "    already in platform#$TRACKER"
+    else
+        printf -- "- [ ] %s\n" "$url" >> "$body"
+        gh issue edit "$TRACKER" --repo vaadin/platform --body-file "$body" > /dev/null
+        echo "    added to platform#$TRACKER"
+    fi
+    rm -f "$body"
+}
+
 DRAFTS=(
     49-upload-custom-add-button-latches.md
     50-upload-no-capture-setter.md
@@ -96,6 +116,7 @@ for draft in "${DRAFTS[@]}"; do
     if [ "$CONFIRM" = "yes" ]; then
         url=$(gh issue create --repo "$repo" --title "$title" --body-file "$body")
         echo "    -> $url"
+        add_to_tracker "$url"
         # The link goes back into the posting list, so a finding with no link
         # stays visibly a finding nobody outside this repository has seen.
         echo "$draft $url" >> specs/issues/posted-polish-02.txt
