@@ -47,12 +47,57 @@ class DashboardBrowserlessTest extends SpringBrowserlessTest {
         navigate(DashboardView.class);
 
         // The panels are Dashboard widgets now, and a widget's title is a
-        // property of the widget rather than a heading inside it.
-        var titles = find(DashboardWidget.class).all().stream().map(DashboardWidget::getTitle).toList();
-        assertTrue(titles.contains("Today"), titles.toString());
+        // property of the widget rather than a heading inside it. The first one
+        // is the exception and says so: the banner carries its own heading
+        // inside itself, beside the date, so its widget title is empty.
+        var widgets = find(DashboardWidget.class).all();
+        var titles = widgets.stream().map(DashboardWidget::getTitle).toList();
+        assertTrue(titles.contains("This period"), titles.toString());
         assertTrue(titles.contains("Revenue by day"), titles.toString());
         assertTrue(titles.contains("Orders by state"), titles.toString());
+        assertTrue(titles.contains("Busiest pickup hours"), titles.toString());
         assertTrue(titles.contains("Top products"), titles.toString());
+    }
+
+    /**
+     * POL2-11. The first widget is the banner: the width of the page, its own
+     * surface, and today's figures on it. It was one panel among five, the same
+     * size as the pie chart beside it, and it is the block somebody opens this
+     * page to read.
+     */
+    @Test
+    void theFirstWidgetIsTheBanner() {
+        navigate(DashboardView.class);
+
+        var first = find(DashboardWidget.class).all().getFirst();
+        assertTrue(first.getClassNames().contains("dashboard__banner-widget"),
+                "the first widget is the banner");
+        assertEquals(4, first.getColspan(), "and it takes the width of the page");
+        assertTrue(first.getTitle() == null || first.getTitle().isBlank(),
+                "its heading is inside it, beside the date");
+
+        var banner = find(com.vaadin.flow.component.html.Div.class)
+                .withClassName("dashboard__banner").single();
+        assertTrue(banner.getElement().getTextRecursively().contains("Today"),
+                "which is where the word is");
+        assertTrue(banner.getElement().getTextRecursively().contains("Takings today"),
+                "and today's takings are on it, which no panel showed before");
+    }
+
+    /**
+     * POL2-11, the other half. The charts show the shape of a range and nothing
+     * on the page said its size.
+     */
+    @Test
+    void theRangeHasTotalsOfItsOwn() {
+        var to = LocalDate.now(clock);
+        var period = dashboard.period(to.minusDays(7), to);
+
+        assertTrue(period.orders() > 0, "the seeded week has orders in it");
+        assertEquals(period.gross().cents() / period.orders(), period.average().cents(),
+                "the average is the takings over the count");
+        assertTrue(period.byHour().stream().mapToLong(hour -> hour.orders()).sum() == period.orders(),
+                "and every order is in exactly one hour of the day");
     }
 
     @Test
@@ -64,7 +109,8 @@ class DashboardBrowserlessTest extends SpringBrowserlessTest {
         var charts = find(Chart.class).all().stream()
                 .filter(chart -> !chart.getClassNames().contains("dashboard__asked"))
                 .toList();
-        assertEquals(3, charts.size(), "revenue, orders by state and top products");
+        assertEquals(4, charts.size(),
+                "revenue, orders by state, the busiest hours and top products");
 
         var types = charts.stream()
                 .map(chart -> chart.getConfiguration().getChart().getType())
@@ -72,6 +118,7 @@ class DashboardBrowserlessTest extends SpringBrowserlessTest {
         assertTrue(types.contains(ChartType.AREASPLINE), types.toString());
         assertTrue(types.contains(ChartType.PIE), types.toString());
         assertTrue(types.contains(ChartType.BAR), types.toString());
+        assertTrue(types.contains(ChartType.COLUMN), types.toString());
     }
 
     @Test

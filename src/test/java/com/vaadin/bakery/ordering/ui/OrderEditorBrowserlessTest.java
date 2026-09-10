@@ -258,6 +258,25 @@ class OrderEditorBrowserlessTest extends SpringBrowserlessTest {
         return find(OrderDetailView.class).single();
     }
 
+    /**
+     * POL2-02. A comment nobody has written costs a line of every order line,
+     * so it waits until the row has focus. One that somebody has written is
+     * marked to stay, because a note that only appears when you are standing on
+     * it is a note nobody reads.
+     */
+    @Test
+    void onlyALineThatCarriesACommentShowsItWithoutFocus() {
+        var editor = editor();
+        var product = catalogue.availableProducts().getFirst();
+
+        editor.setLines(List.of(new CartLine(product.getId(), 1, "No nuts on top"),
+                new CartLine(product.getId(), 2, null)));
+
+        assertTrue(editor.alwaysShowsComment(0), "a written comment is not hidden from anybody");
+        assertFalse(editor.alwaysShowsComment(1), "an empty one waits for the row to be used");
+        assertFalse(editor.alwaysShowsComment(2), "and so does the empty trailing row");
+    }
+
     @Test
     void aLineWhoseProductBecameUnavailableIsNotDroppedSilently() {
         var editor = editor();

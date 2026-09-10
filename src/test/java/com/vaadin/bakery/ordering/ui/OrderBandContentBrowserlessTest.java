@@ -70,6 +70,15 @@ class OrderBandContentBrowserlessTest extends SpringBrowserlessTest {
         assertFalse(allergens.getFirst().getChildren().toList().isEmpty(),
                 "and it lists at least one allergen");
 
+        // The platform's own component, not a Span wearing theme="badge". That
+        // attribute is a Lumo convention: Aura has no rule for it, so the same
+        // chips came out coloured under one theme and as bare words under the
+        // other. A component both themes know is the whole fix.
+        assertTrue(allergens.getFirst().getChildren()
+                        .allMatch(com.vaadin.flow.component.badge.Badge.class::isInstance),
+                "every chip is a Badge: " + allergens.getFirst().getChildren()
+                        .map(child -> child.getClass().getSimpleName()).toList());
+
         var history = find(Div.class).withClassName("order-board__band-history").all();
         assertFalse(history.isEmpty(), "the band carries the recent history");
         long entries = history.getFirst().getChildren().count();

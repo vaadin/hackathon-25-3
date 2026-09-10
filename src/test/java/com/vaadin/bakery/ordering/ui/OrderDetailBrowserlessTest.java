@@ -192,6 +192,32 @@ class OrderDetailBrowserlessTest extends SpringBrowserlessTest {
                 "with the order moved");
     }
 
+    /**
+     * POL2-03. The message box carried the component's own default, which is
+     * the word "Message" in English whatever language the page is in. It names
+     * what the box is about rather than what writing in it does, and it never
+     * followed the reader.
+     */
+    @Test
+    void theMessageBoxIsNamedForWhatItDoes() {
+        open(orders.findAll().stream()
+                .filter(order -> order.getState().isOpen())
+                .findFirst().orElseThrow().getReference());
+
+        var input = find(com.vaadin.flow.component.messages.MessageInput.class).single();
+        assertEquals("New message", input.getI18n().getMessage(), "not the component's own \"Message\"");
+        assertEquals("Send", input.getI18n().getSend());
+
+        try {
+            UI.getCurrent().setLocale(java.util.Locale.of("es"));
+            assertEquals("Mensaje nuevo", input.getI18n().getMessage(), "and it follows the language");
+        } finally {
+            // The UI outlives the method, and a Spanish one would surprise the
+            // next test in this class.
+            UI.getCurrent().setLocale(java.util.Locale.ENGLISH);
+        }
+    }
+
     @Test
     void markingAnOrderPickedUpIssuesItsInvoice() {
         var ready = orders.findAll().stream()

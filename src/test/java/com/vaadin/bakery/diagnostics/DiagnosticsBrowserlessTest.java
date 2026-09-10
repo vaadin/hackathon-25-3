@@ -128,6 +128,34 @@ class DiagnosticsBrowserlessTest extends SpringBrowserlessTest {
                 "and it links to nothing, because there is nothing to link to");
     }
 
+    /**
+     * POL2-13. The subtitle claimed no licence was needed, which was true of
+     * the panels and stopped being true of the application: it now asks whether
+     * a commercial key is on the machine, because a component that validates
+     * its licence in its own constructor blocks for five minutes without one.
+     * So the claim is narrowed to the build and the tests, and the answer for
+     * this machine is stated the way the observability panel states its own.
+     */
+    @Test
+    void theSubtitleClaimsOnlyTheBuildAndNamesWhatThisMachineHas() {
+        navigate(DiagnosticsView.class);
+
+        var lines = find(com.vaadin.flow.component.html.Paragraph.class).all().stream()
+                .map(com.vaadin.flow.component.html.Paragraph::getText)
+                .toList();
+
+        var subtitle = lines.stream().filter(line -> line.contains("service event bus")).findFirst()
+                .orElseThrow(() -> new AssertionError("no subtitle among " + lines));
+        assertTrue(subtitle.contains("The build and the tests need no licence"),
+                "the claim is about the build, not about the application: " + subtitle);
+
+        var expected = com.vaadin.bakery.base.CommercialLicence.isPresent()
+                ? "A commercial key was found on this machine"
+                : "No commercial key was found on this machine";
+        assertTrue(lines.stream().anyMatch(line -> line.startsWith(expected)),
+                "and the answer for this machine is on the page: " + lines);
+    }
+
     @Test
     void countersCanBeReset() {
         navigate(OrderBoardView.class);

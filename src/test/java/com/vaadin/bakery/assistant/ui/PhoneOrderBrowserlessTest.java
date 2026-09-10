@@ -2,6 +2,9 @@ package com.vaadin.bakery.assistant.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.vaadin.bakery.Application;
@@ -77,6 +80,39 @@ class PhoneOrderBrowserlessTest extends SpringBrowserlessTest {
         var view = navigate(PhoneOrderView.class);
 
         assertEquals(0, view.meter().turns(), "nothing has been asked yet");
+    }
+
+    /**
+     * POL2-06. The form is the page and the assistant is a panel beside it, so
+     * closing the assistant cannot take the form with it and opening it cannot
+     * push the form about.
+     *
+     * With no model there is no panel to open, and that is the shape this
+     * asserts on such a machine: the form is still the master, and the red
+     * sentence saying why is on the page rather than behind a button whose only
+     * outcome is an explanation of itself. {@code AssistantOffBrowserlessTest}
+     * is where that sentence is asserted.
+     */
+    @Test
+    void theFormIsThePageAndTheAssistantIsBesideIt() {
+        var view = navigate(PhoneOrderView.class);
+
+        assertTrue(view.getMaster() != null, "the form is the master half of the layout");
+        assertTrue(view.getMaster().getElement().getClassList().contains("phone-order__master"));
+
+        if (!view.hasAssistant()) {
+            assertNull(view.getDetail(), "with no model there is nothing to put beside it");
+            return;
+        }
+
+        assertNotNull(view.getDetail(), "with a model, the assistant arrives open");
+        view.closeAssistant();
+        assertNull(view.getDetail(), "and it closes on its own");
+        assertSame(view.getMaster(), find(PhoneOrderView.class).single().getMaster(),
+                "without taking the form with it");
+
+        view.openAssistant();
+        assertNotNull(view.getDetail(), "and comes back");
     }
 
     @Test
