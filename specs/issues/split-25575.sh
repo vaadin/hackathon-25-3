@@ -28,7 +28,11 @@ add_to_tracker() {
     if grep -qF "$url" "$body"; then
         echo "    already in platform#$TRACKER"
     else
-        printf -- "- [ ] %s\n" "$url" >> "$body"
+        # $(cat) strips the trailing newlines, which is the whole point: gh
+        # prints the body plus one of its own, so a plain >> leaves a blank
+        # line before every entry and the list grows gappier each time.
+        printf -- "%s\n- [ ] %s\n" "$(cat "$body")" "$url" > "$body.new"
+        mv "$body.new" "$body"
         gh issue edit "$TRACKER" --repo vaadin/platform --body-file "$body" > /dev/null
         echo "    added to platform#$TRACKER"
     fi

@@ -1,0 +1,6 @@
+49-upload-custom-add-button-latches.md https://github.com/vaadin/web-components/issues/12717
+50-upload-no-capture-setter.md https://github.com/vaadin/flow-components/issues/10086
+51-grid-header-join-top-row-only.md https://github.com/vaadin/flow-components/issues/10087
+52-grid-column-width-is-the-minimum.md https://github.com/vaadin/flow-components/issues/10088
+53-lumo-badge-theme-has-no-aura-equivalent.md https://github.com/vaadin/web-components/issues/12718
+54-lumo-button-variants-inert-under-aura.md https://github.com/vaadin/flow-components/issues/10089
