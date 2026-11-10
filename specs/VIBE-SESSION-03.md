@@ -31,11 +31,17 @@ Six, each with a project somebody else can run:
 - **`theme="badge"` on a `Span` is a badge under Lumo and bare text under Aura.** It is how every Vaadin application since 14 draws a badge, the failure is silent, and the answer is the `Badge` component that 25.3 ships.
 - **`ButtonVariant.LUMO_*` constants are inert under Aura**, with no deprecation and no javadoc to tell them apart from the theme neutral ones that work.
 
-The last two are one shape: a Lumo style name that means nothing under Aura, failing without a sound. This application uses `theme="badge"` in eight places and this pass replaced one of them, the one the report named. The other seven are a row in `FEEDBACK-25.3.md` rather than a quiet sweep.
+The last two are one shape: a Lumo style name that means nothing under Aura, failing without a sound. This application used `theme="badge"` in thirteen places and this pass replaced one of them, the one the report named. The other twelve were left as a row in `FEEDBACK-25.3.md` rather than a quiet sweep, and then the answer arrived: web-components closed the badge issue as not planned, confirming that Aura does not carry the utility and `vaadin-badge` is the component. So the sweep happened after all, on the maintainer's word rather than on ours.
+
+## What happened after
+
+The six were posted from `specs/issues/post-polish-02.sh`, which fills the reproducer links with the SHA of `HEAD` and refuses to send while a zip is missing from `HEAD` or `HEAD` is unpushed. Two of them came back with an answer worth having.
+
+**The badge issue was closed as not planned**, and the close is the answer: `theme="badge"` is not supported by Aura, and `vaadin-badge` is the official component. The application then swapped all thirteen, which is a better outcome than the issue asked for and cost one gap of its own: there is no `BadgeVariant` for Lumo's `badge primary`, so the header's cart count is `FILLED` plus `NUMBER_ONLY` with `bindNumber`, which is a better fit than the text it replaced. Two smaller things the swap turned up, both in the row: an application's own CSS that reached the chip through `[theme~="badge"]` has to be re-specified against `vaadin-badge`, and a browserless test that collected `Span`s to read a page stops seeing the badge's text.
+
+**The dark mode issue went to `vaadin/docs` and narrowed twice.** The reproducer had already killed the claim that there are two mechanisms; a maintainer then asked where the documentation actually suggests the pattern, and the answer is two pages of the Flow signals documentation that bind a signal named `darkMode` to `theme="dark"` behind a button labelled Toggle Dark Mode. The code in them is not wrong, the framing is, and that is all the issue is now.
 
 ## What is still open
-
-Nothing was posted. The six drafts are in `specs/issues/`, and `post-polish-02.sh` beside them is the script: it fills the reproducer links with the SHA of `HEAD` and refuses to send while a zip is missing from `HEAD` or `HEAD` is unpushed.
 
 The kitchen drag is the one thing in this pass that no test performs. Selenium's mouse does not raise the HTML5 drag events, so the gesture joins the six already listed in `NEXT.md` that this tier cannot make. What is tested is the decision the drop makes, which is why that decision is a method and not a lambda inside the listener.
 
