@@ -2,6 +2,7 @@
    security configuration permits as static content. */
 @import url('./styles/base/layout.css');
 @import url('./styles/base/typography.css');
+@import url('./styles/base/components.css');
 @import url('./styles/views/home.css');
 @import url('./styles/views/storefront.css');
 @import url('./styles/views/cart.css');

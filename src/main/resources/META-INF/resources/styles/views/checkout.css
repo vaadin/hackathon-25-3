@@ -15,8 +15,7 @@
   border-bottom: 1px solid var(--vaadin-border-color-secondary, rgba(0, 0, 0, .1));
 }
 
-.checkout-view__total,
-.tracking-view h2 + span {
+.checkout-view__total {
   font-weight: 700;
 }
 

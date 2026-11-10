@@ -28,6 +28,8 @@ import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.InputMode;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -639,8 +641,8 @@ public class PhoneOrderView extends MasterDetailLayout {
             return Translations.bindText(new Span(), "assistant.source.none");
         }
 
-        var confidence = Translations.bindText(new Span(), confidenceKey(source.confidence()));
-        confidence.getElement().getThemeList().add("badge small " + confidenceTheme(source.confidence()));
+        var confidence = Translations.bindText(new Badge(), confidenceKey(source.confidence()));
+        confidence.addThemeVariants(BadgeVariant.SMALL, confidenceVariant(source.confidence()));
         content.add(confidence);
 
         source.extracts().stream().map(SourceExtract::text)
@@ -671,11 +673,11 @@ public class PhoneOrderView extends MasterDetailLayout {
         return "assistant.confidence." + level.name();
     }
 
-    private static String confidenceTheme(ConfidenceLevel level) {
+    private static BadgeVariant confidenceVariant(ConfidenceLevel level) {
         return switch (level) {
-            case HIGH -> "success";
-            case MEDIUM -> "contrast";
-            case LOW -> "error";
+            case HIGH -> BadgeVariant.SUCCESS;
+            case MEDIUM -> BadgeVariant.CONTRAST;
+            case LOW -> BadgeVariant.ERROR;
         };
     }
 

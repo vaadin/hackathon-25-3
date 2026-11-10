@@ -7,6 +7,8 @@ import com.vaadin.bakery.catalogue.ProductImageRepository;
 import com.vaadin.bakery.catalogue.ProductImages;
 import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -92,8 +94,8 @@ public class ProductDetailView extends VerticalLayout implements BeforeEnterObse
         var allergens = new Div();
         allergens.addClassName("product-view__allergens");
         product.getAllergens().forEach(allergen -> {
-            var chip = Translations.bindText(new Span(), allergen.translationKey());
-            chip.getElement().getThemeList().add("badge small");
+            var chip = Translations.bindText(new Badge(), allergen.translationKey());
+            chip.addThemeVariants(BadgeVariant.SMALL);
             allergens.add(chip);
         });
 

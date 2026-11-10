@@ -2,6 +2,8 @@ package com.vaadin.bakery.catalogue.ui;
 
 import com.vaadin.bakery.catalogue.ProductCard;
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -50,9 +52,9 @@ public class ProductCardComponent extends Div implements HasAriaRole {
         imageLink.getElement().setAttribute("aria-hidden", "true");
         media.add(imageLink);
         if (card.needsLeadTime()) {
-            var badge = Translations.bindText(new Span(), "catalogue.leadTime.badge", card.leadTimeDays());
+            var badge = Translations.bindText(new Badge(), "catalogue.leadTime.badge", card.leadTimeDays());
             badge.addClassNames("product-card__badge");
-            badge.getElement().getThemeList().add("badge contrast small");
+            badge.addThemeVariants(BadgeVariant.CONTRAST, BadgeVariant.SMALL);
             media.add(badge);
         }
 
@@ -65,8 +67,8 @@ public class ProductCardComponent extends Div implements HasAriaRole {
         var allergens = new Div();
         allergens.addClassName("product-card__allergens");
         card.allergenKeys().forEach(key -> {
-            var chip = Translations.bindText(new Span(), key);
-            chip.getElement().getThemeList().add("badge small");
+            var chip = Translations.bindText(new Badge(), key);
+            chip.addThemeVariants(BadgeVariant.SMALL);
             allergens.add(chip);
         });
 

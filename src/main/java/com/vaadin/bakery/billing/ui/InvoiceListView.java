@@ -7,6 +7,8 @@ import com.vaadin.bakery.billing.InvoiceService;
 import com.vaadin.bakery.billing.InvoiceStatus;
 import com.vaadin.bakery.people.Role;
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -149,12 +151,12 @@ public class InvoiceListView extends VerticalLayout {
         });
     }
 
-    private Span statusBadge(Invoice invoice) {
-        var badge = Translations.bindText(new Span(), invoice.getStatus().translationKey());
-        badge.getElement().getThemeList().add("badge " + switch (invoice.getStatus()) {
-            case PAID -> "success";
-            case VOID -> "error";
-            case ISSUED -> "contrast";
+    private Badge statusBadge(Invoice invoice) {
+        var badge = Translations.bindText(new Badge(), invoice.getStatus().translationKey());
+        badge.addThemeVariants(switch (invoice.getStatus()) {
+            case PAID -> BadgeVariant.SUCCESS;
+            case VOID -> BadgeVariant.ERROR;
+            case ISSUED -> BadgeVariant.CONTRAST;
         });
         return badge;
     }

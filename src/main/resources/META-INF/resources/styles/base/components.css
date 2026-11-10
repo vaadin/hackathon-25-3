@@ -1,0 +1,35 @@
+/*
+ * Workarounds against component internals. A rule belongs here only when a
+ * component does not render what its API says it renders, and it names the
+ * version it was written against, the issue upstream and the condition for
+ * deleting it.
+ */
+
+/*
+ * vaadin-badge 25.2.7 to 25.3.0-beta2: a badge whose text Flow wrote never
+ * shows it.
+ *
+ * The component hides its content part until it sees a node with text in the
+ * default slot, and it only looks when the slot assignment changes. Flow
+ * inserts the text as an empty text node and fills that node in afterwards,
+ * which reassigns nothing and fires no slotchange, so `has-content` never
+ * arrives, the text stays hidden and the badge is drawn as a small empty pill:
+ * a pink circle for the error variant, one per ticket on the kitchen board.
+ *
+ * A regression from web-components#12399, which made the initial slot pass
+ * synchronous so an auto width grid column would not measure a hidden badge.
+ * Reported as web-components#12663 and fixed by #12664, a MutationObserver on
+ * character data, cherry picked to 25.3 in #12665 and to 25.2 in #12666.
+ *
+ * DELETE THIS RULE once the application is past 25.3.0-beta2, which is the
+ * last published version without the fix. `BadgeTextIT` asserts the rendered
+ * outcome rather than the rule, so it stays green through the removal.
+ *
+ * Scoped to badges that lack the attribute, so it stops matching as soon as
+ * the component sets it. A number only badge is left out on purpose: its text
+ * is not meant to show, and un-hiding an empty content box there only adds the
+ * flex gap beside the number.
+ */
+vaadin-badge:not([has-content]):not([theme~="number-only"])::part(content) {
+  display: revert;
+}

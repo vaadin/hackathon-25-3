@@ -5,6 +5,8 @@ import com.vaadin.bakery.base.error.DomainException;
 import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.bakery.ordering.Order;
 import com.vaadin.bakery.ordering.OrderActivity;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.signals.Signal;
 import com.vaadin.bakery.ordering.OrderService;
 import com.vaadin.bakery.ordering.OrderState;
@@ -82,8 +84,8 @@ public class TrackingView extends VerticalLayout implements BeforeEnterObserver 
     private void render(Order order, String token) {
         add(Translations.bindText(new H2(), "tracking.title", order.getReference()));
 
-        var state = Translations.bindText(new Span(), order.getState().translationKey());
-        state.getElement().getThemeList().add("badge " + themeFor(order.getState()));
+        var state = Translations.bindText(new Badge(), order.getState().translationKey());
+        state.addThemeVariants(variantFor(order.getState()));
         add(state);
 
         add(Translations.bindText(new Paragraph(), locale -> getTranslation(locale, "tracking.slot",
@@ -134,11 +136,11 @@ public class TrackingView extends VerticalLayout implements BeforeEnterObserver 
                 order.getCustomer().getFirstName(), !order.getState().isOpen()));
     }
 
-    private String themeFor(OrderState state) {
+    private BadgeVariant variantFor(OrderState state) {
         return switch (state) {
-            case READY, PICKED_UP -> "success";
-            case PROBLEM, CANCELLED -> "error";
-            default -> "contrast";
+            case READY, PICKED_UP -> BadgeVariant.SUCCESS;
+            case PROBLEM, CANCELLED -> BadgeVariant.ERROR;
+            default -> BadgeVariant.CONTRAST;
         };
     }
 

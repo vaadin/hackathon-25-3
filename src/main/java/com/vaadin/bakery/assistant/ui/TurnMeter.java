@@ -1,6 +1,8 @@
 package com.vaadin.bakery.assistant.ui;
 
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.signals.Signal;
@@ -35,8 +37,8 @@ public class TurnMeter extends Div {
                 String.format("%.2f", tokens.get() * CENTS_PER_THOUSAND_TOKENS / 1000)));
 
         // The text never varies, but the locale does, so it binds like the rest.
-        var truncated = Translations.bindText(new Span(), "assistant.meter.truncated");
-        truncated.getElement().getThemeList().add("badge error small");
+        var truncated = Translations.bindText(new Badge(), "assistant.meter.truncated");
+        truncated.addThemeVariants(BadgeVariant.ERROR, BadgeVariant.SMALL);
         truncated.bindVisible(Signal.computed(() -> "max_tokens".equals(lastFinishReason.get())));
 
         add(turnCount, tokenCount, cost, truncated);

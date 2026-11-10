@@ -7,6 +7,8 @@ import com.vaadin.bakery.ordering.KitchenTicket;
 import com.vaadin.bakery.ordering.OrderState;
 import com.vaadin.bakery.people.Role;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -73,7 +75,7 @@ public class KitchenBoardView extends VerticalLayout {
     private final Div columns = new Div();
     private final Div summary = new Div();
     private final MasterDetailLayout layout = new MasterDetailLayout();
-    private final Span staleMarker = new Span();
+    private final Badge staleMarker = new Badge();
     private boolean summaryOpen;
 
     /**
@@ -175,7 +177,7 @@ public class KitchenBoardView extends VerticalLayout {
 
         Translations.bindText(staleMarker, "kitchen.stale");
         staleMarker.addClassName("kitchen-board__stale");
-        staleMarker.getElement().getThemeList().add("badge contrast small");
+        staleMarker.addThemeVariants(BadgeVariant.CONTRAST, BadgeVariant.SMALL);
         staleMarker.setVisible(false);
 
         var reload = Translations.bindText(new Button(new Icon(VaadinIcon.REFRESH),
@@ -323,11 +325,11 @@ public class KitchenBoardView extends VerticalLayout {
         card.add(lines);
 
         if (!ticket.allergenKeys().isEmpty()) {
-            var allergens = new Span(ticket.allergenKeys().stream()
+            var allergens = new Badge(ticket.allergenKeys().stream()
                     .map(key -> getTranslation(locale, key))
                     .reduce((a, b) -> a + ", " + b)
                     .orElse(""));
-            allergens.getElement().getThemeList().add("badge error small");
+            allergens.addThemeVariants(BadgeVariant.ERROR, BadgeVariant.SMALL);
             card.add(allergens);
         }
 

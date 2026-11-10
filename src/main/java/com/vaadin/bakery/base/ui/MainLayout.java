@@ -8,6 +8,8 @@ import com.vaadin.bakery.people.Role;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.theme.aura.Aura;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -177,9 +179,12 @@ public class MainLayout extends AppLayout {
 
     /** The badge reads the same signal the cart page writes, so they agree by construction. */
     private Component cartBadge() {
-        var count = new Span();
-        count.getElement().getThemeList().add("badge primary small");
-        count.bindText(cart.itemCount().map(String::valueOf));
+        // Lumo's `badge primary` has no variant of its own on the component:
+        // FILLED is the nearest, and NUMBER_ONLY is what this badge actually
+        // is, so the count binds as a number rather than as text.
+        var count = new Badge();
+        count.addThemeVariants(BadgeVariant.FILLED, BadgeVariant.NUMBER_ONLY, BadgeVariant.SMALL);
+        count.bindNumber(cart.itemCount());
         count.bindVisible(com.vaadin.flow.signals.Signal.computed(() -> cart.itemCount().get() > 0));
 
         var link = new com.vaadin.flow.component.html.Anchor("cart", "");

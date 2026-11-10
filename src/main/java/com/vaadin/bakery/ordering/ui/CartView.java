@@ -5,6 +5,8 @@ import com.vaadin.bakery.catalogue.ProductRepository;
 import com.vaadin.bakery.ordering.CartLine;
 import com.vaadin.bakery.ordering.CartSignals;
 import com.vaadin.bakery.base.i18n.Translations;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -96,8 +98,8 @@ public class CartView extends VerticalLayout {
         Translations.bind(remove, remove::setAriaLabel, "cart.remove.aria", product.getName());
 
         if (!product.isAvailable()) {
-            var warning = Translations.bindText(new Span(), "cart.line.unavailable", product.getName());
-            warning.getElement().getThemeList().add("badge error small");
+            var warning = Translations.bindText(new Badge(), "cart.line.unavailable", product.getName());
+            warning.addThemeVariants(BadgeVariant.ERROR, BadgeVariant.SMALL);
             row.add(warning);
         }
 

@@ -1,5 +1,6 @@
 package com.vaadin.bakery.catalogue.ui;
 
+import com.vaadin.flow.component.badge.Badge;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,9 +57,7 @@ class ProductCardContentBrowserlessTest extends SpringBrowserlessTest {
                         && text.isBlank(),
                 "and a name");
 
-        var withChips = find(Span.class).all().stream()
-                .filter(span -> span.getElement().getThemeList().contains("badge"))
-                .count();
+        var withChips = find(Badge.class).all().size();
         assertTrue(withChips > 0, "and the allergen chips are badges, found " + withChips);
     }
 

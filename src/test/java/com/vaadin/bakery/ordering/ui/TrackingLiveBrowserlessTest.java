@@ -1,5 +1,7 @@
 package com.vaadin.bakery.ordering.ui;
 
+import com.vaadin.flow.component.badge.Badge;
+import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -48,9 +50,11 @@ class TrackingLiveBrowserlessTest extends SpringBrowserlessTest {
     @Autowired
     private UserRepository users;
 
+    /** The state is a Badge and everything around it is a Span, so both count. */
     private String pageText() {
-        return find(Span.class).all().stream()
-                .map(Span::getText)
+        return Stream.concat(
+                        find(Span.class).all().stream().map(Span::getText),
+                        find(Badge.class).all().stream().map(Badge::getText))
                 .filter(text -> text != null)
                 .reduce("", (all, text) -> all + " " + text);
     }

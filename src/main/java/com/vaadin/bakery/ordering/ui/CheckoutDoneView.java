@@ -5,6 +5,8 @@ import com.vaadin.bakery.ordering.CheckoutState;
 import com.vaadin.bakery.ordering.Order;
 import com.vaadin.bakery.ordering.OrderService;
 import com.vaadin.bakery.ordering.OrderState;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.clipboard.Clipboard;
@@ -132,16 +134,16 @@ public class CheckoutDoneView extends VerticalLayout implements BeforeEnterObser
      */
     private void renderState(Order order) {
         stateBlock.removeAll();
-        var badge = Translations.bindText(new Span(), order.getState().translationKey());
-        badge.getElement().getThemeList().add("badge " + themeFor(order.getState()));
+        var badge = Translations.bindText(new Badge(), order.getState().translationKey());
+        badge.addThemeVariants(variantFor(order.getState()));
         stateBlock.add(badge);
     }
 
-    private String themeFor(OrderState state) {
+    private BadgeVariant variantFor(OrderState state) {
         return switch (state) {
-            case READY, PICKED_UP -> "success";
-            case PROBLEM, CANCELLED -> "error";
-            default -> "contrast";
+            case READY, PICKED_UP -> BadgeVariant.SUCCESS;
+            case PROBLEM, CANCELLED -> BadgeVariant.ERROR;
+            default -> BadgeVariant.CONTRAST;
         };
     }
 

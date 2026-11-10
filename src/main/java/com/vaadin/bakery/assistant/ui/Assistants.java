@@ -3,6 +3,8 @@ package com.vaadin.bakery.assistant.ui;
 import com.vaadin.bakery.assistant.AssistantConfiguration.AssistantStatus;
 import com.vaadin.bakery.base.i18n.Translations;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.badge.Badge;
+import com.vaadin.flow.component.badge.BadgeVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
@@ -23,8 +25,8 @@ final class Assistants {
     }
 
     static Component unavailable(AssistantStatus status) {
-        var badge = Translations.bindText(new Span(), "assistant.off");
-        badge.getElement().getThemeList().add("badge error small");
+        var badge = Translations.bindText(new Badge(), "assistant.off");
+        badge.addThemeVariants(BadgeVariant.ERROR, BadgeVariant.SMALL);
 
         var block = new Div(badge,
                 Translations.bindText(new Paragraph(), status.reason().translationKey()));

@@ -122,10 +122,10 @@
  * either colour scheme. A scrim of its own, the same in light and dark because
  * the thing behind it is a photograph either way, is what makes it legible.
  *
- * The attribute is in the selector for specificity, not for decoration: the
- * variant is painted by `[theme~="badge"][theme~="contrast"]`, two attribute
- * selectors, so a single class loses to it and only the properties Lumo does
- * not set take effect.
+ * The element name is in the selector for specificity, not for decoration:
+ * the contrast variant is painted by an attribute selector on the component,
+ * so a single class ties with it and loses on order. Element plus class plus
+ * attribute wins outright, in either theme.
  */
 /* The catalogue's photographs sit back a little, so the names, prices and the
    Add buttons carry the page. Only the storefront grid: the same card is used
@@ -134,7 +134,7 @@
   opacity: .8;
 }
 
-.product-card__badge[theme~="badge"] {
+vaadin-badge.product-card__badge[theme~="contrast"] {
   position: absolute;
   inset-block-start: var(--vaadin-gap-s, .5rem);
   inset-inline-start: var(--vaadin-gap-s, .5rem);
