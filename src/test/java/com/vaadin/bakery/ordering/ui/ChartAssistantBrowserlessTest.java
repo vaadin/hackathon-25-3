@@ -70,8 +70,14 @@ class ChartAssistantBrowserlessTest extends SpringBrowserlessTest {
         var view = open();
 
         assertTrue(view.ask().isAvailable(), "the controller was built");
-        assertEquals(4, find(Chart.class).all().size(),
-                "the three fixed series panels plus the one a question draws into");
+        // Counted by the class rather than as one total, because the number of
+        // fixed panels changes whenever the dashboard gains one and this test
+        // only runs under live-ai, so it is the last place to find out.
+        var charts = find(Chart.class).all();
+        assertEquals(1, charts.stream().filter(c -> c.getClassNames().contains("dashboard__asked")).count(),
+                "the one a question draws into");
+        assertEquals(4, charts.stream().filter(c -> !c.getClassNames().contains("dashboard__asked")).count(),
+                "revenue, orders by state, the busiest hours and top products");
     }
 
     @Test
